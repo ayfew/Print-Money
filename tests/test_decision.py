@@ -27,6 +27,12 @@ from printmoney.research.i18n import render_note
 NOW = datetime(2026, 8, 26, 8, 0, tzinfo=timezone.utc)
 TODAY = NOW.date()
 
+#: Two consecutive days safely in the past, for the tests that write to a claims
+#: log. Recording a call dated after today is refused outright, and the sequencing
+#: those tests check has nothing to do with which two days they use.
+DAY1 = date(2020, 6, 1)
+DAY2 = date(2020, 6, 2)
+
 
 def _line(symbol="SPY", name="S&P 500", *, pctile=0.5, vol=0.13, day=0.004):
     return MarketLine(
@@ -470,30 +476,30 @@ class TestMorningRun:
     def test_yesterday_is_read_before_today_is_written(self, monkeypatch, tmp_path):
         """Otherwise the diff compares today with itself, forever."""
         mr = self._patch(monkeypatch, tmp_path, [_line("SPY", "S&P 500", pctile=0.05)])
-        mr.run(include_carry=False, today=TODAY)
+        mr.run(include_carry=False, today=DAY1)
 
         mr = self._patch(monkeypatch, tmp_path, [_line("SPY", "S&P 500", pctile=0.95)])
-        m = mr.run(include_carry=False, today=date(2026, 8, 27))
+        m = mr.run(include_carry=False, today=DAY2)
         assert "changed_risk_up" in [n.key for n in m.decision.changed]
 
     def test_a_same_day_rerun_still_diffs_against_yesterday(self, monkeypatch,
                                                             tmp_path):
         """The workflow can be re-fired by hand; the second run must not go blind."""
         mr = self._patch(monkeypatch, tmp_path, [_line("SPY", "S&P 500", pctile=0.05)])
-        mr.run(include_carry=False, today=TODAY)
+        mr.run(include_carry=False, today=DAY1)
 
         hot = [_line("SPY", "S&P 500", pctile=0.95)]
         mr = self._patch(monkeypatch, tmp_path, hot)
-        first = mr.run(include_carry=False, today=date(2026, 8, 27))
-        second = mr.run(include_carry=False, today=date(2026, 8, 27))
+        first = mr.run(include_carry=False, today=DAY2)
+        second = mr.run(include_carry=False, today=DAY2)
         assert [n.key for n in first.decision.changed] == \
                [n.key for n in second.decision.changed]
 
     def test_a_rerun_does_not_record_the_same_call_twice(self, monkeypatch,
                                                          tmp_path):
         mr = self._patch(monkeypatch, tmp_path, [_line("SPY", "S&P 500", pctile=0.95)])
-        assert mr.run(include_carry=False, today=TODAY).recorded == 1
-        assert mr.run(include_carry=False, today=TODAY).recorded == 0
+        assert mr.run(include_carry=False, today=DAY1).recorded == 1
+        assert mr.run(include_carry=False, today=DAY1).recorded == 0
 
     def test_missing_impacts_warn_rather_than_inventing_an_event(self, monkeypatch,
                                                                  tmp_path):
@@ -501,6 +507,60 @@ class TestMorningRun:
         m = mr.run(include_carry=False, today=TODAY)
         assert m.warnings and "pm events" in m.warnings[0]
         assert m.decision.events == []
+
+    def test_a_call_cannot_be_dated_after_today(self, tmp_path):
+        """A fabricated row is cheap to add and impossible to spot afterwards."""
+        from datetime import timedelta
+
+        tomorrow = (datetime.now(timezone.utc).date()
+                    + timedelta(days=1)).isoformat()
+        with pytest.raises(ValueError):
+            sc.record([_line("SPY", "S&P 500", pctile=0.95)], tomorrow,
+                      tmp_path / "claims.jsonl")
+
+    def test_a_clock_running_ahead_costs_the_record_not_the_brief(self,
+                                                                  monkeypatch,
+                                                                  tmp_path):
+        from datetime import timedelta
+
+        mr = self._patch(monkeypatch, tmp_path, [_line("SPY", "S&P 500", pctile=0.95)])
+        ahead = datetime.now(timezone.utc).date() + timedelta(days=2)
+        m = mr.run(include_carry=False, today=ahead)
+        assert m.ok                       # the brief still publishes
+        assert m.recorded == 0            # the record stays clean
+        assert any("not recorded" in w for w in m.warnings)
+
+    def test_the_test_suite_cannot_write_to_the_published_record(self,
+                                                                 monkeypatch,
+                                                                 tmp_path):
+        """Regression: it did, and a real committed snapshot was overwritten.
+
+        Both paths were captured as function defaults, so redirecting the module
+        constant did nothing and every run of this file wrote to ``data/``.
+        """
+        from printmoney.research import morning as mr
+
+        monkeypatch.setattr(mr, "SNAPSHOT", tmp_path / "snapshot.json")
+        monkeypatch.setattr(sc, "CLAIMS", tmp_path / "claims.jsonl")
+        monkeypatch.setattr(mr, "build_brief",
+                            lambda **kw: _brief([_line("SPY", "S&P 500", pctile=0.95)]))
+        monkeypatch.setattr(mr.ev, "load_impacts", lambda: {})
+
+        mr.run(include_carry=False, today=DAY1)
+        assert (tmp_path / "snapshot.json").exists()
+        assert (tmp_path / "claims.jsonl").exists()
+
+    def test_the_snapshot_chain_never_grows_past_one_generation(self, monkeypatch,
+                                                                tmp_path):
+        """Otherwise every morning nests the whole history one level deeper."""
+        from datetime import timedelta
+
+        for i in range(5):
+            mr = self._patch(monkeypatch, tmp_path,
+                             [_line("SPY", "S&P 500", pctile=0.1 + 0.15 * i)])
+            mr.run(include_carry=False, today=DAY1 + timedelta(days=i))
+        snap = json.loads((tmp_path / "snapshot.json").read_text(encoding="utf-8"))
+        assert "previous" not in (snap.get("previous") or {})
 
     def test_nothing_is_persisted_when_the_data_was_too_thin(self, monkeypatch,
                                                              tmp_path):

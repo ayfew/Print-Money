@@ -61,11 +61,21 @@ class Morning:
         return d
 
 
-def load_snapshot(path: Path = SNAPSHOT) -> dict[str, Any] | None:
-    return read_json(path, default=None)
+def load_snapshot(path: Path | None = None) -> dict[str, Any] | None:
+    return read_json(path or SNAPSHOT, default=None)
 
 
-def save_snapshot(data: dict[str, Any], path: Path = SNAPSHOT) -> Path:
+def save_snapshot(data: dict[str, Any], path: Path | None = None) -> Path:
+    """Write yesterday's-state-for-tomorrow.
+
+    ``path`` is resolved on each call rather than captured in the signature. A
+    default bound at import time cannot be redirected, which is not a stylistic
+    point: the test suite pointed :data:`SNAPSHOT` at a temp directory, the
+    default ignored it, and a test run quietly overwrote the real committed
+    snapshot with a two-line fixture. The published claims log lost a row the
+    same way.
+    """
+    path = path or SNAPSHOT
     write_json(path, data)
     return path
 
@@ -114,7 +124,12 @@ def run(
                 warnings=warnings)
 
     if brief.ok and persist:
-        m.recorded = sc.record(brief.lines, today.isoformat())
+        try:
+            m.recorded = sc.record(brief.lines, today.isoformat())
+        except ValueError as exc:
+            # A clock running ahead should cost the reader the scorecard entry,
+            # never the brief - and never a fabricated row in a published record.
+            warnings.append(f"not recorded: {exc}")
         snap = snapshot(brief, decision)
         # Carry one generation back, so a same-day re-run still has something to
         # compare against after it overwrites today.

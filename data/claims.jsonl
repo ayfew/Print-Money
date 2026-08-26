@@ -13,4 +13,3 @@
 {"day": "2026-08-26", "symbol": "XLK", "call": "elevated", "called_percentile": 0.8438, "recorded_at": "2026-08-26T05:13:54.060223+00:00"}
 {"day": "2026-08-26", "symbol": "XLP", "call": "elevated", "called_percentile": 0.8646, "recorded_at": "2026-08-26T05:13:54.060224+00:00"}
 {"day": "2026-08-26", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8542, "recorded_at": "2026-08-26T05:13:54.060225+00:00"}
-{"day": "2026-08-27", "symbol": "SPY", "call": "extreme", "called_percentile": 0.95, "recorded_at": "2026-08-26T05:19:45.174854+00:00"}

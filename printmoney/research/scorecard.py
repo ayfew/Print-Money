@@ -245,6 +245,16 @@ def record(brief_lines: Iterable[Any], day: str, path: Path | None = None) -> in
     bound at import, so redirecting the constant actually redirects the writes -
     a default captured at definition time silently ignores every override.
     """
+    # A call cannot be made about a day that has not happened. The guard exists
+    # because a fixture dated one day ahead did land in the published log once,
+    # and a track record with a fabricated row in it is worth nothing at all -
+    # the fabrication is cheap to add and impossible to spot later.
+    today = datetime.now(timezone.utc).date().isoformat()
+    if day > today:
+        raise ValueError(
+            f"refusing to record calls dated {day}, which is after today ({today})"
+        )
+
     path = path or CLAIMS
     existing = _load(path)
     if any(c.get("day") == day for c in existing):

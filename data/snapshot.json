@@ -1,18 +1,33 @@
 {
   "day": "2026-08-26",
   "risk": {
-    "SPY": "normal"
+    "BTC-USD": "elevated",
+    "DIA": "normal",
+    "EEM": "normal",
+    "EFA": "normal",
+    "ETH-USD": "elevated",
+    "EWJ": "elevated",
+    "FXI": "calm",
+    "GLD": "normal",
+    "HYG": "calm",
+    "IWM": "calm",
+    "QQQ": "elevated",
+    "SLV": "normal",
+    "SPY": "normal",
+    "THD": "calm",
+    "TLT": "normal",
+    "USO": "elevated",
+    "UUP": "normal",
+    "VNQ": "calm",
+    "XLE": "elevated",
+    "XLF": "calm",
+    "XLK": "elevated",
+    "XLP": "elevated",
+    "XLU": "normal",
+    "XLV": "elevated"
   },
   "event_days": [],
-  "carry_net": null,
-  "quiet": true,
-  "previous": {
-    "day": "2026-08-27",
-    "risk": {
-      "SPY": "extreme"
-    },
-    "event_days": [],
-    "carry_net": null,
-    "quiet": false
-  }
+  "carry_net": 0.04357,
+  "quiet": false,
+  "previous": null
 }
