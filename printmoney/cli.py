@@ -15,6 +15,7 @@
     pm why <node>  what moves a market, and what moves that
     pm indicators  every TA-Lib indicator against the fee wall, corrected
     pm venues      funding across 100+ exchanges, and the gaps between them
+    pm contamination  does an LLM already know what happened? measure it
     pm score       how often the brief's own risk calls turned out to be right
     pm validate    end-to-end self-test against a market with known truth
     pm replay      re-solve recorded snapshots and settle them for real
@@ -1061,6 +1062,70 @@ def cmd_venues(args: argparse.Namespace) -> int:
 
 
 # --------------------------------------------------------------------------- #
+def cmd_contamination(args: argparse.Namespace) -> int:
+    """Ask a model what happened, and find out whether it already knows."""
+    import json as _json
+
+    from rich.console import Console
+
+    from .research import contamination as C
+    from .research.data import UNIVERSE, fetch_many
+
+    setup_console()
+    console = Console()
+
+    if args.show:
+        blob = C.QUIZ if args.file is None else Path(args.file)
+        if not blob.exists():
+            console.print("[red]no recorded result[/red] "
+                          "[dim]run with --quiz, answer it, then --grade[/dim]")
+            return 1
+        payload = _json.loads(blob.read_text(encoding="utf-8"))
+        if args.json:
+            _print_json(payload)
+            return 0
+        b, a = payload["before_cutoff"], payload["after_cutoff"]
+        console.print(f"\n[bold]{payload['model']}[/bold]  "
+                      f"stated cutoff {payload['stated_cutoff']}")
+        console.print(f"  before cutoff  [red]{b['rate']:.1%}[/red] "
+                      f"of {b['n']}  (Wilson floor {b['wilson_floor']:.1%})")
+        console.print(f"  after cutoff   [green]{a['rate']:.1%}[/green] "
+                      f"of {a['n']}  (Wilson floor {a['wilson_floor']:.1%})")
+        console.print(f"\n[dim]{payload['method']}[/dim]")
+        console.print(f"[bold yellow]{payload['verdict']}[/bold yellow]")
+        return 0
+
+    series = fetch_many(UNIVERSE, rng=args.range, cache_hours=args.cache_hours)
+    pool = list(series.values())
+    if args.after:
+        pool = [type(s)(symbol=s.symbol, name=s.name,
+                        bars=[b for b in s.bars
+                              if b.date.strftime("%Y-%m-%d") >= args.after])
+                for s in pool]
+        pool = [s for s in pool
+                if len(s.bars) > C.CONTEXT_DAYS + C.HORIZON + 40]
+    questions = C.build(pool, n=args.n, seed=args.seed)
+    if not questions:
+        console.print("[red]not enough history to build a quiz[/red]")
+        return 1
+
+    if args.grade:
+        answers = {int(k): v for k, v in
+                   _json.loads(Path(args.grade).read_text(encoding="utf-8")).items()}
+        report = C.grade(questions, answers, cutoff=args.cutoff, model=args.model)
+        console.print(C.summarise(report))
+        console.print(f"\n[dim]saved -> {C.save(report)}[/dim]")
+        return 0
+
+    console.print(f"[dim]{C.spread(questions)}[/dim]\n")
+    print(C.sheet(questions))
+    console.print("\n[dim]Answer these with no tools and no lookups, save them as "
+                  '{"1": "up", "2": "down", ...} and re-run with '
+                  "--grade answers.json[/dim]")
+    return 0
+
+
+# --------------------------------------------------------------------------- #
 def cmd_score(args: argparse.Namespace) -> int:
     """How often the brief's own risk calls turned out to be right."""
     from rich.console import Console
@@ -1417,6 +1482,23 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--top", type=int, default=15, help="how many spreads to show")
     common(sp)
     sp.set_defaults(func=cmd_venues)
+
+    sp = sub.add_parser("contamination",
+                        help="does an LLM already know what happened?")
+    sp.add_argument("--n", type=int, default=40, help="how many questions")
+    sp.add_argument("--seed", type=int, default=20260826)
+    sp.add_argument("--after", default=None,
+                    help="only draw dates on or after this (YYYY-MM-DD)")
+    sp.add_argument("--cutoff", default="2026-05-01",
+                    help="the model's stated training cutoff")
+    sp.add_argument("--model", default="", help="which model sat the test")
+    sp.add_argument("--grade", default=None, help="a JSON file of answers")
+    sp.add_argument("--show", action="store_true", help="print the saved result")
+    sp.add_argument("--file", default=None, help="a saved result to print")
+    sp.add_argument("--range", default="10y")
+    sp.add_argument("--cache-hours", type=float, default=24.0)
+    common(sp)
+    sp.set_defaults(func=cmd_contamination)
 
     sp = sub.add_parser("score", help="how often the brief's own calls were right")
     sp.add_argument("--save", action="store_true", help="commit the summary")

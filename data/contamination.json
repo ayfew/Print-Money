@@ -1,0 +1,892 @@
+{
+  "model": "claude-opus-5",
+  "stated_cutoff": "2026-05-01",
+  "method": "Direction of the next 21 trading days, two choices, no tools and no lookups. Each quiz is balanced 50/50 by construction, so always answering 'up' scores exactly 50%.",
+  "before_cutoff": {
+    "n": 47,
+    "hits": 44,
+    "rate": 0.9362,
+    "wilson_floor": 0.8254
+  },
+  "after_cutoff": {
+    "n": 40,
+    "hits": 17,
+    "rate": 0.425,
+    "wilson_floor": 0.2826
+  },
+  "verdict": "contaminated before cutoff, no skill after",
+  "questions_before": [
+    {
+      "qid": 1,
+      "symbol": "XLF",
+      "day": "2026-02-27",
+      "run_up": -0.020194354359690414,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0549,
+      "correct": false
+    },
+    {
+      "qid": 2,
+      "symbol": "SLV",
+      "day": "2023-09-13",
+      "run_up": -0.01459507859147513,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0463,
+      "correct": true
+    },
+    {
+      "qid": 3,
+      "symbol": "THD",
+      "day": "2020-10-20",
+      "run_up": -0.04435176962300602,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.1806,
+      "correct": true
+    },
+    {
+      "qid": 4,
+      "symbol": "XLE",
+      "day": "2021-04-22",
+      "run_up": -0.03443332370706742,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.1072,
+      "correct": true
+    },
+    {
+      "qid": 5,
+      "symbol": "EFA",
+      "day": "2025-05-28",
+      "run_up": -0.002260210293173248,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0294,
+      "correct": true
+    },
+    {
+      "qid": 6,
+      "symbol": "IWM",
+      "day": "2018-12-31",
+      "run_up": 0.043078695016488755,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.1132,
+      "correct": true
+    },
+    {
+      "qid": 8,
+      "symbol": "SLV",
+      "day": "2026-03-19",
+      "run_up": -0.1412134228257549,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0985,
+      "correct": true
+    },
+    {
+      "qid": 9,
+      "symbol": "BTC-USD",
+      "day": "2019-03-02",
+      "run_up": -0.0047083904171175694,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0444,
+      "correct": true
+    },
+    {
+      "qid": 10,
+      "symbol": "XLE",
+      "day": "2016-11-16",
+      "run_up": 0.012348944553884467,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0784,
+      "correct": true
+    },
+    {
+      "qid": 11,
+      "symbol": "TLT",
+      "day": "2016-10-27",
+      "run_up": -0.01780456403850017,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0673,
+      "correct": true
+    },
+    {
+      "qid": 12,
+      "symbol": "SLV",
+      "day": "2025-09-08",
+      "run_up": 0.03647415708521273,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.1568,
+      "correct": true
+    },
+    {
+      "qid": 13,
+      "symbol": "BTC-USD",
+      "day": "2019-09-14",
+      "run_up": 0.0022326342949181566,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.213,
+      "correct": true
+    },
+    {
+      "qid": 14,
+      "symbol": "XLF",
+      "day": "2022-07-22",
+      "run_up": 0.030522419270550216,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.044,
+      "correct": true
+    },
+    {
+      "qid": 15,
+      "symbol": "EFA",
+      "day": "2022-03-22",
+      "run_up": 0.05804963734437085,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0319,
+      "correct": true
+    },
+    {
+      "qid": 16,
+      "symbol": "XLV",
+      "day": "2024-10-14",
+      "run_up": 0.024971931844527173,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0486,
+      "correct": true
+    },
+    {
+      "qid": 17,
+      "symbol": "UUP",
+      "day": "2021-11-09",
+      "run_up": -0.0011890892120319796,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0234,
+      "correct": true
+    },
+    {
+      "qid": 18,
+      "symbol": "XLE",
+      "day": "2020-06-11",
+      "run_up": -0.0694776854767869,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0782,
+      "correct": false
+    },
+    {
+      "qid": 19,
+      "symbol": "XLP",
+      "day": "2023-11-21",
+      "run_up": -0.0034337629595436736,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0225,
+      "correct": true
+    },
+    {
+      "qid": 20,
+      "symbol": "USO",
+      "day": "2016-10-07",
+      "run_up": 0.03659648740731125,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.1033,
+      "correct": true
+    },
+    {
+      "qid": 21,
+      "symbol": "XLE",
+      "day": "2022-01-20",
+      "run_up": 0.005682895395116017,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0681,
+      "correct": true
+    },
+    {
+      "qid": 22,
+      "symbol": "SLV",
+      "day": "2017-04-20",
+      "run_up": -0.02290948679865612,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0657,
+      "correct": true
+    },
+    {
+      "qid": 23,
+      "symbol": "XLP",
+      "day": "2023-09-13",
+      "run_up": 0.006718984784583215,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.073,
+      "correct": true
+    },
+    {
+      "qid": 24,
+      "symbol": "XLU",
+      "day": "2019-04-11",
+      "run_up": 0.0066019402981361,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.011,
+      "correct": true
+    },
+    {
+      "qid": 25,
+      "symbol": "IWM",
+      "day": "2023-11-21",
+      "run_up": -0.008068810020464556,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.1318,
+      "correct": true
+    },
+    {
+      "qid": 26,
+      "symbol": "XLE",
+      "day": "2026-02-06",
+      "run_up": 0.04309511322512383,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0441,
+      "correct": true
+    },
+    {
+      "qid": 27,
+      "symbol": "EEM",
+      "day": "2020-08-11",
+      "run_up": -0.007018355243392116,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.008,
+      "correct": true
+    },
+    {
+      "qid": 28,
+      "symbol": "HYG",
+      "day": "2020-04-22",
+      "run_up": -0.02055486350166169,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0291,
+      "correct": true
+    },
+    {
+      "qid": 29,
+      "symbol": "SPY",
+      "day": "2024-10-14",
+      "run_up": 0.029095050655630894,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0215,
+      "correct": true
+    },
+    {
+      "qid": 30,
+      "symbol": "DIA",
+      "day": "2021-07-22",
+      "run_up": -0.004211240986616738,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0101,
+      "correct": true
+    },
+    {
+      "qid": 31,
+      "symbol": "THD",
+      "day": "2025-02-05",
+      "run_up": -0.03189140533249568,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0555,
+      "correct": true
+    },
+    {
+      "qid": 32,
+      "symbol": "SLV",
+      "day": "2023-07-14",
+      "run_up": 0.07932012658022658,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0936,
+      "correct": true
+    },
+    {
+      "qid": 33,
+      "symbol": "FXI",
+      "day": "2025-03-18",
+      "run_up": 0.057708271011427836,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.1577,
+      "correct": true
+    },
+    {
+      "qid": 34,
+      "symbol": "ETH-USD",
+      "day": "2023-09-29",
+      "run_up": 0.055090784798033754,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0379,
+      "correct": false
+    },
+    {
+      "qid": 35,
+      "symbol": "XLE",
+      "day": "2024-04-04",
+      "run_up": 0.03897200806064571,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0461,
+      "correct": true
+    },
+    {
+      "qid": 36,
+      "symbol": "EEM",
+      "day": "2023-02-01",
+      "run_up": -0.005463344132716208,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0556,
+      "correct": true
+    },
+    {
+      "qid": 37,
+      "symbol": "DIA",
+      "day": "2026-04-29",
+      "run_up": -0.012308986837240354,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0458,
+      "correct": true
+    },
+    {
+      "qid": 38,
+      "symbol": "XLU",
+      "day": "2023-07-14",
+      "run_up": 0.022327635471877105,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0417,
+      "correct": true
+    },
+    {
+      "qid": 39,
+      "symbol": "EEM",
+      "day": "2025-07-09",
+      "run_up": -0.0008276139794012316,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0246,
+      "correct": true
+    },
+    {
+      "qid": 40,
+      "symbol": "XLV",
+      "day": "2022-04-21",
+      "run_up": -0.0041633364050099875,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0645,
+      "correct": true
+    },
+    {
+      "qid": 41,
+      "symbol": "XLE",
+      "day": "2023-10-23",
+      "run_up": -0.015411988274982358,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0471,
+      "correct": true
+    },
+    {
+      "qid": 42,
+      "symbol": "SPY",
+      "day": "2020-08-20",
+      "run_up": 0.004304649639455871,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0296,
+      "correct": true
+    },
+    {
+      "qid": 43,
+      "symbol": "XLF",
+      "day": "2021-11-30",
+      "run_up": -0.04068720769586198,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0355,
+      "correct": true
+    },
+    {
+      "qid": 44,
+      "symbol": "USO",
+      "day": "2020-12-18",
+      "run_up": 0.048215372023447944,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0681,
+      "correct": true
+    },
+    {
+      "qid": 45,
+      "symbol": "SLV",
+      "day": "2017-09-08",
+      "run_up": 0.02222227313576708,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0588,
+      "correct": true
+    },
+    {
+      "qid": 46,
+      "symbol": "USO",
+      "day": "2018-11-28",
+      "run_up": -0.054126050184083674,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0938,
+      "correct": true
+    },
+    {
+      "qid": 47,
+      "symbol": "XLK",
+      "day": "2024-05-14",
+      "run_up": 0.019974418553040163,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0887,
+      "correct": true
+    },
+    {
+      "qid": 48,
+      "symbol": "ETH-USD",
+      "day": "2023-08-25",
+      "run_up": -0.018943498435189277,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0068,
+      "correct": true
+    }
+  ],
+  "questions_after": [
+    {
+      "qid": 1,
+      "symbol": "TLT",
+      "day": "2026-07-09",
+      "run_up": -0.012044010983577658,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0165,
+      "correct": false
+    },
+    {
+      "qid": 2,
+      "symbol": "FXI",
+      "day": "2026-05-18",
+      "run_up": -0.034961366074992006,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0624,
+      "correct": false
+    },
+    {
+      "qid": 3,
+      "symbol": "ETH-USD",
+      "day": "2026-07-26",
+      "run_up": 0.012978467233682567,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0407,
+      "correct": true
+    },
+    {
+      "qid": 4,
+      "symbol": "BTC-USD",
+      "day": "2026-07-26",
+      "run_up": -0.01751480384030557,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.0386,
+      "correct": true
+    },
+    {
+      "qid": 5,
+      "symbol": "FXI",
+      "day": "2026-07-09",
+      "run_up": 0.04504224476026497,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0826,
+      "correct": true
+    },
+    {
+      "qid": 6,
+      "symbol": "EEM",
+      "day": "2026-07-09",
+      "run_up": 0.00451256629384611,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0171,
+      "correct": false
+    },
+    {
+      "qid": 7,
+      "symbol": "THD",
+      "day": "2026-05-18",
+      "run_up": 0.011975144701361184,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0214,
+      "correct": true
+    },
+    {
+      "qid": 8,
+      "symbol": "BTC-USD",
+      "day": "2026-05-31",
+      "run_up": -0.02962116876959031,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.1406,
+      "correct": false
+    },
+    {
+      "qid": 9,
+      "symbol": "XLE",
+      "day": "2026-05-28",
+      "run_up": -0.04765880061298,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0524,
+      "correct": false
+    },
+    {
+      "qid": 10,
+      "symbol": "ETH-USD",
+      "day": "2026-05-17",
+      "run_up": -0.0646247587727301,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.2074,
+      "correct": false
+    },
+    {
+      "qid": 11,
+      "symbol": "ETH-USD",
+      "day": "2026-08-02",
+      "run_up": -0.019493498882072968,
+      "answer": "down",
+      "truth": "up",
+      "forward": 0.3088,
+      "correct": false
+    },
+    {
+      "qid": 12,
+      "symbol": "FXI",
+      "day": "2026-06-29",
+      "run_up": -0.05145082874668194,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.1391,
+      "correct": true
+    },
+    {
+      "qid": 13,
+      "symbol": "BTC-USD",
+      "day": "2026-08-02",
+      "run_up": -0.006096054025580888,
+      "answer": "down",
+      "truth": "up",
+      "forward": 0.2248,
+      "correct": false
+    },
+    {
+      "qid": 14,
+      "symbol": "SLV",
+      "day": "2026-06-29",
+      "run_up": -0.1057545333283515,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0173,
+      "correct": false
+    },
+    {
+      "qid": 15,
+      "symbol": "XLF",
+      "day": "2026-06-29",
+      "run_up": 0.00037244799775626447,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0551,
+      "correct": true
+    },
+    {
+      "qid": 16,
+      "symbol": "IWM",
+      "day": "2026-06-08",
+      "run_up": -0.016852527916236926,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0487,
+      "correct": true
+    },
+    {
+      "qid": 17,
+      "symbol": "BTC-USD",
+      "day": "2026-06-07",
+      "run_up": -0.051933235949865986,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0586,
+      "correct": false
+    },
+    {
+      "qid": 18,
+      "symbol": "FXI",
+      "day": "2026-06-08",
+      "run_up": -0.018675652875702498,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0294,
+      "correct": false
+    },
+    {
+      "qid": 19,
+      "symbol": "FXI",
+      "day": "2026-05-28",
+      "run_up": -0.03449227773984043,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0869,
+      "correct": false
+    },
+    {
+      "qid": 20,
+      "symbol": "TLT",
+      "day": "2026-05-18",
+      "run_up": -0.02337547051938127,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0372,
+      "correct": true
+    },
+    {
+      "qid": 21,
+      "symbol": "USO",
+      "day": "2026-07-09",
+      "run_up": 0.05558250876102311,
+      "answer": "down",
+      "truth": "up",
+      "forward": 0.0823,
+      "correct": false
+    },
+    {
+      "qid": 22,
+      "symbol": "XLE",
+      "day": "2026-07-09",
+      "run_up": 0.03806094052763598,
+      "answer": "down",
+      "truth": "up",
+      "forward": 0.0489,
+      "correct": false
+    },
+    {
+      "qid": 23,
+      "symbol": "HYG",
+      "day": "2026-06-29",
+      "run_up": 0.0008756008073487198,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.005,
+      "correct": false
+    },
+    {
+      "qid": 24,
+      "symbol": "EWJ",
+      "day": "2026-06-29",
+      "run_up": -0.03877490037019515,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0414,
+      "correct": false
+    },
+    {
+      "qid": 25,
+      "symbol": "THD",
+      "day": "2026-07-20",
+      "run_up": 0.009539538152140148,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0059,
+      "correct": true
+    },
+    {
+      "qid": 26,
+      "symbol": "VNQ",
+      "day": "2026-06-29",
+      "run_up": 0.025107110710497427,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0256,
+      "correct": true
+    },
+    {
+      "qid": 27,
+      "symbol": "BTC-USD",
+      "day": "2026-05-10",
+      "run_up": 0.014974905545242612,
+      "answer": "down",
+      "truth": "down",
+      "forward": -0.1042,
+      "correct": true
+    },
+    {
+      "qid": 28,
+      "symbol": "UUP",
+      "day": "2026-07-09",
+      "run_up": -0.004562975142540671,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0102,
+      "correct": false
+    },
+    {
+      "qid": 29,
+      "symbol": "EEM",
+      "day": "2026-06-08",
+      "run_up": -0.0617866281667524,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0209,
+      "correct": true
+    },
+    {
+      "qid": 30,
+      "symbol": "EFA",
+      "day": "2026-06-17",
+      "run_up": 0.03792716301145904,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0117,
+      "correct": false
+    },
+    {
+      "qid": 31,
+      "symbol": "HYG",
+      "day": "2026-06-08",
+      "run_up": -0.0037574132944324656,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0073,
+      "correct": true
+    },
+    {
+      "qid": 32,
+      "symbol": "XLV",
+      "day": "2026-07-09",
+      "run_up": 0.016484925369751213,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0216,
+      "correct": true
+    },
+    {
+      "qid": 33,
+      "symbol": "SPY",
+      "day": "2026-07-09",
+      "run_up": 0.00797845436751321,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0287,
+      "correct": true
+    },
+    {
+      "qid": 34,
+      "symbol": "XLK",
+      "day": "2026-05-28",
+      "run_up": 0.054815427838762254,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0065,
+      "correct": false
+    },
+    {
+      "qid": 35,
+      "symbol": "VNQ",
+      "day": "2026-06-17",
+      "run_up": -0.021191682176692872,
+      "answer": "down",
+      "truth": "up",
+      "forward": 0.0496,
+      "correct": false
+    },
+    {
+      "qid": 36,
+      "symbol": "GLD",
+      "day": "2026-07-09",
+      "run_up": 0.02045328237298616,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0537,
+      "correct": true
+    },
+    {
+      "qid": 37,
+      "symbol": "SPY",
+      "day": "2026-06-29",
+      "run_up": -0.004554083990552349,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.0156,
+      "correct": false
+    },
+    {
+      "qid": 38,
+      "symbol": "VNQ",
+      "day": "2026-06-08",
+      "run_up": 0.01466680681875343,
+      "answer": "down",
+      "truth": "up",
+      "forward": 0.0259,
+      "correct": false
+    },
+    {
+      "qid": 39,
+      "symbol": "XLP",
+      "day": "2026-06-17",
+      "run_up": -0.02117210687292348,
+      "answer": "up",
+      "truth": "up",
+      "forward": 0.0211,
+      "correct": true
+    },
+    {
+      "qid": 40,
+      "symbol": "BTC-USD",
+      "day": "2026-05-17",
+      "run_up": -0.037875690980756604,
+      "answer": "up",
+      "truth": "down",
+      "forward": -0.1833,
+      "correct": false
+    }
+  ]
+}
