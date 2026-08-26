@@ -87,6 +87,33 @@ STRINGS: dict[str, dict[str, str]] = {
         "when_today": "วันนี้",
         "when_tomorrow": "พรุ่งนี้",
         "when_days": "อีก {days} วัน",
+        "hdr_context": "บริบทมหภาค",
+        "hdr_why": "ทำไมถึงขยับ",
+        "feed_effr": "ดอกเบี้ยนโยบายสหรัฐ (EFFR)",
+        "feed_ust2y": "พันธบัตร 2 ปี",
+        "feed_ust10y": "พันธบัตร 10 ปี",
+        "feed_real10y": "ผลตอบแทนแท้จริง 10 ปี (TIPS)",
+        "feed_curve": "ส่วนต่าง 2 ปี–10 ปี",
+        "feed_vix": "VIX (ดัชนีความกลัว)",
+        "feed_skew": "SKEW (ความเสี่ยงหางยาว)",
+        "feed_vvix": "VVIX",
+        "curve_inverted": "กลับหัว",
+        "curve_normal": "ปกติ",
+        "strength_strong": "แรง",
+        "strength_moderate": "ปานกลาง",
+        "strength_weak": "อ่อน",
+        "context_reading": "{label}: {value} ({change} จากเมื่อวาน, สูงกว่า {pct} ของ 2 ปีที่ผ่านมา)",
+        "context_curve": "{label}: {value} — {state} ({change} จากเมื่อวาน)",
+        "dir_with": "ไปทางเดียวกัน",
+        "dir_against": "สวนทางกัน",
+        "why_move": (
+            "{name} {move} วันนี้ — {driver} ขยับ {change} "
+            "ทั้งสองเคย{direction}ที่ r = {r} จาก {n} วัน (ความสัมพันธ์{strength})"
+        ),
+        "why_note": (
+            "นี่คือการอธิบายสิ่งที่เกิดไปแล้ว ไม่ใช่การทำนาย — ค่า r วัดจากวันเดียวกัน "
+            "ไม่ได้วัดว่าพรุ่งนี้จะเป็นยังไง"
+        ),
         "hdr_focus": "วันนี้โฟกัสอะไร",
         "hdr_watch": "จับตา",
         "hdr_avoid": "ระวัง",
@@ -207,6 +234,33 @@ STRINGS: dict[str, dict[str, str]] = {
         "when_today": "today",
         "when_tomorrow": "tomorrow",
         "when_days": "in {days} days",
+        "hdr_context": "MACRO BACKDROP",
+        "hdr_why": "WHY THINGS MOVED",
+        "feed_effr": "Fed funds rate (EFFR)",
+        "feed_ust2y": "2-year Treasury",
+        "feed_ust10y": "10-year Treasury",
+        "feed_real10y": "10-year real yield (TIPS)",
+        "feed_curve": "2s10s spread",
+        "feed_vix": "VIX",
+        "feed_skew": "SKEW",
+        "feed_vvix": "VVIX",
+        "curve_inverted": "inverted",
+        "curve_normal": "normal",
+        "strength_strong": "strong",
+        "strength_moderate": "moderate",
+        "strength_weak": "weak",
+        "context_reading": "{label}: {value} ({change} on the day, above {pct} of the last two years)",
+        "context_curve": "{label}: {value} - {state} ({change} on the day)",
+        "dir_with": "with",
+        "dir_against": "against",
+        "why_move": (
+            "{name} {move} today. {driver} moved {change}; the two have moved "
+            "{direction} each other at r = {r} across {n} days ({strength})."
+        ),
+        "why_note": (
+            "This explains what already happened; it is not a forecast. The "
+            "correlation is same-day and says nothing about tomorrow."
+        ),
         "hdr_focus": "WHAT TODAY IS ABOUT",
         "hdr_watch": "WATCH",
         "hdr_avoid": "CAREFUL",
@@ -384,4 +438,13 @@ def render_note(note: Any, lang: str = DEFAULT_LANG,
             params["when"] = when_phrase(int(params["days"]), lang)
         except (TypeError, ValueError):
             params["when"] = ""
+
+    # A handful of params are themselves keys rather than values: a feed name, a
+    # curve state, a strength word. They are stored unlocalised so the analysis
+    # side never has to know any Thai, and resolved here.
+    for param, prefix in (("label", "feed_"), ("driver", "feed_"),
+                          ("state", "curve_"), ("strength", "strength_"),
+                          ("direction", "dir_")):
+        if params.get(param):
+            params[param] = t(prefix + params[param], lang)
     return t(getattr(note, "key", ""), lang, **params)

@@ -133,8 +133,12 @@ def _decision_lines(decision: Any, brief: Brief, lang: str) -> list[str]:
         parts.append(render_note(decision.focus, lang, names))
         parts.append("")
 
+    # Reading order: what today is, what is new since yesterday, why the tape
+    # did what it did, the backdrop that makes the rest legible, then the lists.
     for header, notes in (
         ("hdr_changed", decision.changed),
+        ("hdr_why", decision.why),
+        ("hdr_context", getattr(decision, "context", [])),
         ("hdr_watch", decision.watch),
         ("hdr_avoid", decision.avoid),
         ("hdr_ignore", decision.ignore),
@@ -143,6 +147,10 @@ def _decision_lines(decision: Any, brief: Brief, lang: str) -> list[str]:
             continue
         parts.append(t(header, lang) + ":")
         parts.extend(f"  - {render_note(n, lang, names)}" for n in notes)
+        if header == "hdr_why":
+            # Said once, next to the attributions, because a same-day
+            # correlation reads like a forecast if nobody says it is not one.
+            parts.append("  " + t("why_note", lang))
         parts.append("")
 
     if not decision.changed and decision.focus is not None:
@@ -432,6 +440,8 @@ def write_html(
             )
         for header, notes_, css in (
             ("hdr_changed", decision.changed, "chg"),
+            ("hdr_why", decision.why, "why"),
+            ("hdr_context", getattr(decision, "context", []), "ctx"),
             ("hdr_watch", decision.watch, "act"),
             ("hdr_avoid", decision.avoid, "warn"),
             ("hdr_ignore", decision.ignore, "skip"),
@@ -440,6 +450,8 @@ def write_html(
                 blocks.append(
                     f'<h2>{esc(t(header, lang))}</h2>'
                     f'<ul>{note_list(notes_, css)}</ul>'
+                    + (f'<p class="muted">{esc(t("why_note", lang))}</p>'
+                       if header == "hdr_why" else "")
                 )
         if not decision.changed:
             blocks.append(f'<p class="muted">{esc(t("no_changes", lang))}</p>')
@@ -500,6 +512,8 @@ li.act {{ color:var(--up); font-weight:600; }}
 li.warn {{ color:var(--down); font-weight:600; }}
 li.chg {{ color:var(--ink); font-weight:600; }}
 li.skip {{ opacity:.72; }}
+li.why {{ color:var(--ink); }}
+li.ctx {{ color:var(--dim); font-variant-numeric:tabular-nums; }}
 .src {{ display:inline-block; margin-left:7px; padding:1px 6px; border-radius:999px;
   border:1px solid var(--line); font-size:10px; letter-spacing:.06em;
   text-transform:uppercase; color:var(--dim); font-weight:500; vertical-align:1px; }}

@@ -10,6 +10,7 @@
     pm study       does a trading idea survive its own costs? ten years of evidence
     pm daily       the morning brief: what today is about, and what to ignore
     pm events      scheduled releases, and the evidence each one earned its place with
+    pm macro       official daily readings, and which markets each one moves with
     pm score       how often the brief's own risk calls turned out to be right
     pm validate    end-to-end self-test against a market with known truth
     pm replay      re-solve recorded snapshots and settle them for real
@@ -617,6 +618,8 @@ def cmd_daily(args: argparse.Namespace) -> int:
 
     for header, notes, style in (
         ("hdr_changed", decision.changed, "bold"),
+        ("hdr_why", decision.why, ""),
+        ("hdr_context", decision.context, "dim"),
         ("hdr_watch", decision.watch, "green"),
         ("hdr_avoid", decision.avoid, "red"),
         ("hdr_ignore", decision.ignore, "dim"),
@@ -626,27 +629,27 @@ def cmd_daily(args: argparse.Namespace) -> int:
         console.print(f"\n[bold cyan]{t(header, lang)}[/bold cyan]")
         for n in notes:
             console.print(Text(f"  {render_note(n, lang, names)}", style=style))
+        if header == "hdr_why":
+            console.print(f"[dim]  {t('why_note', lang)}[/dim]")
     if not decision.changed:
         console.print(f"\n[dim]{t('no_changes', lang)}[/dim]")
 
     if brief.lines and not args.quiet:
-        t = Table(title="\nwhere things stand", title_justify="left", header_style="bold cyan")
-        t.add_column("market", overflow="fold")
-        t.add_column("last", justify="right")
-        t.add_column("day", justify="right")
-        t.add_column("week", justify="right")
-        t.add_column("month", justify="right")
-        t.add_column("year", justify="right")
-        t.add_column("vol", justify="right")
-        t.add_column("z", justify="right")
+        # Named `table`, not `t`: `t` is the translator, and rebinding it here
+        # made every line below this block raise the moment the table rendered.
+        table = Table(title="\nwhere things stand", title_justify="left",
+                      header_style="bold cyan")
+        table.add_column("market", overflow="fold")
+        for head in ("last", "day", "week", "month", "year", "vol", "z"):
+            table.add_column(head, justify="right")
         for l in sorted(brief.lines, key=lambda x: -abs(x.day)):
             col = lambda v: Text(f"{v:+.2%}", style="green" if v > 0 else "red" if v < 0 else "dim")
-            t.add_row(
+            table.add_row(
                 l.name, f"{l.last:,.2f}", col(l.day), col(l.week), col(l.month), col(l.year),
                 f"{l.vol_annual:.0%}",
                 Text(f"{l.zscore:+.1f}", style="yellow" if abs(l.zscore) >= 2 else "dim"),
             )
-        console.print(t)
+        console.print(table)
 
     if m.score and m.score.get("n"):
         console.print(
@@ -725,6 +728,94 @@ def cmd_events(args: argparse.Namespace) -> int:
         console.print("[dim]  nothing scheduled[/dim]")
     for e in upcoming:
         console.print(f"  {e.day}  {e.name}  [dim]{e.note} - {e.source}[/dim]")
+    return 0
+
+
+# --------------------------------------------------------------------------- #
+def cmd_macro(args: argparse.Namespace) -> int:
+    """Official daily readings, and which markets each one actually moves with."""
+    from rich.console import Console
+    from rich.table import Table
+
+    from .research import feeds as F
+    from .research import macro as M
+    from .research.data import UNIVERSE, fetch_many
+    from .research.i18n import MARKET_TH
+
+    setup_console()
+    console = Console()
+
+    fs = F.load(cache_hours=args.cache_hours)
+    spread = F.curve_spread(fs)
+    if spread is not None:
+        fs["curve"] = spread
+    if not fs:
+        console.print("[red]no feeds could be read[/red]")
+        return 1
+
+    table = Table(title="today's official readings", title_justify="left",
+                  header_style="bold cyan")
+    for col, just in (("reading", "left"), ("value", "right"), ("1d", "right"),
+                      ("5d", "right"), ("2y pctile", "right"), ("obs", "right")):
+        table.add_column(col, justify=just)
+    for key in ("effr", "ust2y", "ust10y", "curve", "real10y", "vix", "skew", "vvix"):
+        f = fs.get(key)
+        if f is None:
+            continue
+        d = f.to_dict()
+        pct = d["percentile"]
+        table.add_row(
+            f.name, f"{d['value']:,.2f}",
+            f"{d['change_1d']:+.2f}" if d["change_1d"] is not None else "-",
+            f"{d['change_5d']:+.2f}" if d["change_5d"] is not None else "-",
+            f"{100 * pct:.0f}%" if pct is not None else "-",
+            f"{d['n']:,}",
+        )
+    console.print(table)
+
+    if not args.measure:
+        console.print("\n[dim]add --measure to re-test which readings move with "
+                      "which markets (slow), and --save to commit the table[/dim]")
+        return 0
+
+    console.print(f"\n[dim]measuring against {len(UNIVERSE)} markets, "
+                  f"{args.range} of bars...[/dim]")
+    series = fetch_many(UNIVERSE, rng=args.range, cache_hours=args.cache_hours)
+    links = M.measure(fs, series)
+
+    if args.save:
+        console.print(f"[dim]saved -> {M.save(links)}[/dim]")
+    if args.json:
+        _print_json(links.to_dict())
+        return 0
+
+    real = links.real()
+    t2 = Table(title=f"\nrelationships that survived ({len(real)} of "
+                     f"{len(links.links)} pairs)",
+               title_justify="left", header_style="bold cyan")
+    for col in ("market", "moves", "reading", "r", "t", "days", "strength"):
+        t2.add_column(col, justify="right" if col in ("r", "t", "days") else "left")
+    for l in real[:20]:
+        t2.add_row(MARKET_TH.get(l.symbol, l.symbol), l.direction,
+                   fs[l.feed].name if l.feed in fs else l.feed,
+                   f"{l.r:+.3f}", f"{l.tstat:+.1f}", f"{l.n:,}", l.strength)
+    console.print(t2)
+
+    mech = [l for l in links.links if l.mechanical and abs(l.r) >= M.MIN_ABS_R]
+    if mech:
+        console.print(
+            f"\n[dim]{len(mech)} pair(s) excluded as arithmetic rather than "
+            "explanation - a Treasury yield against a Treasury fund, or VIX "
+            "against the index it is computed from. Strongest: "
+            + ", ".join(f"{l.feed}/{l.symbol} r={l.r:+.2f}"
+                        for l in sorted(mech, key=lambda x: -abs(x.r))[:3])
+            + "[/dim]"
+        )
+    console.print(
+        f"\n[dim]{len(links.dead())} pair(s) measured and discarded for being "
+        f"too faint to mention. Everything above is *same-day* correlation: it "
+        "explains what already happened and forecasts nothing.[/dim]"
+    )
     return 0
 
 
@@ -1045,6 +1136,15 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--range", default="10y", help="how much history to measure over")
     common(sp)
     sp.set_defaults(func=cmd_events)
+
+    sp = sub.add_parser("macro", help="official daily readings and what they move with")
+    sp.add_argument("--measure", action="store_true",
+                    help="re-test every reading against every market (slow)")
+    sp.add_argument("--save", action="store_true", help="commit the measured table")
+    sp.add_argument("--range", default="3y", help="how much history to measure over")
+    sp.add_argument("--cache-hours", type=float, default=6.0)
+    common(sp)
+    sp.set_defaults(func=cmd_macro)
 
     sp = sub.add_parser("score", help="how often the brief's own calls were right")
     sp.add_argument("--save", action="store_true", help="commit the summary")

@@ -69,6 +69,38 @@ REGISTRY: dict[str, Source] = {
             what="Employment Situation release schedule",
         ),
         Source(
+            id="treasury",
+            tier=1,
+            name="US Treasury",
+            url="https://home.treasury.gov/resource-center/data-chart-center/"
+                "interest-rates/TextView?type=daily_treasury_yield_curve",
+            what="the daily par yield curve and the daily real (TIPS) curve, "
+                 "published by the issuer itself",
+        ),
+        Source(
+            id="nyfed",
+            tier=1,
+            name="Federal Reserve Bank of New York",
+            url="https://www.newyorkfed.org/markets/reference-rates/effr",
+            what="the effective federal funds rate: where policy actually is, "
+                 "as opposed to where a headline says it is",
+        ),
+        Source(
+            id="sec",
+            tier=1,
+            name="US Securities and Exchange Commission",
+            url="https://www.sec.gov/edgar/search/",
+            what="EDGAR filings, including the 8-K a company must file when "
+                 "something material happens to it",
+        ),
+        Source(
+            id="cboe",
+            tier=2,
+            name="Cboe Global Markets",
+            url="https://www.cboe.com/tradable_products/vix/",
+            what="VIX, VVIX and SKEW, from the exchange that computes them",
+        ),
+        Source(
             id="yahoo",
             tier=2,
             name="Yahoo Finance",
@@ -105,6 +137,22 @@ REGISTRY: dict[str, Source] = {
             url="https://github.com/ayfew/Print-Money#readme",
             what="where a market's 21-day volatility sits inside its own two-year "
                  "history",
+        ),
+        Source(
+            id="curve",
+            tier=3,
+            name="printmoney 2s10s spread",
+            url="https://github.com/ayfew/Print-Money#readme",
+            what="the ten-year Treasury yield minus the two-year, from the "
+                 "Treasury's own daily curve",
+        ),
+        Source(
+            id="macro",
+            tier=3,
+            name="printmoney macro links",
+            url="https://github.com/ayfew/Print-Money#readme",
+            what="which official daily readings move with which markets, and "
+                 "how consistently, reproducible with `pm macro`",
         ),
     ]
 }

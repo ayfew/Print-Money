@@ -27,6 +27,8 @@ from typing import Any, Sequence
 
 from ..util import DATA_DIR, read_json, write_json
 from . import events as ev
+from . import feeds
+from . import macro
 from . import scorecard as sc
 from .brief import Brief, build_brief
 from .data import UNIVERSE
@@ -110,6 +112,27 @@ def run(
             "scheduled events are omitted rather than asserted without evidence"
         )
 
+    # Official daily readings, and the measured table saying which of them move
+    # with which markets. Both degrade to nothing rather than to guesswork: with
+    # no feeds the brief drops its macro section, and with no table it will
+    # print the readings but refuse to call any of them a reason.
+    macro_feeds: dict[str, Any] = {}
+    links = macro.Table()
+    try:
+        macro_feeds = feeds.load(offline=offline_events)
+        spread = feeds.curve_spread(macro_feeds)
+        if spread is not None:
+            macro_feeds["curve"] = spread
+    except Exception as exc:                      # noqa: BLE001 - never fatal
+        warnings.append(f"macro feeds unavailable: {exc}")
+    if macro_feeds:
+        links = macro.load()
+        if not links.links:
+            warnings.append(
+                "no measured macro links on disk - run `pm macro --save`; "
+                "readings are printed but nothing is offered as a reason"
+            )
+
     upcoming: list[ev.Event] = []
     if impacts:
         try:
@@ -118,7 +141,8 @@ def run(
             warnings.append(f"event calendar unavailable: {exc}")
 
     decision = decide(brief, events=upcoming, impacts=impacts,
-                      previous=previous, today=today)
+                      previous=previous, today=today,
+                      feeds=macro_feeds, links=links)
 
     m = Morning(brief=brief, decision=decision, previous=previous,
                 warnings=warnings)

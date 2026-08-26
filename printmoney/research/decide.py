@@ -57,6 +57,16 @@ TOUCH_RATIO = 1.15
 #: decision from being treated as a reason to stare at Bitcoin.
 UNTOUCHED_RATIO = 1.02
 
+#: How much a market has to have moved before the brief bothers looking for a
+#: reason. Below this the move is inside the noise and any explanation offered
+#: for it would be a story rather than an attribution.
+WORTH_EXPLAINING = 0.010
+
+#: And how unusual the driver's own move has to be before it counts as the
+#: reason. A real yield that barely twitched did not move gold, however good the
+#: long-run correlation between them is.
+DRIVER_PERCENTILE = 0.70
+
 
 @dataclass(frozen=True)
 class Note:
@@ -91,12 +101,15 @@ class Decision:
     avoid: list[Note] = field(default_factory=list)
     ignore: list[Note] = field(default_factory=list)
     changed: list[Note] = field(default_factory=list)
+    context: list[Note] = field(default_factory=list)
+    why: list[Note] = field(default_factory=list)
     events: list[Event] = field(default_factory=list)
 
     @property
     def notes(self) -> list[Note]:
         return ([self.focus] if self.focus else []) + \
-            self.watch + self.avoid + self.ignore + self.changed
+            self.watch + self.avoid + self.ignore + self.changed + \
+            self.context + self.why
 
     @property
     def source_ids(self) -> list[str]:
@@ -114,6 +127,8 @@ class Decision:
             "avoid": [n.to_dict() for n in self.avoid],
             "ignore": [n.to_dict() for n in self.ignore],
             "changed": [n.to_dict() for n in self.changed],
+            "context": [n.to_dict() for n in self.context],
+            "why": [n.to_dict() for n in self.why],
             "events": [e.to_dict() for e in self.events],
             "sources": [s.to_dict() for s in sources.cited(self.source_ids)],
             "quiet": self.quiet,
@@ -151,6 +166,8 @@ def decide(
     impacts: dict[str, Impact] | None = None,
     previous: dict[str, Any] | None = None,
     today: date | None = None,
+    feeds: dict[str, Any] | None = None,
+    links: Any = None,
 ) -> Decision:
     """Assemble today's decision from the brief, the calendar and yesterday."""
     impacts = impacts or {}
@@ -175,7 +192,107 @@ def decide(
     _ignore_notes(d, brief, soon, impacts, have)
     if previous:
         _changes(d, brief, previous, soon, today)
+    if feeds:
+        _context_notes(d, feeds)
+        if links is not None:
+            _why_notes(d, brief, feeds, links)
     return d
+
+
+# --------------------------------------------------------------------------- #
+#: The readings worth printing every morning whether or not they moved, because
+#: their *level* is the context everything else sits in. Ordered as a person
+#: reads them: policy, the curve, the number gold trades against, then fear.
+CONTEXT_ORDER = ("effr", "ust2y", "ust10y", "curve", "real10y", "vix")
+
+
+def _context_notes(d: Decision, feeds: dict[str, Any]) -> None:
+    """Where the macro backdrop stands today. Levels, not opinions."""
+    for key in CONTEXT_ORDER:
+        feed = feeds.get(key)
+        if feed is None or not feed.lines:
+            continue
+        latest = feed.latest
+        change = feed.change(1)
+        pctile = feed.percentile()
+        d.context.append(Note(
+            kind="context",
+            key="context_curve" if key == "curve" else "context_reading",
+            source=feed.source,
+            params={
+                "label": feed.key,
+                "value": f"{latest.value:,.2f}{'%' if feed.unit == '%' else ''}",
+                "change": _bp(change, feed.unit) if change is not None else "",
+                "pct": f"{pctile:.0%}" if pctile is not None else "",
+                "state": ("inverted" if latest.value < 0 else "normal")
+                         if key == "curve" else "",
+            },
+        ))
+
+
+def _bp(change: float, unit: str) -> str:
+    """Yields are quoted in basis points by everyone who trades them."""
+    if unit == "%":
+        return f"{100 * change:+.0f}bp"
+    return f"{change:+.2f}"
+
+
+def _why_notes(d: Decision, brief: Brief, feeds: dict[str, Any], links: Any) -> None:
+    """For today's biggest moves, name a driver that also moved - or say nothing.
+
+    Everything here is attribution, never prediction. The correlations behind it
+    are contemporaneous by construction: they say two things moved together
+    today, which is a fact about today. Reading a forecast into that is the
+    mistake this project has spent its whole length refusing to make, so the
+    strength of each link is printed next to it rather than left implied.
+    """
+    for line in brief.movers(4):
+        if abs(line.day) < WORTH_EXPLAINING:
+            continue
+        best = None
+        for link in links.for_symbol(line.symbol):
+            feed = feeds.get(link.feed)
+            if feed is None:
+                continue
+            change = feed.change(1)
+            if change is None or not _driver_moved(feed, change):
+                continue
+            # Only offer the driver when it moved the way the relationship says
+            # it should have. A gold selloff on a day real yields also fell is
+            # not explained by real yields, and pretending otherwise is how a
+            # brief becomes astrology.
+            if (change > 0) != (line.day > 0) and link.r > 0:
+                continue
+            if (change > 0) == (line.day > 0) and link.r < 0:
+                continue
+            if best is None or abs(link.r) > abs(best[0].r):
+                best = (link, feed, change)
+        if best is None:
+            continue
+        link, feed, change = best
+        d.why.append(Note(
+            kind="why", key="why_move", source="macro",
+            params={
+                "move": _pct(line.day, 2),
+                "driver": feed.key,
+                "change": _bp(change, feed.unit),
+                "strength": link.strength,
+                "direction": link.direction,
+                "r": f"{link.r:+.2f}",
+                "n": str(link.n),
+            },
+            symbols=(line.symbol,),
+        ))
+
+
+def _driver_moved(feed: Any, change: float) -> bool:
+    """Did this reading actually do something today, by its own standards?"""
+    moves = [abs(b.value - a.value) for a, b in zip(feed.lines, feed.lines[1:])]
+    if len(moves) < 30:
+        return False
+    moves = sorted(moves[-504:])
+    cut = moves[int(DRIVER_PERCENTILE * (len(moves) - 1))]
+    return abs(change) >= cut
 
 
 # --------------------------------------------------------------------------- #

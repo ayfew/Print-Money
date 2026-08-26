@@ -43,6 +43,9 @@ jobs:
       - name: Re-measure scheduled-event impact
         run: python pm.py events --measure --save
 
+      - name: Re-measure which official readings move with which markets
+        run: python pm.py macro --measure --save
+
       - name: Re-score the brief's own calls
         run: python pm.py score --save
 
@@ -50,7 +53,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/impacts.json data/scorecard.json
+          git add data/impacts.json data/scorecard.json data/macro.json
           if git diff --cached --quiet; then
             echo "the evidence did not move"
             exit 0
