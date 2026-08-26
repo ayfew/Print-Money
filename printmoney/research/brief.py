@@ -260,7 +260,20 @@ def build_brief(
         try:
             from ..carry.scanner import scan
 
-            report = scan(capital=capital, holding_days=30.0)
+            try:
+                report = scan(capital=capital, holding_days=30.0)
+            except Exception as direct:            # noqa: BLE001
+                # Binance answers 451 to US datacentre addresses, so this is the
+                # normal path on a cloud runner rather than an edge case. Try
+                # any exchange that will talk to us before giving the section up.
+                log.info("binance carry scan failed (%s); trying other venues",
+                         direct)
+                from ..carry.anyvenue import available as any_available
+                from ..carry.anyvenue import scan as any_scan
+
+                if not any_available():
+                    raise
+                report = any_scan(capital=capital, holding_days=30.0)
             brief.carry = report.to_dict()
             net = report.basket_net_annual()
             monthly = report.monthly_usd()

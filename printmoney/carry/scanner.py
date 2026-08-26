@@ -202,6 +202,10 @@ class CarryReport:
     candidates: list[Carry] = field(default_factory=list)
     holding_days: float = 30.0
     capital: float = 1_000.0
+    #: Which exchange produced this. Binance when it answers; when it does not -
+    #: it returns 451 to US datacentre addresses, which is every cloud runner -
+    #: `anyvenue.scan` fills this in with whichever venue did.
+    venue: str = "binance"
 
     def basket(self, n: int = 10) -> list[Carry]:
         return self.candidates[:n]
@@ -217,6 +221,7 @@ class CarryReport:
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "venue": self.venue,
             "scanned": self.scanned,
             "hedgeable": self.hedgeable,
             "holding_days": self.holding_days,
