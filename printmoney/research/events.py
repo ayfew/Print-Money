@@ -65,6 +65,13 @@ IMPACTS = DATA_DIR / "impacts.json"
 #: fetch on a workflow run should never take the whole brief down with it.
 CACHE_HOURS = 24 * 7
 
+#: Bumped when the *meaning* of a cached row changes rather than its shape.
+#: Price bars already learned this the expensive way: a cache written before the
+#: switch to adjusted closes read back without complaint and served unadjusted
+#: prices to code that assumed otherwise. Nothing failed, which was the problem.
+SCHEMA = 1
+
+
 MONTHS = {
     m: i
     for i, m in enumerate(
@@ -205,6 +212,8 @@ def _fetch_fomc() -> list[Event]:
 def fomc(*, cache_hours: float = CACHE_HOURS, offline: bool = False) -> list[Event]:
     """Every FOMC decision date the Fed currently publishes, cached on disk."""
     cached = read_json(CACHE, default=None)
+    if cached and cached.get("schema") != SCHEMA:
+        cached = None                   # written by an older parser; refetch
     age_ok = bool(cached) and cached.get("fetched_at", 0.0) > (
         datetime.now(timezone.utc).timestamp() - cache_hours * 3600)
     if cached and (age_ok or offline):
@@ -216,7 +225,8 @@ def fomc(*, cache_hours: float = CACHE_HOURS, offline: bool = False) -> list[Eve
     except Exception as exc:                      # noqa: BLE001 - never fatal
         log.warning("FOMC calendar unavailable (%s)", exc)
         return [Event(**e) for e in cached["events"]] if cached else []
-    write_json(CACHE, {"fetched_at": datetime.now(timezone.utc).timestamp(),
+    write_json(CACHE, {"schema": SCHEMA,
+                       "fetched_at": datetime.now(timezone.utc).timestamp(),
                        "events": [e.to_dict() for e in events]})
     return events
 

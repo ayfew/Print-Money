@@ -69,6 +69,13 @@ CACHE_DIR = STATE_DIR / "feeds"
 #: though it were today's.
 CACHE_HOURS = 6.0
 
+#: Bumped when the *meaning* of a cached row changes rather than its shape.
+#: Price bars already learned this the expensive way: a cache written before the
+#: switch to adjusted closes read back without complaint and served unadjusted
+#: prices to code that assumed otherwise. Nothing failed, which was the problem.
+SCHEMA = 1
+
+
 
 @dataclass
 class Line:
@@ -145,6 +152,8 @@ def _cached(key: str, fetch, *, cache_hours: float = CACHE_HOURS,
     """
     path = CACHE_DIR / f"{key}.json"
     blob = read_json(path, default=None)
+    if blob and blob.get("schema") != SCHEMA:
+        blob = None                     # written by an older parser; refetch
     fresh = bool(blob) and blob.get("fetched_at", 0.0) > (
         datetime.now(timezone.utc).timestamp() - cache_hours * 3600)
     if blob and (fresh or offline):
@@ -156,7 +165,8 @@ def _cached(key: str, fetch, *, cache_hours: float = CACHE_HOURS,
     except Exception as exc:                       # noqa: BLE001 - never fatal
         log.warning("feed %s unavailable (%s)", key, exc)
         return blob["rows"] if blob else []
-    write_json(path, {"fetched_at": datetime.now(timezone.utc).timestamp(),
+    write_json(path, {"schema": SCHEMA,
+                      "fetched_at": datetime.now(timezone.utc).timestamp(),
                       "rows": rows})
     return rows
 

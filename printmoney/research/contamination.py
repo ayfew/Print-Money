@@ -183,7 +183,12 @@ def build(series: Iterable[Series], *, n: int = 40, seed: int = 20260826,
 
     rng.shuffle(pool_up)
     rng.shuffle(pool_down)
-    half = n // 2
+    # Take the same number from each side, capped by the smaller pool. Slicing
+    # both at n//2 quietly returned an unbalanced quiz whenever one side ran
+    # short - and an unbalanced quiz hands anyone who always answers "up" the
+    # market's real base rate of 58.6%, which this harness would then report as
+    # memory. Balance is the single property the measurement rests on.
+    half = min(n // 2, len(pool_up), len(pool_down))
     picked = pool_up[:half] + pool_down[:half]
     rng.shuffle(picked)
     for i, q in enumerate(picked, start=1):

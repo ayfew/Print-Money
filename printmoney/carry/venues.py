@@ -70,10 +70,11 @@ SHORTLIST = 12
 @dataclass(frozen=True)
 class VenueRate:
     venue: str
-    symbol: str
+    symbol: str                 # the base, for comparing across venues
     rate: float                 # per settlement, as a fraction
     mark: float = 0.0
     volume: float = 0.0         # 24h turnover in quote currency
+    contract: str = ""          # the venue's own spelling, for history lookups
 
     @property
     def plausible(self) -> bool:
@@ -106,6 +107,12 @@ class Spread:
     short_annual: float
     snapshot_annual: float = 0.0
     settlements: int = 0        # 0 means the snapshot is all there is
+    #: Each venue's own spelling of the contract. Carried rather than rebuilt:
+    #: a spread found on a USDC-margined perp was being verified against the
+    #: USDT contract's funding history, which is checking one instrument's claim
+    #: against another instrument's record.
+    long_contract: str = ""
+    short_contract: str = ""
 
     @property
     def spread_annual(self) -> float:
@@ -199,7 +206,7 @@ def _fetch_one(name: str, *, timeout_ms: int = 20_000,
         out.append(VenueRate(venue=name, symbol=_base(symbol),
                              rate=float(rate),
                              mark=float(row.get("markPrice") or 0.0),
-                             volume=volume))
+                             volume=volume, contract=symbol))
     return out
 
 
@@ -221,24 +228,22 @@ def _median_annual(name: str, symbol: str, *,
     return st.median(rates) * SETTLEMENTS_PER_YEAR, len(rates)
 
 
-def _contract(name: str, base: str) -> str:
-    """The venue's own spelling of a linear USDT perp on this base."""
-    return f"{base}/USDT:USDT"
-
-
 def _verify(shortlist: Sequence[Spread]) -> list[Spread]:
     """Re-price the shortlist off funding history instead of one print."""
     out: list[Spread] = []
     for sp in shortlist:
-        lo, n_lo = _median_annual(sp.long_venue, _contract(sp.long_venue, sp.symbol))
-        hi, n_hi = _median_annual(sp.short_venue, _contract(sp.short_venue, sp.symbol))
+        if not (sp.long_contract and sp.short_contract):
+            continue                    # nothing to look history up against
+        lo, n_lo = _median_annual(sp.long_venue, sp.long_contract)
+        hi, n_hi = _median_annual(sp.short_venue, sp.short_contract)
         n = min(n_lo, n_hi)
         if not n:
             continue                    # no history means no claim
         out.append(Spread(
             symbol=sp.symbol, long_venue=sp.long_venue,
             short_venue=sp.short_venue, long_annual=lo, short_annual=hi,
-            snapshot_annual=sp.spread_annual, settlements=n))
+            snapshot_annual=sp.spread_annual, settlements=n,
+            long_contract=sp.long_contract, short_contract=sp.short_contract))
     # A leg whose median has the wrong sign is not a trade; sorting after the
     # re-price rather than before is the whole point of doing it.
     out = [s for s in out if s.verified and s.spread_annual > 0]
@@ -284,7 +289,8 @@ def scan(venues: Sequence[str] = VENUES, *, min_venues: int = 3,
         lo, hi = ordered[0], ordered[-1]
         report.spreads.append(Spread(
             symbol=symbol, long_venue=lo.venue, short_venue=hi.venue,
-            long_annual=lo.annual, short_annual=hi.annual))
+            long_annual=lo.annual, short_annual=hi.annual,
+            long_contract=lo.contract, short_contract=hi.contract))
 
     report.spreads.sort(key=lambda s: -s.spread_annual)
     if verify:

@@ -246,3 +246,45 @@ class TestAgainstTALib:
             assert abs(pair[0].gross + pair[1].gross) < 1e-9
             # ...and both pay the same tolls, which is the point of testing it.
             assert abs(pair[0].turnover - pair[1].turnover) < 1e-9
+
+
+class TestTheFeeFlagActuallyApplies:
+    """Regression: --fee moved the gross column and left net priced at 10bp.
+
+    _score charged whatever cost was passed, then _aggregate recomputed net off
+    the module constant. A sweep run at Thai retail cost would have reported a
+    fee wall a third of its real height, which is the direction that matters.
+    """
+
+    def _rows(self):
+        # (gross, net, turnover, tstat, n) - one market, ten round trips a year
+        return [(0.10, 0.0, 10.0, 3.0, 2000)]
+
+    def test_a_higher_fee_produces_a_lower_net(self):
+        _g, cheap, _t, _ts, _n = I._aggregate(self._rows(), False, 0.0010)
+        _g, dear, _t, _ts, _n = I._aggregate(self._rows(), False, 0.0030)
+        assert dear < cheap
+
+    def test_the_net_is_gross_minus_turnover_times_the_fee_passed_in(self):
+        gross, net, turn, _ts, _n = I._aggregate(self._rows(), False, 0.0030)
+        assert net == pytest.approx(gross - turn * 0.0030)
+
+    def test_the_default_is_still_the_projects_ten_basis_points(self):
+        gross, net, turn, _ts, _n = I._aggregate(self._rows(), False)
+        assert net == pytest.approx(gross - turn * I.COST)
+
+    @pytest.mark.skipif(not I.available(), reason="TA-Lib not installed")
+    def test_a_sweep_at_a_higher_fee_reports_a_higher_wall(self):
+        import numpy as np
+
+        rng = np.random.default_rng(9)
+        universe = [_series(f"M{i}", rng.normal(0.0003, 0.012, I.WARMUP + 800))
+                    for i in range(4)]
+        cheap = I.sweep(universe, cost=0.0010, limit=4)
+        dear = I.sweep(universe, cost=0.0050, limit=4)
+        traded = [r.name for r in cheap.results if r.turnover >= 2]
+        assert traded, "need at least one rule that actually trades"
+        for name in traded:
+            a = next(r for r in cheap.results if r.name == name and not r.inverted)
+            b = next(r for r in dear.results if r.name == name and not r.inverted)
+            assert b.net < a.net

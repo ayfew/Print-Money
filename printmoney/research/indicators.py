@@ -380,7 +380,7 @@ def sweep(series: Iterable[Series], *, cost: float = COST,
             continue                       # too few markets to mean anything
 
         for inverted in (False, True):
-            g, n_, t_, ts, nd = _aggregate(rows, inverted)
+            g, n_, t_, ts, nd = _aggregate(rows, inverted, cost)
             r = Result(name=name, group=group, inverted=inverted, gross=g,
                        net=n_, turnover=t_, tstat=ts, n_days=nd)
             r.p_value = _p_from_t(r.tstat, r.n_days)
@@ -393,13 +393,20 @@ def sweep(series: Iterable[Series], *, cost: float = COST,
 
 
 def _aggregate(rows: Sequence[tuple[float, float, float, float, int]],
-               inverted: bool) -> tuple[float, float, float, float, int]:
+               inverted: bool, cost: float = COST
+               ) -> tuple[float, float, float, float, int]:
     """Average one rule across markets. The inverse flips the position, which
     flips gross and the t-statistic but leaves turnover untouched - you pay the
-    same tolls going the other way, which is the whole point of testing it."""
+    same tolls going the other way, which is the whole point of testing it.
+
+    ``cost`` is threaded in rather than read from the module constant. It used
+    to be the constant, which meant `--fee` moved the gross column and left the
+    net column priced at ten basis points whatever was asked for - a sweep run
+    at Thai retail cost would have reported a fee wall a third the real height.
+    """
     sign = -1.0 if inverted else 1.0
     gross = float(np.mean([r[0] for r in rows])) * sign
     turnover = float(np.mean([r[2] for r in rows]))
-    net = gross - turnover * COST
+    net = gross - turnover * cost
     tstat = float(np.mean([r[3] for r in rows])) * sign * math.sqrt(len(rows))
     return gross, net, turnover, tstat, int(np.sum([r[4] for r in rows]))

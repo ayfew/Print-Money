@@ -186,3 +186,41 @@ class TestPublishedResult:
         assert len(p["questions_after"]) == p["after_cutoff"]["n"]
         for q in p["questions_before"] + p["questions_after"]:
             assert q["answer"] and q["truth"] and "correct" in q
+
+
+class TestTheQuizCannotComeBackUnbalanced:
+    """Regression: both pools were sliced at n//2 regardless of their size.
+
+    In a universe where one direction is scarce the quiz came back lopsided, and
+    a lopsided quiz hands anyone who always answers "up" the market's real base
+    rate - which this harness would then report as memory.
+    """
+
+    def _lopsided(self, n=900):
+        """Almost always rising: the down pool will be far smaller than n//2."""
+        rets = [0.004] * n
+        for i in range(0, n, 90):
+            rets[i] = -0.05
+        return [_series("UP", rets)]
+
+    def test_a_lopsided_universe_still_yields_a_balanced_quiz(self):
+        qs = C.build(self._lopsided(), n=40)
+        if qs:
+            assert C.spread(qs)["share_up"] == 0.5
+
+    def test_it_returns_fewer_questions_rather_than_an_unbalanced_set(self):
+        qs = C.build(self._lopsided(), n=200)
+        assert len(qs) <= 200
+        if qs:
+            ups = sum(1 for q in qs if q.truth == "up")
+            assert ups == len(qs) - ups
+
+    def test_always_up_still_scores_a_coin_on_the_lopsided_universe(self):
+        qs = C.build(self._lopsided(), n=40)
+        if qs:
+            rep = C.grade(qs, {q.qid: "up" for q in qs}, cutoff="1900-01-01")
+            assert C.Report.rate(rep.answered()) == 0.5
+
+    def test_a_universe_with_no_falls_at_all_produces_no_quiz(self):
+        """Better to ask nothing than to ask a question with one answer."""
+        assert C.build([_series("ONLYUP", [0.004] * 900)], n=40) == []
