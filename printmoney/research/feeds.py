@@ -58,6 +58,9 @@ TREASURY = ("https://home.treasury.gov/resource-center/data-chart-center/"
             "?type=daily_treasury_{kind}&field_tdr_date_value={year}&page&_format=csv")
 CBOE = "https://cdn.cboe.com/api/global/us_indices/daily_prices/{name}_History.csv"
 NYFED = "https://markets.newyorkfed.org/api/rates/unsecured/effr/last/{n}.json"
+SOMA = "https://markets.newyorkfed.org/api/soma/summary.json"
+AUCTIONS = ("https://www.treasurydirect.gov/TA_WS/securities/auctioned"
+            "?format=json&pagesize={n}")
 
 CACHE_DIR = STATE_DIR / "feeds"
 
@@ -245,6 +248,81 @@ def _effr_rows(n: int = 250) -> list[dict[str, Any]]:
     return rows
 
 
+def parse_auctions(text: str, field: str) -> list[dict[str, Any]]:
+    """One demand statistic per coupon auction, keyed by auction date.
+
+    Bills are excluded. They are rolled constantly by money-market funds and
+    their demand statistics say almost nothing about appetite for US duration,
+    which is the question these numbers are being asked.
+
+    Three fields matter, and they are the measurable form of "could the Treasury
+    sell it":
+
+        ``bid_to_cover``  total bids over amount sold. Higher is more demand.
+        ``dealer``        the share taken by primary dealers, who are obliged to
+                          bid and therefore absorb whatever nobody else wanted.
+                          A *high* number means weak demand, not strong.
+        ``indirect``      the share taken by indirect bidders, largely foreign
+                          central banks. Higher means more foreign appetite.
+    """
+    rows: list[dict[str, Any]] = []
+    for a in json.loads(text):
+        if a.get("securityType") not in ("Note", "Bond"):
+            continue
+        day = (a.get("auctionDate") or "")[:10]
+        total = _num(a.get("totalAccepted"))
+        if not day or not total:
+            continue
+        if field == "bid_to_cover":
+            value = _num(a.get("bidToCoverRatio"))
+        elif field == "dealer":
+            value = 100.0 * (_num(a.get("primaryDealerAccepted")) or 0.0) / total
+        elif field == "indirect":
+            value = 100.0 * (_num(a.get("indirectBidderAccepted")) or 0.0) / total
+        else:
+            value = None
+        if value:
+            rows.append({"day": day, "value": value})
+    # Several tenors are auctioned on the same day; average them so the series
+    # stays one observation per day and cannot double-count a single session.
+    merged: dict[str, list[float]] = {}
+    for r in rows:
+        merged.setdefault(r["day"], []).append(r["value"])
+    return [{"day": d, "value": sum(v) / len(v)} for d, v in sorted(merged.items())]
+
+
+def _num(x: Any) -> float | None:
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return None
+
+
+def _auction_rows(field: str, n: int = 400) -> list[dict[str, Any]]:
+    rows = parse_auctions(_get(AUCTIONS.format(n=n), what="treasury auctions"), field)
+    if not rows:
+        raise ValueError(f"treasury auctions/{field} parsed to nothing")
+    return rows
+
+
+def parse_soma(text: str) -> list[dict[str, Any]]:
+    """The Fed's own holdings, in trillions. Weekly."""
+    payload = json.loads(text)
+    out = []
+    for row in payload.get("soma", {}).get("summary", []):
+        total = _num(row.get("total"))
+        if row.get("asOfDate") and total:
+            out.append({"day": row["asOfDate"], "value": total / 1e12})
+    return out
+
+
+def _soma_rows() -> list[dict[str, Any]]:
+    rows = parse_soma(_get(SOMA, what="nyfed soma"))
+    if not rows:
+        raise ValueError("nyfed soma parsed to nothing")
+    return rows
+
+
 # --------------------------------------------------------------------------- #
 #: Everything the brief is allowed to read, keyed the way it is referred to.
 #: ``source`` points at :mod:`sources`, so a feed cannot appear in the brief
@@ -264,6 +342,15 @@ SPECS: dict[str, dict[str, Any]] = {
                  fetch=lambda: _cboe_rows("SKEW")),
     "vvix": dict(name="VVIX", source="cboe", unit="pts",
                  fetch=lambda: _cboe_rows("VVIX")),
+    "auction_btc": dict(name="auction bid-to-cover", source="treasurydirect",
+                        unit="x", fetch=lambda: _auction_rows("bid_to_cover")),
+    "auction_dealer": dict(name="primary dealer take-up", source="treasurydirect",
+                           unit="%", fetch=lambda: _auction_rows("dealer")),
+    "auction_indirect": dict(name="foreign/indirect take-up",
+                             source="treasurydirect", unit="%",
+                             fetch=lambda: _auction_rows("indirect")),
+    "soma": dict(name="Fed balance sheet (SOMA)", source="nyfed", unit="$T",
+                 fetch=_soma_rows),
 }
 
 

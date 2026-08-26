@@ -541,6 +541,7 @@ footer {{ margin-top:30px; padding-top:14px; border-top:1px solid var(--line);
 <table><tr><th>{esc(t("th_market", lang))}</th><th>{esc(t("th_day", lang))}</th><th>{esc(t("th_week", lang))}</th><th>{esc(t("th_month", lang))}</th><th>{esc(t("th_vol", lang))}</th></tr>
 {rows}</table>
 {sources_html}
+<p class="muted"><a href="graph.html">{esc(t("graph_link", lang))}</a></p>
 <footer>{t("page_footer", lang)}</footer>
 </div></body></html>"""
     out.write_text(html, encoding="utf-8")

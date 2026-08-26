@@ -94,6 +94,14 @@ REGISTRY: dict[str, Source] = {
                  "something material happens to it",
         ),
         Source(
+            id="treasurydirect",
+            tier=1,
+            name="TreasuryDirect",
+            url="https://www.treasurydirect.gov/auctions/announcements-data-results/",
+            what="the result of every Treasury auction: bid-to-cover, and how "
+                 "much of it primary dealers had to absorb",
+        ),
+        Source(
             id="cboe",
             tier=2,
             name="Cboe Global Markets",

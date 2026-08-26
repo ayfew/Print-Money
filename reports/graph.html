@@ -1,0 +1,252 @@
+<!doctype html><html lang="th"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>แผนที่ความเชื่อมโยง</title>
+<style>
+:root{--bg:#fbfbfb;--panel:#fff;--ink:#0a0a0a;--dim:#6b7280;--line:#e8e8e8;
+ --arith:#9aa0ab;--doc:#2563eb;--meas:#0f7a4d;--cont:#c0392f;
+ --market:#0f7a4d;--reading:#2563eb;--actor:#7c3aed;--operation:#b45309;--opinion:#c0392f;}
+@media (prefers-color-scheme:dark){:root{--bg:#0a0a0a;--panel:#151515;--ink:#fafafa;
+ --dim:#9aa0ab;--line:#282828;--arith:#6b7280;--doc:#60a5fa;--meas:#4ade80;--cont:#f87171;
+ --market:#4ade80;--reading:#60a5fa;--actor:#a78bfa;--operation:#fbbf24;--opinion:#f87171;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+ font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+#wrap{display:flex;height:100vh;width:100vw}
+#stage{flex:1;position:relative;min-width:0}
+canvas{display:block;width:100%;height:100%;cursor:grab}
+canvas.dragging{cursor:grabbing}
+#side{width:340px;flex:none;border-left:1px solid var(--line);background:var(--panel);
+ padding:18px 18px 40px;overflow-y:auto}
+h1{font-size:15px;margin:0 0 4px;letter-spacing:-.01em}
+p.intro{color:var(--dim);font-size:12.5px;margin:0 0 14px}
+h2{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--dim);
+ margin:20px 0 8px}
+input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;
+ background:var(--bg);color:var(--ink);font:inherit;font-size:13px}
+.legend{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--dim)}
+.legend div{display:flex;align-items:center;gap:8px}
+.swatch{width:22px;height:0;border-top-width:2px;border-top-style:solid;flex:none}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+#detail{font-size:13px}
+#detail .nm{font-weight:600;font-size:15px;margin-bottom:2px}
+#detail .kd{color:var(--dim);font-size:11px;text-transform:uppercase;
+ letter-spacing:.1em;margin-bottom:12px}
+.edge{border-left:2px solid var(--line);padding:2px 0 2px 10px;margin:10px 0}
+.edge.arithmetic{border-color:var(--arith)} .edge.documented{border-color:var(--doc)}
+.edge.measured{border-color:var(--meas)} .edge.contested{border-color:var(--cont)}
+.edge b{font-weight:600} .edge .lbl{color:var(--dim);display:block;margin-top:2px}
+.edge .ev{display:block;margin-top:3px;font-size:11.5px;color:var(--dim);
+ font-variant-numeric:tabular-nums;word-break:break-word}
+.edge a{color:var(--doc)}
+.tag{display:inline-block;padding:1px 6px;border-radius:999px;border:1px solid var(--line);
+ font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+button{margin-top:12px;padding:7px 12px;border:1px solid var(--line);border-radius:8px;
+ background:var(--bg);color:var(--ink);font:inherit;font-size:12px;cursor:pointer}
+@media(max-width:820px){#wrap{flex-direction:column}#side{width:100%;height:46vh;
+ border-left:none;border-top:1px solid var(--line)}#stage{height:54vh}}
+</style></head><body>
+<div id="wrap">
+  <div id="stage"><canvas id="c"></canvas></div>
+  <aside id="side">
+    <h1>แผนที่ความเชื่อมโยง</h1>
+    <p class="intro">ลากได้ คลิกที่จุดเพื่อดูว่าอะไรทำให้มันขยับ และมันไปทำให้อะไรขยับต่อ</p>
+    <input id="q" type="search" placeholder="">
+    <h2 id="h-legend"></h2>
+    <div class="legend" id="legend"></div>
+    <h2 id="h-kind"></h2>
+    <div class="legend" id="kinds"></div>
+    <div id="detail"><p class="intro" id="hint"></p></div>
+  </aside>
+</div>
+<script>
+const DATA = {"nodes": [{"id": "fed", "label": "ธนาคารกลางสหรัฐ (เฟด)", "kind": "actor", "degree": 2, "source": "fed"}, {"id": "treasury", "label": "กระทรวงการคลังสหรัฐ", "kind": "actor", "degree": 1, "source": "treasury"}, {"id": "dealers", "label": "ไพรมารีดีลเลอร์", "kind": "actor", "degree": 1, "source": "treasurydirect"}, {"id": "foreign_cb", "label": "ธนาคารกลางต่างประเทศ", "kind": "actor", "degree": 1, "source": "treasurydirect"}, {"id": "fomc", "label": "เฟดประกาศดอกเบี้ย", "kind": "operation", "degree": 7, "source": "fed"}, {"id": "auction", "label": "การประมูลพันธบัตร", "kind": "operation", "degree": 2, "source": "treasurydirect"}, {"id": "soma_rollover", "label": "การต่ออายุพันธบัตรของเฟด (SOMA)", "kind": "operation", "degree": 2, "source": "nyfed"}, {"id": "future_growth", "label": "แนวโน้มอนาคต", "kind": "opinion", "degree": 1, "source": "study"}, {"id": "ust10y", "label": "พันธบัตร 10 ปี", "kind": "reading", "degree": 15, "source": "treasury"}, {"id": "ust2y", "label": "พันธบัตร 2 ปี", "kind": "reading", "degree": 10, "source": "treasury"}, {"id": "real10y", "label": "ผลตอบแทนแท้จริง 10 ปี (TIPS)", "kind": "reading", "degree": 14, "source": "treasury"}, {"id": "effr", "label": "ดอกเบี้ยนโยบายสหรัฐ (EFFR)", "kind": "reading", "degree": 2, "source": "nyfed"}, {"id": "vix", "label": "VIX (ดัชนีความกลัว)", "kind": "reading", "degree": 16, "source": "cboe"}, {"id": "skew", "label": "SKEW (ความเสี่ยงหางยาว)", "kind": "reading", "degree": 0, "source": "cboe"}, {"id": "vvix", "label": "VVIX", "kind": "reading", "degree": 16, "source": "cboe"}, {"id": "auction_btc", "label": "ยอดจองซื้อพันธบัตร (bid-to-cover)", "kind": "reading", "degree": 2, "source": "treasurydirect"}, {"id": "auction_dealer", "label": "สัดส่วนที่ดีลเลอร์ต้องรับไว้เอง", "kind": "reading", "degree": 2, "source": "treasurydirect"}, {"id": "auction_indirect", "label": "สัดส่วนที่ต่างชาติซื้อ", "kind": "reading", "degree": 1, "source": "treasurydirect"}, {"id": "soma", "label": "งบดุลเฟด (SOMA)", "kind": "reading", "degree": 1, "source": "nyfed"}, {"id": "curve", "label": "ส่วนต่าง 2 ปี–10 ปี", "kind": "reading", "degree": 9, "source": "curve"}, {"id": "SPY", "label": "หุ้นสหรัฐ S&P 500", "kind": "market", "degree": 4, "source": "yahoo"}, {"id": "QQQ", "label": "หุ้นเทค Nasdaq 100", "kind": "market", "degree": 5, "source": "yahoo"}, {"id": "IWM", "label": "หุ้นเล็กสหรัฐ", "kind": "market", "degree": 4, "source": "yahoo"}, {"id": "DIA", "label": "ดาวโจนส์", "kind": "market", "degree": 4, "source": "yahoo"}, {"id": "EFA", "label": "หุ้นประเทศพัฒนาแล้ว (นอกสหรัฐ)", "kind": "market", "degree": 4, "source": "yahoo"}, {"id": "EEM", "label": "ตลาดเกิดใหม่", "kind": "market", "degree": 4, "source": "yahoo"}, {"id": "EWJ", "label": "หุ้นญี่ปุ่น", "kind": "market", "degree": 4, "source": "yahoo"}, {"id": "FXI", "label": "หุ้นจีน", "kind": "market", "degree": 3, "source": "yahoo"}, {"id": "THD", "label": "หุ้นไทย", "kind": "market", "degree": 4, "source": "yahoo"}, {"id": "GLD", "label": "ทองคำ", "kind": "market", "degree": 4, "source": "yahoo"}, {"id": "SLV", "label": "เงิน", "kind": "market", "degree": 2, "source": "yahoo"}, {"id": "USO", "label": "น้ำมัน", "kind": "market", "degree": 2, "source": "yahoo"}, {"id": "TLT", "label": "พันธบัตรสหรัฐระยะยาว", "kind": "market", "degree": 4, "source": "yahoo"}, {"id": "HYG", "label": "หุ้นกู้ผลตอบแทนสูง", "kind": "market", "degree": 7, "source": "yahoo"}, {"id": "VNQ", "label": "อสังหาฯ สหรัฐ", "kind": "market", "degree": 6, "source": "yahoo"}, {"id": "XLE", "label": "กลุ่มพลังงาน", "kind": "market", "degree": 2, "source": "yahoo"}, {"id": "XLF", "label": "กลุ่มการเงิน", "kind": "market", "degree": 3, "source": "yahoo"}, {"id": "XLK", "label": "กลุ่มเทคโนโลยี", "kind": "market", "degree": 3, "source": "yahoo"}, {"id": "XLV", "label": "กลุ่มสุขภาพ", "kind": "market", "degree": 2, "source": "yahoo"}, {"id": "XLU", "label": "กลุ่มสาธารณูปโภค", "kind": "market", "degree": 4, "source": "yahoo"}, {"id": "XLP", "label": "กลุ่มสินค้าจำเป็น", "kind": "market", "degree": 3, "source": "yahoo"}, {"id": "UUP", "label": "ดอลลาร์สหรัฐ", "kind": "market", "degree": 6, "source": "yahoo"}, {"id": "BTC-USD", "label": "บิตคอยน์", "kind": "market", "degree": 2, "source": "yahoo"}, {"id": "ETH-USD", "label": "อีเธอเรียม", "kind": "market", "degree": 2, "source": "yahoo"}, {"id": "payrolls", "label": "ตัวเลขการจ้างงานสหรัฐ", "kind": "operation", "degree": 5, "source": "bls"}], "edges": [{"src": "fed", "dst": "fomc", "kind": "documented", "label": "กำหนดกรอบดอกเบี้ยนโยบาย ปีละ 8 ครั้งตามกำหนดการ", "evidence": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm", "source": "fed"}, {"src": "fomc", "dst": "effr", "kind": "documented", "label": "อัตราดอกเบี้ยที่เกิดขึ้นจริงจะอยู่ในกรอบที่ประกาศ", "evidence": "https://www.newyorkfed.org/markets/reference-rates/effr", "source": "nyfed"}, {"src": "effr", "dst": "ust2y", "kind": "documented", "label": "พันธบัตร 2 ปีสะท้อนเส้นทางดอกเบี้ยนโยบายที่ตลาดคาด", "evidence": "the free stand-in for CME FedWatch, whose data is a paid feed", "source": "treasury"}, {"src": "treasury", "dst": "auction", "kind": "documented", "label": "ออกพันธบัตรตามปฏิทินประมูลที่ประกาศล่วงหน้า", "evidence": "https://www.treasurydirect.gov/auctions/announcements-data-results/", "source": "treasurydirect"}, {"src": "auction", "dst": "auction_btc", "kind": "documented", "label": "ยอดเสนอซื้อหารด้วยยอดขาย ยิ่งสูงยิ่งมีคนอยากได้", "evidence": "https://www.treasurydirect.gov/auctions/announcements-data-results/", "source": "treasurydirect"}, {"src": "dealers", "dst": "auction_dealer", "kind": "documented", "label": "มีหน้าที่ต้องเสนอซื้อ จึงรับส่วนที่ไม่มีใครเอาไว้ — ตัวเลข*สูง*แปลว่าขายไม่ออก ไม่ใช่ขายดี", "evidence": "https://www.newyorkfed.org/markets/primarydealers", "source": "treasurydirect"}, {"src": "foreign_cb", "dst": "auction_indirect", "kind": "documented", "label": "ผู้เสนอซื้อทางอ้อมส่วนใหญ่คือหน่วยงานทางการของต่างประเทศ", "evidence": "https://www.treasurydirect.gov/auctions/announcements-data-results/", "source": "treasurydirect"}, {"src": "auction_btc", "dst": "ust10y", "kind": "documented", "label": "ประมูลไม่ดี = ต้องให้ผลตอบแทนสูงขึ้นถึงจะขายหมด", "evidence": "https://www.crfb.org/blogs/weak-auctions-underscore-risks-our-growing-debt-burden", "source": "treasurydirect"}, {"src": "fed", "dst": "soma_rollover", "kind": "documented", "label": "ลงทุนต่อในพันธบัตรที่ครบอายุ ด้วยการเสนอซื้อแบบ*ไม่แข่งราคา* ได้ราคาตามที่ตลาดประมูลกันเอง — จึงพยุงราคาประมูลไม่ได้", "evidence": "https://www.newyorkfed.org/markets/treasury-rollover-faq", "source": "nyfed"}, {"src": "soma_rollover", "dst": "soma", "kind": "documented", "label": "ยอดคงเหลือที่เฟดถืออยู่ หลังการต่ออายุและการปล่อยให้ครบอายุ", "evidence": "https://markets.newyorkfed.org/api/soma/summary.json", "source": "nyfed"}, {"src": "ust10y", "dst": "UUP", "kind": "contested", "label": "ผลตอบแทนสูงขึ้นดึงเงินเข้า ทำให้ดอลลาร์แข็ง — แต่ความเสี่ยงทางการคลังที่สูงขึ้นกดให้อ่อน สองแรงนี้เกิดพร้อมกัน และไม่มีฝั่งไหนชนะเสมอ", "evidence": "measured here at r = +0.34 for the 10-year, which is real but is the net of two opposing forces rather than evidence for either", "source": "macro"}, {"src": "auction_dealer", "dst": "future_growth", "kind": "contested", "label": "คนตีความว่าประมูลไม่ดี = อนาคตการคลังแย่ แต่ก้าวจากการประมูลครั้งเดียวไปสู่การทำนายอนาคต เป็นก้าวที่โปรเจกต์นี้พิสูจน์ให้ไม่ได้", "evidence": "return forecastability measured at r = +0.02 over ten years and twenty-four markets", "source": "study"}, {"src": "vix", "dst": "EFA", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์แรง)", "evidence": "r = -0.65 over 750 days, same-day", "source": "macro"}, {"src": "vix", "dst": "HYG", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์แรง)", "evidence": "r = -0.64 over 750 days, same-day", "source": "macro"}, {"src": "vix", "dst": "EWJ", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์แรง)", "evidence": "r = -0.58 over 750 days, same-day", "source": "macro"}, {"src": "vix", "dst": "EEM", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์แรง)", "evidence": "r = -0.57 over 750 days, same-day", "source": "macro"}, {"src": "vvix", "dst": "EFA", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์แรง)", "evidence": "r = -0.56 over 750 days, same-day", "source": "macro"}, {"src": "vvix", "dst": "HYG", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์แรง)", "evidence": "r = -0.56 over 750 days, same-day", "source": "macro"}, {"src": "vvix", "dst": "EWJ", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์แรง)", "evidence": "r = -0.52 over 750 days, same-day", "source": "macro"}, {"src": "vvix", "dst": "EEM", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์แรง)", "evidence": "r = -0.51 over 750 days, same-day", "source": "macro"}, {"src": "vix", "dst": "VNQ", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์แรง)", "evidence": "r = -0.46 over 750 days, same-day", "source": "macro"}, {"src": "vix", "dst": "THD", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์แรง)", "evidence": "r = -0.44 over 750 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "HYG", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์แรง)", "evidence": "r = -0.43 over 659 days, same-day", "source": "macro"}, {"src": "ust2y", "dst": "UUP", "kind": "measured", "label": "เคลื่อนไปทางเดียวกัน (ความสัมพันธ์แรง)", "evidence": "r = +0.43 over 659 days, same-day", "source": "macro"}, {"src": "vvix", "dst": "VNQ", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.40 over 750 days, same-day", "source": "macro"}, {"src": "vvix", "dst": "ETH-USD", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.39 over 750 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "VNQ", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.38 over 659 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "HYG", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.38 over 659 days, same-day", "source": "macro"}, {"src": "vix", "dst": "ETH-USD", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.37 over 772 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "VNQ", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.36 over 659 days, same-day", "source": "macro"}, {"src": "vvix", "dst": "THD", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.34 over 750 days, same-day", "source": "macro"}, {"src": "vvix", "dst": "BTC-USD", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.34 over 750 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "UUP", "kind": "measured", "label": "เคลื่อนไปทางเดียวกัน (ความสัมพันธ์ปานกลาง)", "evidence": "r = +0.34 over 659 days, same-day", "source": "macro"}, {"src": "vix", "dst": "BTC-USD", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.33 over 772 days, same-day", "source": "macro"}, {"src": "vix", "dst": "FXI", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.33 over 750 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "USO", "kind": "measured", "label": "เคลื่อนไปทางเดียวกัน (ความสัมพันธ์ปานกลาง)", "evidence": "r = +0.31 over 659 days, same-day", "source": "macro"}, {"src": "ust2y", "dst": "USO", "kind": "measured", "label": "เคลื่อนไปทางเดียวกัน (ความสัมพันธ์ปานกลาง)", "evidence": "r = +0.31 over 659 days, same-day", "source": "macro"}, {"src": "vvix", "dst": "FXI", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.30 over 750 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "XLU", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.30 over 659 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "XLU", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.29 over 659 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "UUP", "kind": "measured", "label": "เคลื่อนไปทางเดียวกัน (ความสัมพันธ์ปานกลาง)", "evidence": "r = +0.27 over 659 days, same-day", "source": "macro"}, {"src": "ust2y", "dst": "XLE", "kind": "measured", "label": "เคลื่อนไปทางเดียวกัน (ความสัมพันธ์ปานกลาง)", "evidence": "r = +0.26 over 659 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "EFA", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.25 over 659 days, same-day", "source": "macro"}, {"src": "ust2y", "dst": "HYG", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์ปานกลาง)", "evidence": "r = -0.25 over 659 days, same-day", "source": "macro"}, {"src": "ust2y", "dst": "VNQ", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.23 over 659 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "XLP", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.23 over 659 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "XLP", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.22 over 659 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "EFA", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.22 over 659 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "XLV", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.22 over 659 days, same-day", "source": "macro"}, {"src": "ust2y", "dst": "GLD", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.21 over 659 days, same-day", "source": "macro"}, {"src": "vix", "dst": "SLV", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.21 over 750 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "XLE", "kind": "measured", "label": "เคลื่อนไปทางเดียวกัน (ความสัมพันธ์อ่อน)", "evidence": "r = +0.20 over 659 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "XLV", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.20 over 659 days, same-day", "source": "macro"}, {"src": "curve", "dst": "SPY", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.20 over 659 days, same-day", "source": "macro"}, {"src": "curve", "dst": "DIA", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.19 over 659 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "IWM", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.19 over 659 days, same-day", "source": "macro"}, {"src": "curve", "dst": "UUP", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.18 over 659 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "THD", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.18 over 659 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "EWJ", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.18 over 659 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "GLD", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.18 over 659 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "EEM", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.18 over 659 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "THD", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.17 over 659 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "GLD", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.17 over 659 days, same-day", "source": "macro"}, {"src": "real10y", "dst": "DIA", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.17 over 659 days, same-day", "source": "macro"}, {"src": "ust2y", "dst": "XLU", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.17 over 659 days, same-day", "source": "macro"}, {"src": "curve", "dst": "HYG", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.16 over 659 days, same-day", "source": "macro"}, {"src": "vvix", "dst": "SLV", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.16 over 750 days, same-day", "source": "macro"}, {"src": "curve", "dst": "QQQ", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.16 over 659 days, same-day", "source": "macro"}, {"src": "curve", "dst": "XLF", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.16 over 659 days, same-day", "source": "macro"}, {"src": "curve", "dst": "VNQ", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.16 over 659 days, same-day", "source": "macro"}, {"src": "curve", "dst": "XLU", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.16 over 659 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "EEM", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.16 over 659 days, same-day", "source": "macro"}, {"src": "ust2y", "dst": "XLP", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.15 over 659 days, same-day", "source": "macro"}, {"src": "curve", "dst": "XLK", "kind": "measured", "label": "เคลื่อนสวนทาง (ความสัมพันธ์อ่อน)", "evidence": "r = -0.15 over 659 days, same-day", "source": "macro"}, {"src": "ust10y", "dst": "TLT", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.91, but the instrument is built from the reading", "source": "macro"}, {"src": "ust2y", "dst": "TLT", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.61, but the instrument is built from the reading", "source": "macro"}, {"src": "real10y", "dst": "TLT", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.83, but the instrument is built from the reading", "source": "macro"}, {"src": "vix", "dst": "SPY", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.82, but the instrument is built from the reading", "source": "macro"}, {"src": "vix", "dst": "QQQ", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.76, but the instrument is built from the reading", "source": "macro"}, {"src": "vix", "dst": "IWM", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.67, but the instrument is built from the reading", "source": "macro"}, {"src": "vix", "dst": "DIA", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.75, but the instrument is built from the reading", "source": "macro"}, {"src": "vix", "dst": "XLF", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.67, but the instrument is built from the reading", "source": "macro"}, {"src": "vix", "dst": "XLK", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.71, but the instrument is built from the reading", "source": "macro"}, {"src": "vvix", "dst": "SPY", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.70, but the instrument is built from the reading", "source": "macro"}, {"src": "vvix", "dst": "QQQ", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.66, but the instrument is built from the reading", "source": "macro"}, {"src": "vvix", "dst": "IWM", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.62, but the instrument is built from the reading", "source": "macro"}, {"src": "vvix", "dst": "DIA", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.65, but the instrument is built from the reading", "source": "macro"}, {"src": "vvix", "dst": "XLF", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.57, but the instrument is built from the reading", "source": "macro"}, {"src": "vvix", "dst": "XLK", "kind": "arithmetic", "label": "เป็นข้อเท็จจริงเดียวกันพูดสองรอบ", "evidence": "r = -0.62, but the instrument is built from the reading", "source": "macro"}, {"src": "payrolls", "dst": "TLT", "kind": "measured", "label": "ทำให้ขยับ 1.39 เท่าของวันปกติ", "evidence": "98 events, 1.39x", "source": "events"}, {"src": "payrolls", "dst": "EWJ", "kind": "measured", "label": "ทำให้ขยับ 1.31 เท่าของวันปกติ", "evidence": "98 events, 1.31x", "source": "events"}, {"src": "payrolls", "dst": "QQQ", "kind": "measured", "label": "ทำให้ขยับ 1.27 เท่าของวันปกติ", "evidence": "98 events, 1.27x", "source": "events"}, {"src": "payrolls", "dst": "IWM", "kind": "measured", "label": "ทำให้ขยับ 1.26 เท่าของวันปกติ", "evidence": "98 events, 1.26x", "source": "events"}, {"src": "payrolls", "dst": "SPY", "kind": "measured", "label": "ทำให้ขยับ 1.26 เท่าของวันปกติ", "evidence": "98 events, 1.26x", "source": "events"}, {"src": "fomc", "dst": "UUP", "kind": "measured", "label": "ทำให้ขยับ 1.58 เท่าของวันปกติ", "evidence": "44 events, 1.58x", "source": "events"}, {"src": "fomc", "dst": "FXI", "kind": "measured", "label": "ทำให้ขยับ 1.55 เท่าของวันปกติ", "evidence": "44 events, 1.55x", "source": "events"}, {"src": "fomc", "dst": "GLD", "kind": "measured", "label": "ทำให้ขยับ 1.41 เท่าของวันปกติ", "evidence": "44 events, 1.41x", "source": "events"}, {"src": "fomc", "dst": "QQQ", "kind": "measured", "label": "ทำให้ขยับ 1.38 เท่าของวันปกติ", "evidence": "44 events, 1.38x", "source": "events"}, {"src": "fomc", "dst": "HYG", "kind": "measured", "label": "ทำให้ขยับ 1.36 เท่าของวันปกติ", "evidence": "44 events, 1.36x", "source": "events"}]}, L = {"graph_title": "แผนที่ความเชื่อมโยง", "graph_intro": "ลากได้ คลิกที่จุดเพื่อดูว่าอะไรทำให้มันขยับ และมันไปทำให้อะไรขยับต่อ", "graph_search": "ค้นหา...", "graph_click": "คลิกที่จุดใดก็ได้เพื่อเริ่ม", "graph_arithmetic": "เป็นเลขคณิต", "graph_documented": "มีเอกสารทางการ", "graph_measured": "วัดเองแล้ว", "graph_contested": "ยังเถียงกันอยู่", "graph_evidence": "เส้นแต่ละแบบ = หลักฐานคนละระดับ", "graph_causes": "อะไรทำให้มันขยับ", "graph_effects": "มันทำให้อะไรขยับ", "graph_none": "ไม่มีในกราฟนี้", "graph_reset": "ล้างการเลือก", "graph_legend_kind": "ประเภทของจุด"};
+const EDGE_COLOR = {arithmetic:"--arith", documented:"--doc", measured:"--meas",
+                    contested:"--cont"};
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+const nodes = DATA.nodes.map((n,i) => ({...n,
+  x: Math.cos(i/DATA.nodes.length*6.283)*220 + (Math.random()-.5)*40,
+  y: Math.sin(i/DATA.nodes.length*6.283)*220 + (Math.random()-.5)*40,
+  vx:0, vy:0}));
+const byId = Object.fromEntries(nodes.map(n => [n.id, n]));
+const edges = DATA.edges.filter(e => byId[e.src] && byId[e.dst])
+                        .map(e => ({...e, a: byId[e.src], b: byId[e.dst]}));
+for (const n of nodes) n.r = 5 + Math.min(9, Math.sqrt(n.degree) * 2.6);
+
+let W=0, H=0, dpr=1, sel=null, hover=null, drag=null, pan={x:0,y:0}, zoom=1, alpha=1;
+
+function resize(){
+  const box = document.getElementById("stage").getBoundingClientRect();
+  dpr = window.devicePixelRatio || 1;
+  W = box.width; H = box.height;
+  cv.width = W*dpr; cv.height = H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener("resize", () => { resize(); alpha = Math.max(alpha,.35); });
+
+// A plain spring/repulsion layout. Forty nodes does not need Barnes-Hut, and a
+// dependency-free file is worth more here than an asymptotic improvement.
+function step(){
+  if (alpha < .002) return;
+  for (const n of nodes){
+    if (n === drag) continue;
+    n.vx -= n.x * 0.0016; n.vy -= n.y * 0.0016;          // gentle centring
+  }
+  for (let i=0;i<nodes.length;i++) for (let j=i+1;j<nodes.length;j++){
+    const a=nodes[i], b=nodes[j];
+    let dx=b.x-a.x, dy=b.y-a.y, d2=dx*dx+dy*dy || 0.01;
+    if (d2 > 90000) continue;
+    const f = 2600/d2, d=Math.sqrt(d2), fx=dx/d*f, fy=dy/d*f;
+    a.vx-=fx; a.vy-=fy; b.vx+=fx; b.vy+=fy;
+  }
+  for (const e of edges){
+    const dx=e.b.x-e.a.x, dy=e.b.y-e.a.y, d=Math.hypot(dx,dy)||0.01;
+    const f=(d-115)*0.012, fx=dx/d*f, fy=dy/d*f;
+    e.a.vx+=fx; e.a.vy+=fy; e.b.vx-=fx; e.b.vy-=fy;
+  }
+  for (const n of nodes){
+    if (n === drag){ n.vx=n.vy=0; continue; }
+    n.vx*=0.86; n.vy*=0.86; n.x+=n.vx*alpha; n.y+=n.vy*alpha;
+  }
+  alpha *= 0.994;
+}
+
+const near = id => sel && (sel === id ||
+  edges.some(e => (e.src===sel&&e.dst===id)||(e.dst===sel&&e.src===id)));
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.save(); ctx.translate(W/2+pan.x, H/2+pan.y); ctx.scale(zoom,zoom);
+
+  for (const e of edges){
+    const lit = !sel || e.src===sel || e.dst===sel;
+    ctx.globalAlpha = lit ? (e.kind==="arithmetic"?.45:.8) : .07;
+    ctx.strokeStyle = css(EDGE_COLOR[e.kind]);
+    ctx.lineWidth = e.kind==="contested" ? 1.8 : 1.2;
+    ctx.setLineDash(e.kind==="contested" ? [5,4] : e.kind==="arithmetic" ? [2,3] : []);
+    ctx.beginPath(); ctx.moveTo(e.a.x,e.a.y); ctx.lineTo(e.b.x,e.b.y); ctx.stroke();
+    if (lit && (!sel || e.dst===sel || e.src===sel)){
+      const dx=e.b.x-e.a.x, dy=e.b.y-e.a.y, d=Math.hypot(dx,dy)||1;
+      const tx=e.b.x-dx/d*(e.b.r+4), ty=e.b.y-dy/d*(e.b.r+4), ang=Math.atan2(dy,dx);
+      ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(tx,ty);
+      ctx.lineTo(tx-7*Math.cos(ang-0.4), ty-7*Math.sin(ang-0.4));
+      ctx.moveTo(tx,ty);
+      ctx.lineTo(tx-7*Math.cos(ang+0.4), ty-7*Math.sin(ang+0.4));
+      ctx.stroke();
+    }
+  }
+  ctx.setLineDash([]);
+
+  for (const n of nodes){
+    const lit = !sel || near(n.id);
+    ctx.globalAlpha = lit ? 1 : .12;
+    ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,6.2832);
+    ctx.fillStyle = css("--"+n.kind); ctx.fill();
+    if (n.id===sel || n.id===hover){
+      ctx.lineWidth=2.5; ctx.strokeStyle=css("--ink"); ctx.stroke();
+    }
+    if (lit && (zoom>0.75 || n.degree>3 || n.id===sel)){
+      ctx.globalAlpha = lit ? .95 : .12;
+      ctx.fillStyle = css("--ink");
+      ctx.font = (n.id===sel?"600 ":"") + "11px system-ui,sans-serif";
+      ctx.textAlign="center";
+      ctx.fillText(n.label, n.x, n.y - n.r - 5);
+    }
+  }
+  ctx.restore(); ctx.globalAlpha = 1;
+}
+
+function frame(){ step(); draw(); requestAnimationFrame(frame); }
+
+const toWorld = (px,py) => ({x:(px-W/2-pan.x)/zoom, y:(py-H/2-pan.y)/zoom});
+function hit(px,py){
+  const p = toWorld(px,py);
+  let best=null, bd=1e9;
+  for (const n of nodes){
+    const d = Math.hypot(n.x-p.x, n.y-p.y);
+    if (d < n.r+9 && d < bd){ best=n; bd=d; }
+  }
+  return best;
+}
+
+let panning=false, last={x:0,y:0};
+cv.addEventListener("pointerdown", ev => {
+  const n = hit(ev.offsetX, ev.offsetY);
+  if (n){ drag=n; select(n.id); alpha=Math.max(alpha,.3); }
+  else { panning=true; last={x:ev.clientX,y:ev.clientY}; select(null); }
+  cv.classList.add("dragging"); cv.setPointerCapture(ev.pointerId);
+});
+cv.addEventListener("pointermove", ev => {
+  if (drag){ const p=toWorld(ev.offsetX,ev.offsetY); drag.x=p.x; drag.y=p.y;
+             alpha=Math.max(alpha,.15); }
+  else if (panning){ pan.x+=ev.clientX-last.x; pan.y+=ev.clientY-last.y;
+                     last={x:ev.clientX,y:ev.clientY}; }
+  else { const n=hit(ev.offsetX,ev.offsetY); hover = n?n.id:null;
+         cv.style.cursor = n ? "pointer" : "grab"; }
+});
+const release = ev => { drag=null; panning=false; cv.classList.remove("dragging"); };
+cv.addEventListener("pointerup", release);
+cv.addEventListener("pointercancel", release);
+cv.addEventListener("wheel", ev => {
+  ev.preventDefault();
+  zoom = Math.min(3, Math.max(0.3, zoom * (ev.deltaY < 0 ? 1.12 : 0.89)));
+}, {passive:false});
+
+function esc(s){ const d=document.createElement("div"); d.textContent=s??"";
+                 return d.innerHTML; }
+function evidenceHtml(ev){
+  if (!ev) return "";
+  const m = String(ev).match(/https?:\/\/\S+/);
+  if (m) return '<a href="'+esc(m[0])+'" target="_blank" rel="noopener">'
+                + esc(m[0].replace(/^https?:\/\//,"").slice(0,52)) + "</a>";
+  return esc(ev);
+}
+function edgeHtml(e, otherId, dir){
+  const other = byId[otherId];
+  return '<div class="edge '+e.kind+'"><b>'+esc(other?other.label:otherId)+'</b>'
+       + ' <span class="tag">'+esc(L["graph_"+e.kind])+'</span>'
+       + '<span class="lbl">'+esc(e.label)+'</span>'
+       + (e.evidence ? '<span class="ev">'+evidenceHtml(e.evidence)+'</span>' : '')
+       + '</div>';
+}
+function select(id){
+  sel = id;
+  const box = document.getElementById("detail");
+  if (!id){ box.innerHTML = '<p class="intro">'+esc(L.graph_click)+'</p>'; return; }
+  const n = byId[id];
+  const into = edges.filter(e => e.dst===id), out = edges.filter(e => e.src===id);
+  box.innerHTML =
+    '<h2>&nbsp;</h2><div class="nm">'+esc(n.label)+'</div>'
+    + '<div class="kd">'+esc(n.kind)+'</div>'
+    + '<h2>'+esc(L.graph_causes)+'</h2>'
+    + (into.length ? into.map(e => edgeHtml(e, e.src, "in")).join("")
+                   : '<p class="intro">'+esc(L.graph_none)+'</p>')
+    + '<h2>'+esc(L.graph_effects)+'</h2>'
+    + (out.length ? out.map(e => edgeHtml(e, e.dst, "out")).join("")
+                  : '<p class="intro">'+esc(L.graph_none)+'</p>')
+    + '<button onclick="select(null)">'+esc(L.graph_reset)+'</button>';
+}
+window.select = select;
+
+document.getElementById("q").placeholder = L.graph_search;
+document.getElementById("q").addEventListener("input", ev => {
+  const q = ev.target.value.trim().toLowerCase();
+  if (!q) return select(null);
+  const n = nodes.find(x => x.label.toLowerCase().includes(q)
+                         || x.id.toLowerCase().includes(q));
+  if (n){ select(n.id); pan = {x:-n.x*zoom, y:-n.y*zoom}; }
+});
+
+document.getElementById("h-legend").textContent = L.graph_evidence;
+document.getElementById("h-kind").textContent = L.graph_legend_kind;
+document.getElementById("legend").innerHTML = ["arithmetic","documented","measured","contested"]
+  .map(k => '<div><span class="swatch" style="border-color:'+css(EDGE_COLOR[k])
+          + ';border-top-style:'+(k==="contested"?"dashed":k==="arithmetic"?"dotted":"solid")
+          + '"></span>'+esc(L["graph_"+k])+"</div>").join("");
+document.getElementById("kinds").innerHTML = ["actor","operation","reading","market","opinion"]
+  .map(k => '<div><span class="dot" style="background:'+css("--"+k)+'"></span>'+k+"</div>").join("");
+
+resize(); select(null); frame();
+</script></body></html>

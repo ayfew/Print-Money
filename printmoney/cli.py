@@ -11,6 +11,8 @@
     pm daily       the morning brief: what today is about, and what to ignore
     pm events      scheduled releases, and the evidence each one earned its place with
     pm macro       official daily readings, and which markets each one moves with
+    pm graph       the causal map as an interactive page
+    pm why <node>  what moves a market, and what moves that
     pm score       how often the brief's own risk calls turned out to be right
     pm validate    end-to-end self-test against a market with known truth
     pm replay      re-solve recorded snapshots and settle them for real
@@ -820,6 +822,107 @@ def cmd_macro(args: argparse.Namespace) -> int:
 
 
 # --------------------------------------------------------------------------- #
+def _graph():
+    from .research import events as ev
+    from .research import graph as G
+    from .research import macro as M
+
+    return G.build(links=M.load(), impacts=ev.load_impacts())
+
+
+def cmd_graph(args: argparse.Namespace) -> int:
+    """The causal map: every link, and what kind of claim each one is."""
+    from collections import Counter
+
+    from rich.console import Console
+
+    from .research import graph as G
+    from .research.graphview import write_graph_html
+
+    setup_console()
+    console = Console()
+    g = _graph()
+
+    if args.json:
+        _print_json(g.to_dict())
+        return 0
+
+    path = write_graph_html(g, args.html, lang=args.lang)
+    counts = Counter(e.kind for e in g.edges)
+    console.print(f"[dim]graph -> {path}[/dim]")
+    console.print(f"\n[bold]{len(g.nodes)} nodes, {len(g.edges)} edges[/bold]")
+    for kind in G.KINDS:
+        style = {"arithmetic": "dim", "documented": "blue",
+                 "measured": "green", "contested": "red"}[kind]
+        console.print(f"  [{style}]{kind:<11}[/{style}] {counts.get(kind, 0)}")
+    console.print(
+        "\n[dim]Arithmetic edges are true by construction and therefore useless "
+        "as explanations. Contested ones are shown on purpose - deleting a link "
+        "people already believe does not stop them believing it.[/dim]"
+    )
+    return 0
+
+
+def cmd_why(args: argparse.Namespace) -> int:
+    """Walk backwards from one node: what moves it, and what moves that."""
+    from rich.console import Console
+    from rich.text import Text
+
+    from .research import graph as G
+    from .research.i18n import norm
+
+    setup_console()
+    console = Console()
+    lang = norm(args.lang)
+    g = _graph()
+
+    node_id = args.node
+    if node_id not in g.nodes:
+        match = [n for n in g.nodes.values()
+                 if args.node.lower() in n.id.lower()
+                 or args.node.lower() in n.label_en.lower()
+                 or args.node in n.label_th]
+        if not match:
+            console.print(f"[red]no node matching '{args.node}'[/red]")
+            console.print("[dim]try: " + ", ".join(sorted(g.nodes)[:14]) + " ...[/dim]")
+            return 1
+        node_id = match[0].id
+
+    chains = g.why(node_id, depth=args.depth)
+    if args.json:
+        _print_json({"node": node_id,
+                     "chains": [[e.to_dict() for e in c] for c in chains]})
+        return 0
+
+    console.print(f"\n[bold]{g.nodes[node_id].label(lang)}[/bold]")
+    style = {"arithmetic": "dim", "documented": "blue",
+             "measured": "green", "contested": "red"}
+
+    for chain in chains[:args.limit]:
+        weakest = G.weakest(chain)
+        console.print(f"\n[{style[weakest]}]  ── {weakest} ──[/{style[weakest]}]")
+        for depth, edge in enumerate(reversed(chain)):
+            pad = "   " + "  " * depth
+            src, dst = g.nodes[edge.src], g.nodes[edge.dst]
+            console.print(
+                f"{pad}[bold]{src.label(lang)}[/bold] "
+                f"[{style[edge.kind]}]->[/{style[edge.kind]}] {dst.label(lang)}"
+            )
+            console.print(Text(f"{pad}  {edge.label(lang)}", style="dim"))
+            if edge.evidence:
+                console.print(Text(f"{pad}  {edge.evidence}", style=style[edge.kind]))
+
+    if len(chains) > args.limit:
+        console.print(f"\n[dim]{len(chains) - args.limit} more chain(s); "
+                      f"--limit to see them[/dim]")
+    console.print(
+        "\n[dim]A chain is only as strong as its weakest link, which is what the "
+        "heading on each one says. Nothing here forecasts anything.[/dim]"
+    )
+    return 0
+
+
+# --------------------------------------------------------------------------- #
 def cmd_score(args: argparse.Namespace) -> int:
     """How often the brief's own risk calls turned out to be right."""
     from rich.console import Console
@@ -1145,6 +1248,21 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--cache-hours", type=float, default=6.0)
     common(sp)
     sp.set_defaults(func=cmd_macro)
+
+    sp = sub.add_parser("graph", help="the causal map, as an interactive page")
+    sp.add_argument("--html", nargs="?", const="reports/graph.html",
+                    default="reports/graph.html", help="where to write the page")
+    sp.add_argument("--lang", choices=("th", "en"), default="th")
+    common(sp)
+    sp.set_defaults(func=cmd_graph)
+
+    sp = sub.add_parser("why", help="what moves a market, and what moves that")
+    sp.add_argument("node", help="a market, reading or actor (partial name is fine)")
+    sp.add_argument("--depth", type=int, default=4, help="how far back to walk")
+    sp.add_argument("--limit", type=int, default=6, help="how many chains to print")
+    sp.add_argument("--lang", choices=("th", "en"), default="th")
+    common(sp)
+    sp.set_defaults(func=cmd_why)
 
     sp = sub.add_parser("score", help="how often the brief's own calls were right")
     sp.add_argument("--save", action="store_true", help="commit the summary")

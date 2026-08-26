@@ -49,6 +49,12 @@ jobs:
         # visibly red is the point - a green run that quietly wrote "nothing
         # today" over a real brief is the failure mode this guards.
 
+      # The graph is rebuilt every morning because its measured edges come from
+      # data/macro.json and data/impacts.json, which the monthly refresh moves.
+      # The documented edges are static; regenerating costs one second.
+      - name: Rebuild the causal map
+        run: python pm.py graph --html reports/graph.html --lang th
+
       - name: Check the calendar is still valid iCalendar
         run: |
           python - <<'PY'
@@ -70,7 +76,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/printmoney.ics reports/brief.html
+          git add reports/printmoney.ics reports/brief.html reports/graph.html
           git add data/claims.jsonl data/snapshot.json
           if git diff --cached --quiet; then
             echo "nothing changed"
