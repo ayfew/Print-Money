@@ -423,18 +423,36 @@ schtasks /delete /tn "printmoney daily" /f
 | `reports\brief_YYYYMMDD.txt` | ผลลัพธ์แบบ terminal เก็บเป็นบันทึก |
 | `reports\brief_YYYYMMDD.json` | ข้อมูลดิบ เผื่อเอาไปต่อยอด |
 
-### ต่อเข้าปฏิทิน iPhone
+### ต่อเข้าปฏิทิน iPhone — ใช้ได้แล้วตอนนี้
 
-1. ย้ายโฟลเดอร์ `reports` เข้าไปใน OneDrive หรือ iCloud Drive
-2. คัดลอกลิงก์แชร์ของไฟล์ `printmoney.ics`
-3. บน iPhone: **ปฏิทิน → ปฏิทิน → เพิ่มปฏิทิน → เพิ่มปฏิทินที่บอกรับ** → วางลิงก์
+ไฟล์ปฏิทินถูก commit ขึ้น repo นี้ GitHub เสิร์ฟให้ผ่าน HTTPS อยู่แล้ว
+ไม่ต้องใช้ OneDrive ไม่ต้องแชร์ลิงก์เอง
 
-iPhone จะรีเฟรชเอง (ตั้งความถี่ได้ที่ ตั้งค่า → แอป → ปฏิทิน → บัญชี)
-ปฏิทินที่ subscribe เป็นแบบอ่านอย่างเดียว แก้ไขในเครื่องไม่ได้ ซึ่งถูกต้องแล้ว —
-มันคือบันทึก ไม่ใช่รายการนัดหมาย
+```
+https://raw.githubusercontent.com/ayfew/Print-Money/main/reports/printmoney.ics
+```
 
-รายการแต่ละวันจะขึ้นหัวข้อว่า `printmoney: nothing today` หรือ
-`printmoney: N to act on` กดเข้าไปดูเหตุผลข้างในได้
+บน iPhone: **ปฏิทิน → ปฏิทิน → เพิ่มปฏิทิน → เพิ่มปฏิทินที่บอกรับ** → วาง URL ข้างบน
+
+iPhone จะรีเฟรชเอง (ปรับความถี่ได้ที่ ตั้งค่า → แอป → ปฏิทิน → บัญชี)
+ปฏิทินแบบบอกรับเป็นอ่านอย่างเดียว ซึ่งถูกต้องแล้ว — มันคือบันทึก ไม่ใช่รายการนัด
+
+รายการแต่ละวันขึ้นหัวข้อว่า `printmoney: nothing today` หรือ
+`printmoney: N to act on` กดเข้าไปอ่านเหตุผลข้างในได้
+
+> **หมายเหตุทางเทคนิค** iCalendar บังคับใช้ CRLF ถ้า git แปลง line ending ตอน
+> checkout บน Linux ไฟล์จะพังทันที `.gitattributes` เลยมาร์ค `*.ics -text`
+> ไว้เป็น binary กัน git แตะ และมีเทสต์คุมทั้งฝั่งเขียนและฝั่ง commit
+
+### สองทางในการรันงานรายวัน
+
+| | รันที่ไหน | ต้องเปิดคอมมั้ย | ข้อดี |
+|---|---|---|---|
+| **Task Scheduler** | เครื่องคุณ | ต้องเปิด | มี ledger, snapshot, cache ครบ รันเอนจินเต็ม |
+| **Claude Routine** | คลาวด์ | ไม่ต้อง | ปิดคอมก็ทำงาน ผลเด้งเข้าแอป Claude อ่านบนมือถือได้ |
+
+Routine ต้องเชื่อมบัญชี GitHub กับ Claude ก่อน ไม่งั้น API จะตอบว่า
+*"Connect your GitHub account before saving a routine that uses a GitHub repository."*
 
 ### ทำไมไม่ใช้ Routines ของ Claude
 
