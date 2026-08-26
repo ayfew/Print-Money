@@ -8,7 +8,7 @@
     pm ui          browser dashboard, live or as a single HTML file
     pm carry       rank delta-neutral funding carry across every perpetual
     pm study       does a trading idea survive its own costs? ten years of evidence
-    pm daily       the morning brief: what today is about, and what to ignore
+    pm daily       the morning brief, plus the one page it all lives on
     pm events      scheduled releases, and the evidence each one earned its place with
     pm macro       official daily readings, and which markets each one moves with
     pm graph       the causal map as an interactive page
@@ -599,9 +599,12 @@ def cmd_daily(args: argparse.Namespace) -> int:
         if not args.json:
             console.print(f"[dim]calendar -> {path}[/dim]")
     if args.html:
-        from .research.export import write_html
+        # One page, three views. The brief and the map were the same argument
+        # told twice across two tabs; now every name in the brief is a link into
+        # the map, which is what building the graph was for.
+        from .research.site import write_site
 
-        path = write_html(m, args.html, capital=capital, lang=args.lang)
+        path = write_site(m, _graph(), args.html, lang=args.lang)
         if not args.json:
             console.print(f"[dim]page -> {path}[/dim]")
 
@@ -1425,8 +1428,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--quiet", action="store_true", help="verdict and notes only")
     sp.add_argument("--ics", nargs="?", const="reports/printmoney.ics", default=None,
                     help="append today to a subscribable .ics calendar")
-    sp.add_argument("--html", nargs="?", const="reports/brief.html", default=None,
-                    help="write a phone-sized HTML page")
+    sp.add_argument("--html", nargs="?", const="reports/index.html", default=None,
+                    help="write the single page: today, the map, the evidence")
     sp.add_argument("--lang", choices=("th", "en"), default="th",
                     help="language for the calendar entry and the page")
     sp.add_argument("--no-record", action="store_true",

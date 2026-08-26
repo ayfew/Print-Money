@@ -396,3 +396,65 @@ class TestContaminationHarnessStillGuardsItself:
         if qs:
             rep = C.grade(qs, {q.qid: "up" for q in qs}, cutoff="1900-01-01")
             assert C.Report.rate(rep.answered()) == pytest.approx(0.5)
+
+
+class TestTheOnePage:
+    """Three views, one file, and every name in the brief a link into the map."""
+
+    def _page(self, tmp_path, lang="th"):
+        from printmoney.research.site import write_site
+
+        b = _brief()
+        d = _decision(venues=_Venues([_Spread("SOL", 0.013, 0.30)]))
+        g = build_graph(links=_links(), impacts=_impacts())
+        return write_site(_Morning(b, d, {"n": 5148, "rate": 0.806}), g,
+                          tmp_path / "index.html", lang=lang).read_text("utf-8")
+
+    def test_it_is_one_self_contained_file(self, tmp_path):
+        html = self._page(tmp_path)
+        assert "<script src" not in html
+        assert '<link rel="stylesheet"' not in html
+        assert "__PAYLOAD__" not in html and "__TITLE__" not in html
+
+    def test_all_three_views_are_present(self, tmp_path):
+        html = self._page(tmp_path)
+        for view in ('id="v-today"', 'id="v-map"', 'id="v-evidence"'):
+            assert view in html
+
+    def test_the_graph_index_is_built_before_the_brief_renders(self, tmp_path):
+        """Regression: renderToday ran first and read an undefined index."""
+        html = self._page(tmp_path)
+        assert html.index("const byId") < html.index("function renderToday")
+
+    def test_the_brief_carries_node_ids_so_names_become_links(self, tmp_path):
+        html = self._page(tmp_path)
+        assert '"nodes"' in html
+        # the chip handler and the table both need a jump target
+        assert 'data-go="' in html or "data-go" in html
+
+    def test_the_evidence_view_reads_the_committed_artefacts(self, tmp_path):
+        html = self._page(tmp_path)
+        for key in ("scorecard", "indicators", "contamination", "impacts", "macro"):
+            assert f'"{key}"' in html
+
+    def test_both_languages_build_and_differ(self, tmp_path):
+        th = self._page(tmp_path, "th")
+        en = self._page(tmp_path / "en", "en")
+        assert th != en
+        assert "วันนี้" in th and "today" in en
+
+    def test_a_morning_with_no_decision_still_produces_a_page(self, tmp_path):
+        from printmoney.research.site import write_site
+
+        g = build_graph(links=_links())
+        html = write_site(_Morning(_brief(), None), g,
+                          tmp_path / "i.html").read_text("utf-8")
+        assert "__PAYLOAD__" not in html and '"focus": null' in html
+
+    def test_the_calendar_points_at_the_page(self, tmp_path):
+        from printmoney.research.export import SITE_URL
+
+        raw = write_ics(_Morning(_brief(), _decision()), tmp_path / "c.ics",
+                        lang="th").read_bytes().decode("utf-8")
+        assert f"URL:{SITE_URL}" in raw.replace("\r\n ", "")
+        assert SITE_URL in raw.replace("\r\n ", "")

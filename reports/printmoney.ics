@@ -8,11 +8,11 @@ X-PUBLISHED-TTL:PT6H
 REFRESH-INTERVAL;VALUE=DURATION:PT6H
 BEGIN:VEVENT
 UID:8346f7f1c65955365391@printmoney
-DTSTAMP:20260826T090613Z
+DTSTAMP:20260826T092858Z
 DTSTART;VALUE=DATE:20260826
 DTEND;VALUE=DATE:20260827
 SUMMARY:ช้างขาว: 9 ตลาดกำลังร้อน
-DESCRIPTION:อ่านประมาณ 121 วินาที\n\nว
+DESCRIPTION:อ่านประมาณ 123 วินาที\n\nว
  ันนี้ไม่มีอะไรต้องทำ แต่ 9
   จาก 24 ตลาดผันผวนเกินปกติข
  องตัวเอง เริ่มที่ กลุ่มสิ
@@ -51,70 +51,73 @@ DESCRIPTION:อ่านประมาณ 121 วินาที\n\nว
  ่านมา)\n  - VIX (ดัชนีความกลัว): 15.
  45 (-0.40 จากเมื่อวาน\, สูงกว่า 18% 
  ของ 2 ปีที่ผ่านมา)\n\nจับตา:\n  - 
- BTR จ่าย funding ไม่เท่ากันระหว่
- างกระดาน — long ที่ bybit (+19.7%) short ที
- ่ gate (+44.8%) ส่วนต่าง +25.1% ต่อปี บน
- ทุน $1\,000 แบ่งสองฝั่ง = $10.46 ต่อ
- เดือน (มี 2 คู่ที่ผ่านเกณฑ์
- วันนี้) — ราคาหักล้างกัน แ
- ต่ต้องมีบัญชีสองที่\n\nระว
- ัง:\n  - 9 จาก 24 ตลาดผันผวนเกิน
- ปกติของตัวเอง เช่น กลุ่มส
- ินค้าจำเป็น · กลุ่มสุขภาพ 
- · น้ำมัน · กลุ่มเทคโนโลยี · 
- อีเธอเรียม · บิตคอยน์ — สุด
- โต่งสุดคือ กลุ่มสินค้าจำ
- เป็น ที่ผันผวน 14% ต่อปี สูง
- กว่า 86% ของประวัติตัวเอง\n\nไ
- ม่ต้องสนใจ:\n  - 5 จาก 24 ตลาดเง
- ียบกว่าปกติของตัวเอง เช่
- น หุ้นจีน · หุ้นไทย · อสังหา
- ฯ สหรัฐ · กลุ่มการเงิน ตลาด
- นิ่งคือสภาพที่แย่ที่สุดข
- องอะไรก็ตามที่เสียค่าธรร
- มเนียมต่อครั้ง\n\nไม่มีอะไ
- รเปลี่ยนจากเมื่อวาน\n\nขยั
- บมากสุด:\n  น้ำมัน: -4.58% วันนี้\
- , +1.1% ในเดือน\n  ตลาดเกิดใหม่: +
- 1.72% วันนี้\, +5.7% ในเดือน\n  กลุ่
- มพลังงาน: -1.66% วันนี้\, +6.3% ในเด
- ือน\n  พันธบัตรสหรัฐระยะยา
- ว: +1.10% วันนี้\, +0.1% ในเดือน\n  กล
- ุ่มสินค้าจำเป็น: -1.06% วันนี้
- \, +1.4% ในเดือน\n\nยืดตัวผิดปกต
- ิ:\n  บิตคอยน์: +2.8 SD จากค่าเฉลี
- ่ย 60 วัน (+22.2% ในเดือน)\n  อีเธอเ
- รียม: +2.5 SD จากค่าเฉลี่ย 60 วัน 
- (+29.1% ในเดือน)\n  ทองคำ: +2.4 SD จากค
- ่าเฉลี่ย 60 วัน (+14.3% ในเดือน)\n  
- หุ้นกู้ผลตอบแทนสูง: +2.3 SD จา
- กค่าเฉลี่ย 60 วัน (+1.3% ในเดือน
- )\n  ยืดตัวคือข้อเท็จจริงเร
- ื่องราคา ไม่ใช่สัญญาณ — งา
- นวิจัยพบว่ากฎ mean-reversion แยกไม
- ่ออกจากการสุ่ม\n\nผลตอบแทน f
- unding carry:\n  ตะกร้าให้ +3.6% ต่อปีสุ
- ทธิ = $2.98 ต่อเดือน บนทุน $1\,000.00\n 
-  ต่ำกว่าเกณฑ์ 15% จึงยังไม่ท
- ำอะไร\n\nสถิติความแม่นของบ
- รีฟนี้:\n  ที่ผ่านมาบรีฟนี้
- ทายถูก 81% จาก 5148 ครั้ง (เหรีย
- ญได้ 50%) — ดูเองได้ด้วย `pm score`\n\
- nแหล่งข้อมูล:\n  [official] Federal Reserve Bank o
- f New York — https://www.newyorkfed.org/markets/reference-rates/effr\n
-   [official] US Treasury — https://home.treasury.gov/resource-center/d
- ata-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve
- \n  [primary] Binance — https://www.binance.com/en/futures/funding-his
- tory/perpetual/real-time-funding-rate\n  [primary] Cboe Global Markets 
- — https://www.cboe.com/tradable_products/vix/\n  [derived] printmoney 
- 2s10s spread — https://github.com/ayfew/Print-Money#readme\n  [derived
- ] printmoney macro links — https://github.com/ayfew/Print-Money#readme
- \n  [derived] printmoney volatility percentile — https://github.com/ay
- few/Print-Money#readme\n\nส่วนใหญ่มันจะบอ
- กว่าไม่มีอะไร และส่วนใหญ
- ่นั่นคือคำตอบที่ถูก — รัน 
- `pm study` เพื่อดูเลขคณิต 10 ปีที่
- อยู่เบื้องหลัง
+ ONG จ่าย funding ไม่เท่ากันระหว่
+ างกระดาน — long ที่ bitget (-48.0%) short ที
+ ่ bybit (-20.7%) ส่วนต่าง +27.3% ต่อปี บ
+ นทุน $1\,000 แบ่งสองฝั่ง = $11.37 ต่
+ อเดือน (มี 2 คู่ที่ผ่านเกณฑ
+ ์วันนี้) — ราคาหักล้างกัน 
+ แต่ต้องมีบัญชีสองที่\n\nระ
+ วัง:\n  - 9 จาก 24 ตลาดผันผวนเกิ
+ นปกติของตัวเอง เช่น กลุ่ม
+ สินค้าจำเป็น · กลุ่มสุขภา
+ พ · น้ำมัน · กลุ่มเทคโนโลยี 
+ · อีเธอเรียม · บิตคอยน์ — สุ
+ ดโต่งสุดคือ กลุ่มสินค้าจ
+ ำเป็น ที่ผันผวน 14% ต่อปี สู
+ งกว่า 86% ของประวัติตัวเอง\n\n
+ ไม่ต้องสนใจ:\n  - 5 จาก 24 ตลาดเ
+ งียบกว่าปกติของตัวเอง เช
+ ่น หุ้นจีน · หุ้นไทย · อสังห
+ าฯ สหรัฐ · กลุ่มการเงิน ตลา
+ ดนิ่งคือสภาพที่แย่ที่สุด
+ ของอะไรก็ตามที่เสียค่าธร
+ รมเนียมต่อครั้ง\n\nไม่มีอะ
+ ไรเปลี่ยนจากเมื่อวาน\n\nขย
+ ับมากสุด:\n  น้ำมัน: -4.58% วันนี
+ ้\, +1.1% ในเดือน\n  ตลาดเกิดใหม
+ ่: +1.72% วันนี้\, +5.7% ในเดือน\n  กล
+ ุ่มพลังงาน: -1.66% วันนี้\, +6.3% ใน
+ เดือน\n  พันธบัตรสหรัฐระยะ
+ ยาว: +1.10% วันนี้\, +0.1% ในเดือน\n  
+ กลุ่มสินค้าจำเป็น: -1.06% วันน
+ ี้\, +1.4% ในเดือน\n\nยืดตัวผิดป
+ กติ:\n  บิตคอยน์: +2.8 SD จากค่าเฉ
+ ลี่ย 60 วัน (+22.2% ในเดือน)\n  อีเธ
+ อเรียม: +2.5 SD จากค่าเฉลี่ย 60 ว
+ ัน (+29.1% ในเดือน)\n  ทองคำ: +2.4 SD จา
+ กค่าเฉลี่ย 60 วัน (+14.3% ในเดือ
+ น)\n  หุ้นกู้ผลตอบแทนสูง: +2.3 SD 
+ จากค่าเฉลี่ย 60 วัน (+1.3% ในเดื
+ อน)\n  ยืดตัวคือข้อเท็จจริง
+ เรื่องราคา ไม่ใช่สัญญาณ — 
+ งานวิจัยพบว่ากฎ mean-reversion แยก
+ ไม่ออกจากการสุ่ม\n\nผลตอบแ
+ ทน funding carry:\n  ตะกร้าให้ +3.6% ต่อป
+ ีสุทธิ = $3.01 ต่อเดือน บนทุน $1\,
+ 000.00\n  ต่ำกว่าเกณฑ์ 15% จึงยังไ
+ ม่ทำอะไร\n\nดูฉบับเต็ม (แผนท
+ ี่ + หลักฐาน): https://ayfew.github.io/Print-Money/\n\
+ nสถิติความแม่นของบรีฟนี้:\
+ n  ที่ผ่านมาบรีฟนี้ทายถูก 81
+ % จาก 5148 ครั้ง (เหรียญได้ 50%) — 
+ ดูเองได้ด้วย `pm score`\n\nแหล่งข้
+ อมูล:\n  [official] Federal Reserve Bank of New York — https:/
+ /www.newyorkfed.org/markets/reference-rates/effr\n  [official] US Treasu
+ ry — https://home.treasury.gov/resource-center/data-chart-center/inter
+ est-rates/TextView?type=daily_treasury_yield_curve\n  [primary] Binance 
+ — https://www.binance.com/en/futures/funding-history/perpetual/real-ti
+ me-funding-rate\n  [primary] Cboe Global Markets — https://www.cboe.co
+ m/tradable_products/vix/\n  [derived] printmoney 2s10s spread — https:
+ //github.com/ayfew/Print-Money#readme\n  [derived] printmoney macro link
+ s — https://github.com/ayfew/Print-Money#readme\n  [derived] printmone
+ y volatility percentile — https://github.com/ayfew/Print-Money#readme\
+ n\nส่วนใหญ่มันจะบอกว่าไม่ม
+ ีอะไร และส่วนใหญ่นั่นคือ
+ คำตอบที่ถูก — รัน `pm study` เพื่
+ อดูเลขคณิต 10 ปีที่อยู่เบื
+ ้องหลัง
+URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
 END:VCALENDAR

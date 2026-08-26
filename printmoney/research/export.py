@@ -30,6 +30,11 @@ from .i18n import event_name, market_name, norm, render_note, t, when_phrase
 
 log = logging.getLogger("printmoney.export")
 
+#: Where the full page lives. Put on the event as a URL property as well as in
+#: the body, because Apple Calendar makes the URL tappable and the body is only
+#: text - and the whole point of the page is that it is one tap from the entry.
+SITE_URL = "https://ayfew.github.io/Print-Money/"
+
 #: RFC 5545 wants CRLF line endings and lines folded at 75 octets.
 CRLF = "\r\n"
 FOLD_AT = 73
@@ -79,6 +84,7 @@ class CalendarEvent:
             f"DTEND;VALUE=DATE:{self.day + timedelta(days=1):%Y%m%d}",
             _fold(f"SUMMARY:{_escape(self.title)}"),
             _fold(f"DESCRIPTION:{_escape(self.body)}"),
+            _fold(f"URL:{SITE_URL}"),
             "TRANSP:TRANSPARENT",
             "END:VEVENT",
         ]
@@ -291,6 +297,8 @@ def brief_to_event(brief: Brief, lang: str = "th", *,
         )
         parts.append("")
 
+    parts.append(t("site_url_label", lang) + ": " + SITE_URL)
+    parts.append("")
     parts.extend(_score_lines(score, lang))
     parts.extend(_source_lines(decision, lang))
     parts.append(t("footer", lang))

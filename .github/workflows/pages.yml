@@ -1,0 +1,58 @@
+name: publish the page
+
+# The page has to be *served* to be readable. raw.githubusercontent.com returns
+# text/plain for .html, so the file arrives as source code rather than as a page;
+# GitHub Pages serves it properly and gives it a stable URL a phone can bookmark.
+#
+# One manual step is unavoidable the first time: Settings -> Pages -> Source ->
+# "GitHub Actions". Until that is set this workflow fails on the configure step
+# and nothing else is affected - the calendar keeps working either way, because
+# the calendar is the product and the page is the appendix.
+
+on:
+  # Chained rather than scheduled: the page is only worth republishing once the
+  # brief that fills it has been rebuilt and pushed.
+  workflow_run:
+    workflows: ["daily brief"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    # A red brief should not publish a stale page over a good one.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main            # the brief job just pushed to it
+
+      - name: Check there is something to publish
+        run: |
+          test -s reports/index.html || {
+            echo "reports/index.html is missing or empty"; exit 1; }
+          grep -q "__PAYLOAD__" reports/index.html && {
+            echo "template placeholder survived into the published page"; exit 1; }
+          echo "index.html is $(wc -c < reports/index.html) bytes"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: reports
+      - id: deploy
+        uses: actions/deploy-pages@v4
