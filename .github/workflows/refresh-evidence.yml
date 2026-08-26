@@ -1,0 +1,59 @@
+name: refresh evidence
+
+# The daily brief quotes two committed tables: how much bigger a typical move is
+# on each kind of scheduled event day, and how often the brief's own risk calls
+# turned out to be right. Both are measured over ten years of bars for the whole
+# universe, which is minutes of downloading - far too slow to redo every morning
+# and, more to the point, not something that should change every morning.
+#
+# So they are regenerated here on a schedule instead, and committed. The diff is
+# the audit trail: if a number the brief quotes ever moves, there is a commit
+# showing when it moved and by how much.
+
+on:
+  schedule:
+    # 01:00 UTC on the first of the month, an hour after the daily brief so the
+    # two never race each other for the same push.
+    - cron: "0 1 1 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: daily-brief          # deliberately shared: never push at the same time
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install --quiet -r requirements-brief.txt
+
+      - name: Re-measure scheduled-event impact
+        run: python pm.py events --measure --save
+
+      - name: Re-score the brief's own calls
+        run: python pm.py score --save
+
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/impacts.json data/scorecard.json
+          if git diff --cached --quiet; then
+            echo "the evidence did not move"
+            exit 0
+          fi
+          git commit -m "evidence: $(date -u +%Y-%m)"
+          git push

@@ -18,6 +18,13 @@ ROOT = Path(__file__).resolve().parent.parent
 STATE_DIR = ROOT / "state"
 LOG_DIR = ROOT / "logs"
 
+#: Committed, unlike ``state``. The cloud runner checks out fresh every morning,
+#: so anything that has to survive between runs - yesterday's brief to diff
+#: against, the running record of the brief's own calls - has to live somewhere
+#: git keeps. Being public is a feature rather than a cost here: a scorecard
+#: nobody can audit is a scorecard nobody should believe.
+DATA_DIR = ROOT / "data"
+
 USER_AGENT = "printmoney/1.0 (+polymarket-surface-arb)"
 
 

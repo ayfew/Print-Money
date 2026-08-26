@@ -8,7 +8,9 @@
     pm ui          browser dashboard, live or as a single HTML file
     pm carry       rank delta-neutral funding carry across every perpetual
     pm study       does a trading idea survive its own costs? ten years of evidence
-    pm daily       the morning brief: what moved, and whether to do anything
+    pm daily       the morning brief: what today is about, and what to ignore
+    pm events      scheduled releases, and the evidence each one earned its place with
+    pm score       how often the brief's own risk calls turned out to be right
     pm validate    end-to-end self-test against a market with known truth
     pm replay      re-solve recorded snapshots and settle them for real
     pm report      ledger, equity curve, open positions
@@ -555,14 +557,22 @@ def cmd_daily(args: argparse.Namespace) -> int:
     from rich.table import Table
     from rich.text import Text
 
-    from .research.brief import build_brief
+    from .research import morning as morning_run
+    from .research import scorecard as sc
+    from .research.i18n import render_note, t
 
     cfg = _load(args)
     setup_console()
     console = Console()
     capital = args.capital or cfg.risk.capital_usd
 
-    brief = build_brief(capital=capital, include_carry=not args.no_carry)
+    m = morning_run.run(capital=capital, include_carry=not args.no_carry,
+                        persist=not args.no_record)
+    brief, decision = m.brief, m.decision
+    m.score = sc.headline(sc.load_summary())
+
+    for w in m.warnings:
+        console.print(f"[yellow]  ! {w}[/yellow]")
 
     if not brief.ok:
         # Do not write the calendar or the page. Replacing yesterday's real brief
@@ -571,7 +581,7 @@ def cmd_daily(args: argparse.Namespace) -> int:
         for o in brief.observations:
             console.print(f"[dim]  {o}[/dim]")
         if args.json:
-            _print_json(brief.to_dict())
+            _print_json(m.to_dict())
         return 1
 
     # Written before anything is printed, so a scheduled run still produces the
@@ -579,32 +589,45 @@ def cmd_daily(args: argparse.Namespace) -> int:
     if args.ics:
         from .research.export import write_ics
 
-        path = write_ics(brief, args.ics, lang=args.lang)
+        path = write_ics(m, args.ics, lang=args.lang)
         if not args.json:
             console.print(f"[dim]calendar -> {path}[/dim]")
     if args.html:
         from .research.export import write_html
 
-        path = write_html(brief, args.html, capital=capital, lang=args.lang)
+        path = write_html(m, args.html, capital=capital, lang=args.lang)
         if not args.json:
             console.print(f"[dim]page -> {path}[/dim]")
 
     if args.json:
-        _print_json(brief.to_dict())
+        _print_json(m.to_dict())
         return 0
 
+    lang = args.lang
+    names = {l.symbol: l.name for l in brief.lines}
+    focus = (render_note(decision.focus, lang, names) if decision.focus
+             else brief.verdict)
     console.print(
         Panel(
-            Text(brief.verdict, style="bold green" if brief.actions else "bold"),
-            title=f"morning brief {brief.generated_at:%Y-%m-%d %H:%M UTC}",
-            border_style="green" if brief.actions else "dim",
+            Text(focus, style="bold"),
+            title=f"{t('hdr_focus', lang)} - {brief.generated_at:%Y-%m-%d %H:%M UTC}",
+            border_style="green" if decision.watch else "dim",
         )
     )
 
-    for a in brief.actions:
-        console.print(Text(f"  -> {a}", style="green"))
-    for o in brief.observations:
-        console.print(Text(f"   . {o}", style="dim"))
+    for header, notes, style in (
+        ("hdr_changed", decision.changed, "bold"),
+        ("hdr_watch", decision.watch, "green"),
+        ("hdr_avoid", decision.avoid, "red"),
+        ("hdr_ignore", decision.ignore, "dim"),
+    ):
+        if not notes:
+            continue
+        console.print(f"\n[bold cyan]{t(header, lang)}[/bold cyan]")
+        for n in notes:
+            console.print(Text(f"  {render_note(n, lang, names)}", style=style))
+    if not decision.changed:
+        console.print(f"\n[dim]{t('no_changes', lang)}[/dim]")
 
     if brief.lines and not args.quiet:
         t = Table(title="\nwhere things stand", title_justify="left", header_style="bold cyan")
@@ -625,9 +648,141 @@ def cmd_daily(args: argparse.Namespace) -> int:
             )
         console.print(t)
 
+    if m.score and m.score.get("n"):
+        console.print(
+            f"\n[dim]{t('hdr_score', lang)}: "
+            + t("score_line", lang, rate=f"{100 * m.score['rate']:.0f}%",
+                n=str(m.score["n"]))
+            + f" [{m.score.get('basis', '')}][/dim]"
+        )
+    if m.recorded:
+        console.print(f"[dim]recorded {m.recorded} call(s) for scoring in 21 "
+                      f"trading days[/dim]")
+
     console.print(
         "\n[dim]This brief will say 'nothing today' most days. That is the correct "
         "answer most days - run `pm study` for the ten years of arithmetic behind it.[/dim]"
+    )
+    return 0
+
+
+# --------------------------------------------------------------------------- #
+def cmd_events(args: argparse.Namespace) -> int:
+    """The scheduled calendar, and whether each entry has earned its place."""
+    from rich.console import Console
+    from rich.table import Table
+
+    from .research import events as ev
+    from .research.i18n import MARKET_TH
+
+    setup_console()
+    console = Console()
+
+    if args.measure:
+        console.print("[dim]measuring event impact over 10y of bars...[/dim]")
+        impacts, span = ev.measure_all(rng=args.range)
+        if args.save:
+            console.print(f"[dim]saved -> {ev.save_impacts(impacts, span=span)}[/dim]")
+    else:
+        impacts = ev.load_impacts()
+        span = ""
+        if not impacts:
+            console.print("[yellow]no measured impacts on disk - "
+                          "run `pm events --measure --save`[/yellow]")
+
+    if args.json:
+        _print_json({"span": span,
+                     "impacts": {k: v.to_dict() for k, v in impacts.items()},
+                     "upcoming": [e.to_dict() for e in ev.upcoming(within_days=args.days)]})
+        return 0
+
+    for kind, imp in impacts.items():
+        verdict = ("[green]real[/green]" if imp.real
+                   else "[red]not distinguishable from an ordinary day[/red]")
+        console.print(
+            f"\n[bold]{kind}[/bold]  {imp.ratio:.3f}x an ordinary day, "
+            f"t={imp.tstat:+.2f}, bigger in {imp.markets_bigger}/{imp.markets} "
+            f"markets over {imp.events} events -> {verdict}"
+        )
+        t = Table(show_header=True, header_style="bold cyan", box=None, pad_edge=False)
+        t.add_column("moves", overflow="fold")
+        t.add_column("x", justify="right")
+        t.add_column("does not move", overflow="fold")
+        t.add_column("x", justify="right")
+        touches, ignores = imp.touches(5), imp.ignores(5)
+        for i in range(max(len(touches), len(ignores))):
+            a = touches[i] if i < len(touches) else ("", 0.0)
+            b = ignores[i] if i < len(ignores) else ("", 0.0)
+            t.add_row(
+                MARKET_TH.get(a[0], a[0]), f"{a[1]:.2f}" if a[0] else "",
+                MARKET_TH.get(b[0], b[0]), f"{b[1]:.2f}" if b[0] else "",
+            )
+        console.print(t)
+
+    upcoming = ev.upcoming(within_days=args.days)
+    console.print(f"\n[bold cyan]next {args.days} days[/bold cyan]")
+    if not upcoming:
+        console.print("[dim]  nothing scheduled[/dim]")
+    for e in upcoming:
+        console.print(f"  {e.day}  {e.name}  [dim]{e.note} - {e.source}[/dim]")
+    return 0
+
+
+# --------------------------------------------------------------------------- #
+def cmd_score(args: argparse.Namespace) -> int:
+    """How often the brief's own risk calls turned out to be right."""
+    from rich.console import Console
+    from rich.table import Table
+
+    from .research import scorecard as sc
+    from .research.data import UNIVERSE, fetch_many
+
+    setup_console()
+    console = Console()
+
+    console.print(f"[dim]loading {len(UNIVERSE)} markets, {args.range} of bars...[/dim]")
+    series = fetch_many(UNIVERSE, rng=args.range, cache_hours=args.cache_hours)
+
+    back = sc.backtest(series.values())
+    live = sc.resolve(series)
+    span = f"{args.range} over {len(series)} markets"
+
+    if args.save:
+        console.print(f"[dim]saved -> {sc.save_summary(back, live, span=span)}[/dim]")
+    if args.json:
+        _print_json({"span": span, "backtest": back.to_dict(),
+                     "live": live.to_dict(), "pending": sc.pending()})
+        return 0
+
+    for score in (back, live):
+        console.print(
+            f"\n[bold]{score.label}[/bold]  {len(score)} scored call(s)"
+            + (f", hit rate [bold]{score.rate:.1%}[/bold] "
+               f"(+/-{score.stderr:.1%})  "
+               + ("[green]beats a coin[/green]" if score.beats_coin
+                  else "[red]no better than a coin[/red]")
+               if score.resolved else "  [dim]nothing matured yet[/dim]")
+        )
+        if not score.resolved:
+            continue
+        t = Table(show_header=True, header_style="bold cyan", box=None, pad_edge=False)
+        t.add_column("call")
+        t.add_column("n", justify="right")
+        t.add_column("hit rate", justify="right")
+        for name, part in score.by_call().items():
+            t.add_row(name, str(len(part)), f"{part.rate:.1%}")
+        console.print(t)
+
+    if back.resolved:
+        console.print("\n[dim]worst markets for this rule:[/dim]")
+        for sym, part in back.worst(5):
+            console.print(f"[dim]  {sym:<9} {len(part):>4} calls  {part.rate:.1%}[/dim]")
+
+    console.print(
+        f"\n[dim]{sc.pending()} live call(s) recorded, resolved "
+        f"{sc.LOOKAHEAD} trading days after they were made. A coin gets 50% - "
+        "anything this rule cannot beat that at should be deleted from the brief "
+        "rather than explained.[/dim]"
     )
     return 0
 
@@ -877,8 +1032,26 @@ def build_parser() -> argparse.ArgumentParser:
                     help="write a phone-sized HTML page")
     sp.add_argument("--lang", choices=("th", "en"), default="th",
                     help="language for the calendar entry and the page")
+    sp.add_argument("--no-record", action="store_true",
+                    help="do not log today's calls to the scorecard")
     common(sp)
     sp.set_defaults(func=cmd_daily)
+
+    sp = sub.add_parser("events", help="scheduled releases, and whether they matter")
+    sp.add_argument("--measure", action="store_true",
+                    help="re-measure impact against history (slow)")
+    sp.add_argument("--save", action="store_true", help="commit the measured table")
+    sp.add_argument("--days", type=int, default=14, help="how far ahead to list")
+    sp.add_argument("--range", default="10y", help="how much history to measure over")
+    common(sp)
+    sp.set_defaults(func=cmd_events)
+
+    sp = sub.add_parser("score", help="how often the brief's own calls were right")
+    sp.add_argument("--save", action="store_true", help="commit the summary")
+    sp.add_argument("--range", default="10y", help="how much history to score over")
+    sp.add_argument("--cache-hours", type=float, default=24.0)
+    common(sp)
+    sp.set_defaults(func=cmd_score)
 
     sp = sub.add_parser("validate", help="end-to-end self-test on a market with known truth")
     common(sp)

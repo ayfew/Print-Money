@@ -1,0 +1,64 @@
+{
+  "measured_at": "2026-08-26T05:22:30.202726+00:00",
+  "span": "10y over 24 markets",
+  "backtest": {
+    "label": "backtest",
+    "n": 5148,
+    "hits": 4149,
+    "rate": 0.8059,
+    "stderr": 0.0055,
+    "lower_bound": 0.7947,
+    "beats_coin": true,
+    "by_call": {
+      "calm": {
+        "n": 1554,
+        "rate": 0.7091
+      },
+      "elevated": {
+        "n": 2028,
+        "rate": 0.783
+      },
+      "extreme": {
+        "n": 1566,
+        "rate": 0.9317
+      }
+    }
+  },
+  "live": {
+    "label": "live",
+    "n": 0,
+    "hits": 0,
+    "rate": 0.0,
+    "stderr": 0.0,
+    "lower_bound": 0.0,
+    "beats_coin": false,
+    "by_call": {}
+  },
+  "worst_markets": [
+    {
+      "symbol": "UUP",
+      "n": 253,
+      "rate": 0.6996
+    },
+    {
+      "symbol": "XLF",
+      "n": 222,
+      "rate": 0.7117
+    },
+    {
+      "symbol": "USO",
+      "n": 231,
+      "rate": 0.7229
+    },
+    {
+      "symbol": "ETH-USD",
+      "n": 294,
+      "rate": 0.7313
+    },
+    {
+      "symbol": "EEM",
+      "n": 204,
+      "rate": 0.7745
+    }
+  ]
+}

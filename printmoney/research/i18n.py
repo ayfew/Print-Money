@@ -54,6 +54,25 @@ def market_name(symbol: str, english: str, lang: str) -> str:
     return english
 
 
+#: Scheduled events, keyed by ``events.Event.kind`` rather than by their English
+#: name, so a rename upstream cannot silently strand the Thai text.
+EVENT_NAMES: dict[str, dict[str, str]] = {
+    "th": {
+        "fomc": "เฟดประกาศดอกเบี้ย",
+        "payrolls": "ตัวเลขการจ้างงานสหรัฐ",
+    },
+    "en": {
+        "fomc": "Fed rate decision (FOMC)",
+        "payrolls": "US jobs report (non-farm payrolls)",
+    },
+}
+
+
+def event_name(kind: str, lang: str) -> str:
+    lang = norm(lang)
+    return EVENT_NAMES.get(lang, {}).get(kind) or EVENT_NAMES["en"].get(kind, kind)
+
+
 # --------------------------------------------------------------------------- #
 STRINGS: dict[str, dict[str, str]] = {
     "th": {
@@ -61,6 +80,77 @@ STRINGS: dict[str, dict[str, str]] = {
         "title_quiet": "ช้างขาว: วันนี้ไม่มีอะไร",
         "title_actions": "ช้างขาว: มี {n} อย่างที่ควรทำ",
         "title_failed": "ช้างขาว: ดึงข้อมูลไม่ได้",
+        "title_event": "ช้างขาว: {event} {when}",
+        "title_risk": "ช้างขาว: {n} ตลาดกำลังร้อน",
+
+        # ---- decision brief ------------------------------------------------
+        "when_today": "วันนี้",
+        "when_tomorrow": "พรุ่งนี้",
+        "when_days": "อีก {days} วัน",
+        "hdr_focus": "วันนี้โฟกัสอะไร",
+        "hdr_watch": "จับตา",
+        "hdr_avoid": "ระวัง",
+        "hdr_ignore": "ไม่ต้องสนใจ",
+        "hdr_changed": "เปลี่ยนจากเมื่อวาน",
+        "hdr_sources": "แหล่งข้อมูล",
+        "hdr_score": "สถิติความแม่นของบรีฟนี้",
+        "read_time": "อ่านประมาณ {sec} วินาที",
+
+        "focus_event": (
+            "{event}{when} — วันแบบนี้ตลาดขยับกว่าวันธรรมดา {ratio} "
+            "ตัวที่ขยับจริงคือ {names}"
+        ),
+        "focus_risk": (
+            "ความเสี่ยงวันนี้กระจุกอยู่ที่ {names} — {n} ตลาดผันผวนสูงสุด "
+            "ของตัวเอง ตัวแรงสุดอยู่ที่ {vol} ({pct} ของประวัติตัวเอง)"
+        ),
+        "focus_watch": "มี {n} เรื่องที่ผ่านเกณฑ์ต้นทุนวันนี้ นอกนั้นไม่ต้องสนใจ",
+        "focus_none": (
+            "วันนี้ไม่มีอะไร — ทั้ง {n} ตลาดอยู่ในช่วงปกติของตัวเอง "
+            "และไม่มีเหตุการณ์สำคัญในสัปดาห์นี้"
+        ),
+        "focus_careful": (
+            "วันนี้ไม่มีอะไรต้องทำ แต่ {n} จาก {total} ตลาดผันผวนเกินปกติของตัวเอง "
+            "เริ่มที่ {names} — เป็นเรื่องความเสี่ยง ไม่ใช่สัญญาณให้ซื้อหรือขาย"
+        ),
+        "focus_broken": (
+            "ยังสรุปไม่ได้ — โหลดข้อมูลได้แค่ {loaded} จาก {requested} ตลาด "
+            "อย่าเพิ่งเชื่อบรีฟฉบับนี้"
+        ),
+
+        "watch_event": (
+            "{event} {when} ({note}) — จากสถิติ {n} ครั้ง วันแบบนี้ขยับ {ratio} "
+            "ของวันปกติ แรงสุดถึง {top} ที่ควรดูคือ {names}"
+        ),
+        "watch_carry": (
+            "funding carry ให้ {rate} ต่อปีสุทธิ = {monthly} ต่อเดือน บนทุน {capital} "
+            "ซึ่งเกินเกณฑ์ 15% แล้ว"
+        ),
+        "avoid_hot": (
+            "{n} จาก {total} ตลาดผันผวนเกินปกติของตัวเอง เช่น {names} — "
+            "สุดโต่งสุดคือ {name} ที่ผันผวน {worst_vol} ต่อปี "
+            "สูงกว่า {worst_pct} ของประวัติตัวเอง"
+        ),
+        "ignore_untouched": (
+            "{event}แทบไม่ขยับ {names} — จากสถิติ {n} ครั้งที่ผ่านมา วันแบบนี้ "
+            "ขยับพวกนี้ต่ำสุดแค่ {ratio} ของวันปกติ คือไม่ต่างจากวันธรรมดา "
+            "วันนี้ไม่ต้องเอาข่าวนี้ไปคิดกับพวกนี้"
+        ),
+        "ignore_calm": (
+            "{n} จาก {total} ตลาดเงียบกว่าปกติของตัวเอง เช่น {names} "
+            "ตลาดนิ่งคือสภาพที่แย่ที่สุดของอะไรก็ตามที่เสียค่าธรรมเนียมต่อครั้ง"
+        ),
+        "changed_risk_up": "{n} ตลาดความเสี่ยงขยับขึ้น ({was} → {now}): {names}",
+        "changed_risk_down": "{n} ตลาดความเสี่ยงลดลง ({was} → {now}): {names}",
+        "changed_event_entered": "{event}เข้ามาอยู่ในกรอบ 7 วันแล้ว ({when})",
+        "changed_carry": "funding carry ข้ามเกณฑ์: {was} → {now} ต่อปี",
+        "no_changes": "ไม่มีอะไรเปลี่ยนจากเมื่อวาน",
+        "source_line": "  [{tier}] {name} — {url}",
+        "score_line": (
+            "ที่ผ่านมาบรีฟนี้ทายถูก {rate} จาก {n} ครั้ง (เหรียญได้ 50%) "
+            "— ดูเองได้ด้วย `pm score`"
+        ),
+        "score_none": "ยังไม่มีสถิติพอจะรายงาน",
         "verdict_quiet": "วันนี้ไม่มีอะไรต้องทำ ไม่มีสัญญาณไหนคุ้มค่าธรรมเนียมที่ต้องจ่าย",
         "verdict_actions": "มี {n} อย่างที่ผ่านเกณฑ์ต้นทุนวันนี้",
         "verdict_failed": "บรีฟไม่สมบูรณ์ — {error}",
@@ -110,6 +200,80 @@ STRINGS: dict[str, dict[str, str]] = {
         "title_quiet": "printmoney: nothing today",
         "title_actions": "printmoney: {n} to act on",
         "title_failed": "printmoney: brief failed",
+        "title_event": "printmoney: {event} {when}",
+        "title_risk": "printmoney: {n} markets running hot",
+
+        # ---- decision brief ------------------------------------------------
+        "when_today": "today",
+        "when_tomorrow": "tomorrow",
+        "when_days": "in {days} days",
+        "hdr_focus": "WHAT TODAY IS ABOUT",
+        "hdr_watch": "WATCH",
+        "hdr_avoid": "CAREFUL",
+        "hdr_ignore": "IGNORE",
+        "hdr_changed": "CHANGED SINCE YESTERDAY",
+        "hdr_sources": "SOURCES",
+        "hdr_score": "THIS BRIEF'S OWN TRACK RECORD",
+        "read_time": "about {sec} seconds to read",
+
+        "focus_event": (
+            "{event} {when}. Days like it move markets {ratio} an ordinary day, "
+            "and the ones that actually move are {names}."
+        ),
+        "focus_risk": (
+            "Today's risk sits in {names}. {n} markets are at the top of their own "
+            "volatility range; the worst is at {vol}, {pct} of its own history."
+        ),
+        "focus_watch": "{n} thing(s) cleared the cost bar today. Nothing else needs you.",
+        "focus_none": (
+            "Nothing today. All {n} markets are inside their normal range and there "
+            "is no scheduled event this week."
+        ),
+        "focus_careful": (
+            "Nothing to do today, but {n} of {total} markets are more volatile than "
+            "is normal for them, starting with {names}. That is a statement about "
+            "risk, not a reason to buy or sell either one."
+        ),
+        "focus_broken": (
+            "No verdict: only {loaded} of {requested} markets loaded. Do not trust "
+            "this brief today."
+        ),
+
+        "watch_event": (
+            "{event} {when} ({note}). Across {n} of them, days like it ran {ratio} "
+            "an ordinary day, up to {top}. The ones to look at are {names}."
+        ),
+        "watch_carry": (
+            "Funding carry nets {rate} a year = {monthly} a month on {capital}, "
+            "which is above the 15% bar."
+        ),
+        "avoid_hot": (
+            "{n} of {total} markets are more volatile than is normal for them, "
+            "including {names}. "
+            "The most extreme is {name}, at {worst_vol} a year - above "
+            "{worst_pct} of its own history."
+        ),
+        "ignore_untouched": (
+            "{event} barely moves {names} - across {n} of them these ran as low as "
+            "{ratio} an ordinary day, which is no different from a normal one. "
+            "Do not read today's headline into them."
+        ),
+        "ignore_calm": (
+            "{n} of {total} markets are quieter than usual for them, including "
+            "{names}. A still tape is the worst environment for anything that pays "
+            "a toll per trade."
+        ),
+        "changed_risk_up": "{n} markets got riskier ({was} -> {now}): {names}",
+        "changed_risk_down": "{n} markets calmed down ({was} -> {now}): {names}",
+        "changed_event_entered": "{event} has entered the 7-day window ({when})",
+        "changed_carry": "Funding carry crossed the bar: {was} -> {now} a year",
+        "no_changes": "Nothing changed since yesterday.",
+        "source_line": "  [{tier}] {name} - {url}",
+        "score_line": (
+            "This brief has been right {rate} of {n} times so far (a coin gets 50%) "
+            "- check it yourself with `pm score`"
+        ),
+        "score_none": "Not enough scored calls to report yet.",
         "verdict_quiet": "Nothing today. No signal clears what it would cost to act on it.",
         "verdict_actions": "{n} thing(s) cleared the cost bar today.",
         "verdict_failed": "Brief incomplete - {error}",
@@ -170,3 +334,54 @@ def t(key: str, lang: str = DEFAULT_LANG, **kwargs: Any) -> str:
 
 def calendar_name(lang: str = DEFAULT_LANG) -> str:
     return t("calendar_name", lang)
+
+
+# --------------------------------------------------------------------------- #
+#: Thai and English both list with a comma, but Thai does not want the space
+#: before the separator that a naive join produces around its own script.
+def join_names(names: list[str], lang: str) -> str:
+    if not names:
+        return ""
+    if len(names) == 1:
+        return names[0]
+    sep = ", " if norm(lang) == "en" else " · "
+    return sep.join(names)
+
+
+def when_phrase(days: int, lang: str) -> str:
+    if days <= 0:
+        return t("when_today", lang)
+    if days == 1:
+        return t("when_tomorrow", lang)
+    return t("when_days", lang, days=days)
+
+
+def render_note(note: Any, lang: str = DEFAULT_LANG,
+                names: dict[str, str] | None = None) -> str:
+    """Turn a :class:`decide.Note` into a sentence in one language.
+
+    The note is read by attribute rather than imported, which keeps this module
+    free of any dependency on the analysis side and lets the same renderer serve
+    the calendar, the page and the terminal.
+
+    Three params are filled in here rather than at the callsite, because all
+    three are language-shaped: the list of market names, the name of a scheduled
+    event, and how to say "in three days".
+    """
+    lang = norm(lang)
+    params = dict(getattr(note, "params", {}) or {})
+    symbols = list(getattr(note, "symbols", ()) or ())
+    lookup = names or {}
+
+    if symbols:
+        rendered = [market_name(s, lookup.get(s, s), lang) for s in symbols]
+        params["names"] = join_names(rendered, lang)
+        params["name"] = rendered[0]
+    if "event_kind" in params:
+        params["event"] = event_name(params["event_kind"], lang)
+    if "days" in params:
+        try:
+            params["when"] = when_phrase(int(params["days"]), lang)
+        except (TypeError, ValueError):
+            params["when"] = ""
+    return t(getattr(note, "key", ""), lang, **params)

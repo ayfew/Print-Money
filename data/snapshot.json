@@ -1,0 +1,18 @@
+{
+  "day": "2026-08-26",
+  "risk": {
+    "SPY": "normal"
+  },
+  "event_days": [],
+  "carry_net": null,
+  "quiet": true,
+  "previous": {
+    "day": "2026-08-27",
+    "risk": {
+      "SPY": "extreme"
+    },
+    "event_days": [],
+    "carry_net": null,
+    "quiet": false
+  }
+}
