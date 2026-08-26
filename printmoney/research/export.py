@@ -23,6 +23,8 @@ from typing import Any, Sequence
 
 from ..util import fmt_usd
 from .brief import Brief
+from .i18n import calendar_name as default_calendar_name
+from .i18n import market_name, norm, t
 
 log = logging.getLogger("printmoney.export")
 
@@ -80,35 +82,99 @@ class CalendarEvent:
         ]
 
 
-def brief_to_event(brief: Brief) -> CalendarEvent:
-    """One all-day entry per brief: the verdict in the title, the reasoning inside."""
-    day = brief.generated_at.date()
-    if brief.error:
-        title = "printmoney: brief failed"
-    elif brief.actions:
-        title = f"printmoney: {len(brief.actions)} to act on"
-    else:
-        title = "printmoney: nothing today"
+def _pct(x: float, digits: int = 2) -> str:
+    return f"{100 * x:+.{digits}f}%"
 
-    parts: list[str] = [brief.verdict, ""]
+
+def brief_to_event(brief: Brief, lang: str = "th") -> CalendarEvent:
+    """One all-day entry per brief: the verdict in the title, the reasoning inside.
+
+    Built from the brief's numbers, not from its English sentences, so a second
+    language is a different assembly rather than a translation of prose that has
+    already been written.
+    """
+    lang = norm(lang)
+    day = brief.generated_at.date()
+
+    if not brief.ok:
+        title = t("title_failed", lang)
+    elif brief.actions:
+        title = t("title_actions", lang, n=len(brief.actions))
+    else:
+        title = t("title_quiet", lang)
+
+    parts: list[str] = []
+    if not brief.ok:
+        parts.append(t("verdict_failed", lang, error=brief.verdict))
+        parts.append("")
+        parts.extend(f"  {o}" for o in brief.observations)
+        return CalendarEvent(
+            day=day, title=title, body="\n".join(parts), uid_seed=f"brief-{day:%Y-%m-%d}"
+        )
+
+    parts.append(
+        t("verdict_actions", lang, n=len(brief.actions)) if brief.actions
+        else t("verdict_quiet", lang)
+    )
+    parts.append("")
+
     if brief.actions:
-        parts.append("ACT ON:")
+        parts.append(t("hdr_actions", lang) + ":")
         parts.extend(f"  - {a}" for a in brief.actions)
         parts.append("")
-    if brief.observations:
-        parts.append("NOTES:")
-        parts.extend(f"  - {o}" for o in brief.observations)
-        parts.append("")
-    movers = brief.movers(6)
+
+    movers = brief.movers(5)
     if movers:
-        parts.append("MOVERS:")
-        parts.extend(f"  {m.name}: {m.day:+.2%} on the day, {m.month:+.1%} on the month"
-                     for m in movers)
+        parts.append(t("hdr_movers", lang) + ":")
+        for m in movers:
+            parts.append(
+                t(
+                    "mover_line",
+                    lang,
+                    name=market_name(m.symbol, m.name, lang),
+                    day=_pct(m.day),
+                    month=_pct(m.month, 1),
+                )
+            )
         parts.append("")
-    parts.append(
-        "Most days this says nothing, and most days that is correct. "
-        "Run `pm study` for the ten years of arithmetic behind that."
-    )
+
+    stretched = brief.stretched(4)
+    if stretched:
+        parts.append(t("hdr_stretched", lang) + ":")
+        for m in stretched:
+            parts.append(
+                t(
+                    "stretched_line",
+                    lang,
+                    name=market_name(m.symbol, m.name, lang),
+                    z=f"{m.zscore:+.1f}",
+                    month=_pct(m.month, 1),
+                )
+            )
+        parts.append("  " + t("stretched_note", lang))
+        parts.append("")
+
+    if brief.carry and not brief.carry.get("error"):
+        c = brief.carry
+        parts.append(t("hdr_carry", lang) + ":")
+        parts.append(
+            t(
+                "carry_line",
+                lang,
+                rate=_pct(c.get("basket_net_annual", 0.0), 1),
+                monthly=fmt_usd(c.get("monthly_usd", 0.0)),
+                capital=fmt_usd(c.get("capital", 0.0)),
+            )
+        )
+        net = c.get("basket_net_annual", 0.0)
+        threshold = "15%"
+        parts.append(
+            t("carry_above", lang, threshold=threshold) if net >= 0.15
+            else t("carry_below", lang, threshold=threshold)
+        )
+        parts.append("")
+
+    parts.append(t("footer", lang))
     return CalendarEvent(
         day=day, title=title, body="\n".join(parts), uid_seed=f"brief-{day:%Y-%m-%d}"
     )
@@ -118,7 +184,8 @@ def write_ics(
     briefs: Sequence[Brief] | Brief,
     path: str | Path,
     *,
-    calendar_name: str = "printmoney",
+    calendar_name: str | None = None,
+    lang: str = "th",
     merge_existing: bool = True,
 ) -> Path:
     """Write (or extend) a subscribable calendar file.
@@ -129,13 +196,15 @@ def write_ics(
     """
     if isinstance(briefs, Brief):
         briefs = [briefs]
+    lang = norm(lang)
+    calendar_name = calendar_name or default_calendar_name(lang)
     out = Path(path)
     out.parent.mkdir(parents=True, exist_ok=True)
 
     kept: list[str] = []
     if merge_existing and out.exists():
         text = out.read_text(encoding="utf-8", errors="replace")
-        new_uids = {_uid(brief_to_event(b).uid_seed) for b in briefs}
+        new_uids = {_uid(brief_to_event(b, lang).uid_seed) for b in briefs}
         block: list[str] = []
         inside = False
         for raw in text.splitlines():
@@ -162,7 +231,7 @@ def write_ics(
     ]
     lines.extend(kept)
     for b in briefs:
-        lines.extend(brief_to_event(b).lines(stamp))
+        lines.extend(brief_to_event(b, lang).lines(stamp))
     lines.append("END:VCALENDAR")
 
     # newline="" or the interpreter rewrites our CRLF as CR-CRLF on
@@ -173,8 +242,11 @@ def write_ics(
 
 
 # --------------------------------------------------------------------------- #
-def write_html(brief: Brief, path: str | Path, *, capital: float = 1_000.0) -> Path:
+def write_html(
+    brief: Brief, path: str | Path, *, capital: float = 1_000.0, lang: str = "th"
+) -> Path:
     """A single page sized for a phone screen."""
+    lang = norm(lang)
     out = Path(path)
     out.parent.mkdir(parents=True, exist_ok=True)
 
@@ -191,7 +263,7 @@ def write_html(brief: Brief, path: str | Path, *, capital: float = 1_000.0) -> P
         return f'<span class="{cls}">{v:+.2%}</span>'
 
     rows = "".join(
-        f"<tr><td>{esc(l.name)}</td><td>{signed(l.day)}</td>"
+        f"<tr><td>{esc(market_name(l.symbol, l.name, lang))}</td><td>{signed(l.day)}</td>"
         f"<td>{signed(l.week)}</td><td>{signed(l.month)}</td>"
         f"<td>{l.vol_annual:.0%}</td></tr>"
         for l in sorted(brief.lines, key=lambda x: -abs(x.day))
@@ -203,17 +275,17 @@ def write_html(brief: Brief, path: str | Path, *, capital: float = 1_000.0) -> P
     if brief.carry and not brief.carry.get("error"):
         c = brief.carry
         carry_block = (
-            f"<h2>funding carry</h2><p class='muted'>"
+            f'<h2>{esc(t("hdr_carry", lang))}</h2><p class="muted">'
             f"basket nets <b>{c.get('basket_net_annual', 0):+.1%}</b> a year "
             f"&rarr; {esc(fmt_usd(c.get('monthly_usd', 0)))} a month on "
             f"{esc(fmt_usd(c.get('capital', capital)))}. "
             f"{c.get('scanned', 0)} perps scanned, {c.get('hedgeable', 0)} hedgeable.</p>"
         )
 
-    html = f"""<!doctype html><html lang="en"><head>
+    html = f"""<!doctype html><html lang="{lang}"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>printmoney brief {brief.generated_at:%Y-%m-%d}</title>
+<title>{esc(t("page_title", lang))} {brief.generated_at:%Y-%m-%d}</title>
 <style>
 :root {{ --bg:#fbfbfb; --panel:#fff; --ink:#0a0a0a; --dim:#6b7280; --line:#e8e8e8;
          --up:#0f7a4d; --down:#c0392f; }}
@@ -242,18 +314,16 @@ td {{ text-align:right; padding:7px 4px; border-bottom:1px solid var(--line); }}
 footer {{ margin-top:30px; padding-top:14px; border-top:1px solid var(--line);
   color:var(--dim); font-size:12px; }}
 </style></head><body><div class="wrap">
-<h1>printmoney</h1>
+<h1>{esc(t("calendar_name", lang))}</h1>
 <div class="stamp">{brief.generated_at:%A %d %B %Y &middot; %H:%M UTC}</div>
 <div class="verdict">{esc(brief.verdict)}</div>
-{f"<h2>act on</h2><ul>{actions}</ul>" if actions else ""}
-{f"<h2>notes</h2><ul>{notes}</ul>" if notes else ""}
+{f'<h2>{esc(t("hdr_actions", lang))}</h2><ul>{actions}</ul>' if actions else ""}
+{f'<h2>{esc(t("hdr_notes", lang))}</h2><ul>{notes}</ul>' if notes else ""}
 {carry_block}
-<h2>where things stand</h2>
-<table><tr><th>market</th><th>day</th><th>week</th><th>month</th><th>vol</th></tr>
+<h2>{esc(t("th_where", lang))}</h2>
+<table><tr><th>{esc(t("th_market", lang))}</th><th>{esc(t("th_day", lang))}</th><th>{esc(t("th_week", lang))}</th><th>{esc(t("th_month", lang))}</th><th>{esc(t("th_vol", lang))}</th></tr>
 {rows}</table>
-<footer>Generated on your own machine from public market data. Not advice.
-This brief says &ldquo;nothing today&rdquo; most days, which is the correct answer
-most days.</footer>
+<footer>{t("page_footer", lang)}</footer>
 </div></body></html>"""
     out.write_text(html, encoding="utf-8")
     return out

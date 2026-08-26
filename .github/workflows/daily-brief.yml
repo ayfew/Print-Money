@@ -1,0 +1,74 @@
+name: daily brief
+
+# Why here and not in a Claude routine: the routine sandbox blocks outbound
+# CONNECT to query1.finance.yahoo.com and fapi.binance.com, so every market
+# returned 403 and the brief had nothing to work with. A GitHub Actions runner
+# has ordinary internet access, runs on a schedule whether or not any laptop is
+# switched on, and can commit the calendar straight back to main - which is the
+# URL a phone subscribes to.
+
+on:
+  schedule:
+    # 00:00 UTC = 07:00 Asia/Bangkok. GitHub queues cron runs under load, so the
+    # actual fire time drifts by a few minutes. Nothing here is time-sensitive.
+    - cron: "0 0 * * *"
+  workflow_dispatch:            # lets you run it by hand from the Actions tab
+
+concurrency:
+  group: daily-brief
+  cancel-in-progress: false
+
+permissions:
+  contents: write               # needed to push the regenerated calendar
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install --quiet -r requirements-brief.txt
+
+      - name: Build the brief
+        id: brief
+        run: |
+          python pm.py daily \
+            --ics reports/printmoney.ics \
+            --html reports/brief.html \
+            --lang th
+        # No `continue-on-error`. pm daily exits non-zero when it could not load
+        # enough of the universe to have an opinion, and a failed run that stays
+        # visibly red is the point - a green run that quietly wrote "nothing
+        # today" over a real brief is the failure mode this guards.
+
+      - name: Check the calendar is still valid iCalendar
+        run: |
+          python - <<'PY'
+          import pathlib, sys
+          raw = pathlib.Path("reports/printmoney.ics").read_bytes()
+          crlf = raw.count(b"\r\n")
+          bare = raw.replace(b"\r\n", b"").count(b"\n")
+          print(f"CRLF {crlf}, bare LF {bare}, events {raw.count(b'BEGIN:VEVENT')}")
+          if bare or crlf < 10 or not raw.startswith(b"BEGIN:VCALENDAR"):
+              sys.exit("calendar is malformed - a phone would silently ignore it")
+          PY
+
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/printmoney.ics reports/brief.html
+          if git diff --cached --quiet; then
+            echo "nothing changed"
+            exit 0
+          fi
+          git commit -m "brief: $(date -u +%Y-%m-%d)"
+          git push

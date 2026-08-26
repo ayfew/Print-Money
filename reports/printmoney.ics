@@ -3,38 +3,46 @@ VERSION:2.0
 PRODID:-//printmoney//daily brief//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:printmoney
+X-WR-CALNAME:ช้างขาว
 X-PUBLISHED-TTL:PT6H
 REFRESH-INTERVAL;VALUE=DURATION:PT6H
 BEGIN:VEVENT
-UID:df651efdb6f3c140ced1@printmoney
-DTSTAMP:20260825T183740Z
-DTSTART;VALUE=DATE:20260825
-DTEND;VALUE=DATE:20260826
-SUMMARY:printmoney: nothing today
-DESCRIPTION:Nothing today. No signal clears what it would cost to act on 
- it.\n\nNOTES:\n  - Biggest moves: Oil -3.36%\, Emerging markets +1.44%\,
-  Consumer staples -1.06%\n  - Bitcoin is 3.1 standard deviations above i
- ts 60-day mean (+23.8% on the month). Stretched\, which is a fact\, not 
- a signal - the study found mean-reversion rules indistinguishable from r
- andom.\n  - Ethereum is 2.7 standard deviations above its 60-day mean (+
- 32.3% on the month). Stretched\, which is a fact\, not a signal - the st
- udy found mean-reversion rules indistinguishable from random.\n  - Gold 
- is 2.3 standard deviations above its 60-day mean (+13.7% on the month). 
- Stretched\, which is a fact\, not a signal - the study found mean-revers
- ion rules indistinguishable from random.\n  - 3 of 24 markets made most 
- of the last year's return during the session rather than overnight - the
-  exception to the usual pattern.\n  - Running hot: Ethereum 53% vol\, Si
- lver 62% vol\, Oil 48% vol\n  - 3 markets under 10% annualised volatilit
- y - a quiet tape is the worst environment for anything that pays a toll 
- per trade.\n  - Funding carry basket nets 3.1% a year ($2.62 a month on 
- $1\,000) - below the 15% bar\, so no.\n\nMOVERS:\n  Oil: -3.36% on the d
- ay\, +2.4% on the month\n  Emerging markets: +1.44% on the day\, +5.4% o
- n the month\n  Consumer staples: -1.06% on the day\, +1.4% on the month\
- n  Energy: -0.98% on the day\, +7.1% on the month\n  US long bonds: +0.9
- 0% on the day\, -0.5% on the month\n  Japan: +0.58% on the day\, +4.2% o
- n the month\n\nMost days this says nothing\, and most days that is corre
- ct. Run `pm study` for the ten years of arithmetic behind that.
+UID:8346f7f1c65955365391@printmoney
+DTSTAMP:20260826T033211Z
+DTSTART;VALUE=DATE:20260826
+DTEND;VALUE=DATE:20260827
+SUMMARY:ช้างขาว: วันนี้ไม่มีอะไ
+ ร
+DESCRIPTION:วันนี้ไม่มีอะไรต้องท
+ ำ ไม่มีสัญญาณไหนคุ้มค่าธ
+ รรมเนียมที่ต้องจ่าย\n\nขยั
+ บมากสุด:\n  น้ำมัน: -4.58% วันนี้\
+ , +1.1% ในเดือน\n  ตลาดเกิดใหม่: +
+ 1.72% วันนี้\, +5.7% ในเดือน\n  กลุ่
+ มพลังงาน: -1.66% วันนี้\, +6.3% ในเด
+ ือน\n  พันธบัตรสหรัฐระยะยา
+ ว: +1.10% วันนี้\, -0.3% ในเดือน\n  กล
+ ุ่มสินค้าจำเป็น: -1.06% วันนี้
+ \, +1.4% ในเดือน\n\nยืดตัวผิดปกต
+ ิ:\n  บิตคอยน์: +3.1 SD จากค่าเฉลี
+ ่ย 60 วัน (+23.3% ในเดือน)\n  อีเธอเ
+ รียม: +2.6 SD จากค่าเฉลี่ย 60 วัน 
+ (+31.7% ในเดือน)\n  ทองคำ: +2.4 SD จากค
+ ่าเฉลี่ย 60 วัน (+14.3% ในเดือน)\n  
+ กลุ่มสุขภาพ: +2.0 SD จากค่าเฉล
+ ี่ย 60 วัน (+7.3% ในเดือน)\n  ยืดตั
+ วคือข้อเท็จจริงเรื่องราค
+ า ไม่ใช่สัญญาณ — งานวิจัยพ
+ บว่ากฎ mean-reversion แยกไม่ออกจาก
+ การสุ่ม\n\nผลตอบแทน funding carry:\n  ต
+ ะกร้าให้ +3.2% ต่อปีสุทธิ = $2.63 
+ ต่อเดือน บนทุน $1\,000.00\n  ต่ำกว
+ ่าเกณฑ์ 15% จึงยังไม่ทำอะไร\
+ n\nส่วนใหญ่มันจะบอกว่าไม่ม
+ ีอะไร และส่วนใหญ่นั่นคือ
+ คำตอบที่ถูก — รัน `pm study` เพื่
+ อดูเลขคณิต 10 ปีที่อยู่เบื
+ ้องหลัง
 TRANSP:TRANSPARENT
 END:VEVENT
 END:VCALENDAR

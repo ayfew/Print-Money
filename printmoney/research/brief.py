@@ -26,6 +26,12 @@ log = logging.getLogger("printmoney.brief")
 #: A carry basket has to beat this before it is worth opening positions for.
 CARRY_ACTION_THRESHOLD = 0.15
 
+#: Below this share of the universe the brief is not a quiet day, it is a broken
+#: one. A cloud run once fetched zero markets, printed "Nothing today" and exited
+#: zero - a confident verdict computed over no data at all. Anything that reads
+#: the exit code, or the calendar entry, would have believed it.
+MIN_UNIVERSE_COVERAGE = 0.5
+
 #: How far from its own recent range a market has to be before it is remarkable.
 STRETCH_SIGMA = 2.0
 
@@ -66,11 +72,31 @@ class Brief:
     observations: list[str] = field(default_factory=list)
     carry: dict[str, Any] | None = None
     error: str = ""
+    requested: int = 0
+    loaded: int = 0
+
+    @property
+    def ok(self) -> bool:
+        """Did enough of the universe load for the verdict to mean anything?"""
+        if self.error:
+            return False
+        if not self.requested:
+            return bool(self.lines)
+        return self.loaded >= self.requested * MIN_UNIVERSE_COVERAGE
+
+    @property
+    def coverage(self) -> float:
+        return self.loaded / self.requested if self.requested else 0.0
 
     @property
     def verdict(self) -> str:
         if self.error:
             return f"could not complete: {self.error}"
+        if not self.ok:
+            return (
+                f"could not complete: only {self.loaded} of {self.requested} markets "
+                "loaded, so there is no verdict to give"
+            )
         if self.actions:
             return f"{len(self.actions)} thing(s) worth acting on today."
         return "Nothing today. No signal clears what it would cost to act on it."
@@ -86,6 +112,10 @@ class Brief:
         return {
             "generated_at": self.generated_at.isoformat(),
             "verdict": self.verdict,
+            "ok": self.ok,
+            "requested": self.requested,
+            "loaded": self.loaded,
+            "coverage": round(self.coverage, 3),
             "actions": self.actions,
             "observations": self.observations,
             "carry": self.carry,
@@ -140,7 +170,7 @@ def build_brief(
     cache_hours: float = 6.0,
 ) -> Brief:
     """Assemble the morning note."""
-    brief = Brief()
+    brief = Brief(requested=len(universe))
     try:
         series = fetch_many(universe, rng="2y", cache_hours=cache_hours)
         for s in series.values():
@@ -148,9 +178,25 @@ def build_brief(
             if line is not None:
                 brief.lines.append(line)
         brief.lines.sort(key=lambda l: l.symbol)
+        brief.loaded = len(brief.lines)
     except Exception as exc:  # noqa: BLE001
         log.exception("market data failed")
         brief.error = f"{type(exc).__name__}: {exc}"
+        return brief
+
+    if not brief.ok:
+        # Stop here rather than pricing a carry basket and calling the result a
+        # quiet day. A brief with no markets in it is a failure, not a verdict.
+        log.error(
+            "only %d of %d markets loaded (%.0f%%); refusing to issue a verdict",
+            brief.loaded,
+            brief.requested,
+            100 * brief.coverage,
+        )
+        brief.observations.append(
+            f"Market data incomplete: {brief.loaded} of {brief.requested} loaded. "
+            "Check network access to query1.finance.yahoo.com."
+        )
         return brief
 
     _observe(brief)

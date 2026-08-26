@@ -527,18 +527,28 @@ def cmd_daily(args: argparse.Namespace) -> int:
 
     brief = build_brief(capital=capital, include_carry=not args.no_carry)
 
+    if not brief.ok:
+        # Do not write the calendar or the page. Replacing yesterday's real brief
+        # with an empty one is worse than leaving yesterday's in place.
+        console.print(f"[bold red]{brief.verdict}[/bold red]")
+        for o in brief.observations:
+            console.print(f"[dim]  {o}[/dim]")
+        if args.json:
+            _print_json(brief.to_dict())
+        return 1
+
     # Written before anything is printed, so a scheduled run still produces the
     # files even if the terminal it was launched from has gone away.
     if args.ics:
         from .research.export import write_ics
 
-        path = write_ics(brief, args.ics)
+        path = write_ics(brief, args.ics, lang=args.lang)
         if not args.json:
             console.print(f"[dim]calendar -> {path}[/dim]")
     if args.html:
         from .research.export import write_html
 
-        path = write_html(brief, args.html, capital=capital)
+        path = write_html(brief, args.html, capital=capital, lang=args.lang)
         if not args.json:
             console.print(f"[dim]page -> {path}[/dim]")
 
@@ -828,6 +838,8 @@ def build_parser() -> argparse.ArgumentParser:
                     help="append today to a subscribable .ics calendar")
     sp.add_argument("--html", nargs="?", const="reports/brief.html", default=None,
                     help="write a phone-sized HTML page")
+    sp.add_argument("--lang", choices=("th", "en"), default="th",
+                    help="language for the calendar entry and the page")
     common(sp)
     sp.set_defaults(func=cmd_daily)
 
