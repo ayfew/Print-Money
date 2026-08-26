@@ -1,0 +1,6 @@
+# Just enough to run `pm daily`. The full engine needs numpy and scipy for the
+# linear program and the path simulator; the morning brief needs none of that,
+# and a cloud runner that installs only these three is up in seconds.
+httpx>=0.27
+PyYAML>=6.0
+rich>=13.7
