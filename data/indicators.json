@@ -1,0 +1,133 @@
+{
+  "span": "2016-08-26..2026-08-26",
+  "markets": 24,
+  "cost": 0.001,
+  "tested": 146,
+  "null_low": 0.03563,
+  "null_high": 0.06876,
+  "null_median": 0.05392,
+  "buy_and_hold": 0.10834,
+  "survivors": [],
+  "best": [
+    {
+      "name": "AVGDEV",
+      "group": "Price Transform",
+      "inverted": false,
+      "gross": 0.12715,
+      "net": 0.12705,
+      "turnover": 0.1,
+      "tstat": 8.42,
+      "p_value": 0.0,
+      "n_days": 62106,
+      "significant": true
+    },
+    {
+      "name": "PLUS_DI",
+      "group": "Momentum Indicators",
+      "inverted": false,
+      "gross": 0.11731,
+      "net": 0.10631,
+      "turnover": 11.0,
+      "tstat": 7.66,
+      "p_value": 0.0,
+      "n_days": 62106,
+      "significant": true
+    },
+    {
+      "name": "ADOSC",
+      "group": "Volume Indicators",
+      "inverted": false,
+      "gross": 0.10997,
+      "net": 0.10145,
+      "turnover": 8.5,
+      "tstat": 7.44,
+      "p_value": 0.0,
+      "n_days": 62106,
+      "significant": true
+    },
+    {
+      "name": "WILLR",
+      "group": "Momentum Indicators",
+      "inverted": false,
+      "gross": 0.11379,
+      "net": 0.09932,
+      "turnover": 14.5,
+      "tstat": 7.15,
+      "p_value": 0.0,
+      "n_days": 62106,
+      "significant": true
+    },
+    {
+      "name": "LINEARREG_INTERCEPT",
+      "group": "Statistic Functions",
+      "inverted": false,
+      "gross": 0.09508,
+      "net": 0.09331,
+      "turnover": 1.8,
+      "tstat": 6.48,
+      "p_value": 0.0,
+      "n_days": 62106,
+      "significant": true
+    },
+    {
+      "name": "OBV",
+      "group": "Volume Indicators",
+      "inverted": false,
+      "gross": 0.09646,
+      "net": 0.09212,
+      "turnover": 4.3,
+      "tstat": 6.37,
+      "p_value": 0.0,
+      "n_days": 62106,
+      "significant": true
+    },
+    {
+      "name": "TSF",
+      "group": "Statistic Functions",
+      "inverted": false,
+      "gross": 0.09246,
+      "net": 0.09054,
+      "turnover": 1.9,
+      "tstat": 6.35,
+      "p_value": 0.0,
+      "n_days": 62106,
+      "significant": true
+    },
+    {
+      "name": "LINEARREG",
+      "group": "Statistic Functions",
+      "inverted": false,
+      "gross": 0.09197,
+      "net": 0.09019,
+      "turnover": 1.8,
+      "tstat": 6.3,
+      "p_value": 0.0,
+      "n_days": 62106,
+      "significant": true
+    },
+    {
+      "name": "STOCH",
+      "group": "Momentum Indicators",
+      "inverted": false,
+      "gross": 0.10514,
+      "net": 0.08964,
+      "turnover": 15.5,
+      "tstat": 6.53,
+      "p_value": 0.0,
+      "n_days": 62106,
+      "significant": true
+    },
+    {
+      "name": "PLUS_DM",
+      "group": "Momentum Indicators",
+      "inverted": false,
+      "gross": 0.10115,
+      "net": 0.08584,
+      "turnover": 15.3,
+      "tstat": 5.6,
+      "p_value": 0.0,
+      "n_days": 62106,
+      "significant": true
+    }
+  ]
+}

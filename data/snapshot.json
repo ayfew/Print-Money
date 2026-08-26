@@ -9,7 +9,7 @@
     "EWJ": "elevated",
     "FXI": "calm",
     "GLD": "normal",
-    "HYG": "calm",
+    "HYG": "normal",
     "IWM": "calm",
     "QQQ": "elevated",
     "SLV": "normal",
@@ -27,7 +27,7 @@
     "XLV": "elevated"
   },
   "event_days": [],
-  "carry_net": 0.03566,
+  "carry_net": 0.03606,
   "quiet": false,
   "previous": null
 }

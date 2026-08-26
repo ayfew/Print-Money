@@ -13,6 +13,8 @@
     pm macro       official daily readings, and which markets each one moves with
     pm graph       the causal map as an interactive page
     pm why <node>  what moves a market, and what moves that
+    pm indicators  every TA-Lib indicator against the fee wall, corrected
+    pm venues      funding across 100+ exchanges, and the gaps between them
     pm score       how often the brief's own risk calls turned out to be right
     pm validate    end-to-end self-test against a market with known truth
     pm replay      re-solve recorded snapshots and settle them for real
@@ -923,6 +925,142 @@ def cmd_why(args: argparse.Namespace) -> int:
 
 
 # --------------------------------------------------------------------------- #
+def cmd_indicators(args: argparse.Namespace) -> int:
+    """Every TA-Lib indicator through the fee wall, corrected for having looked."""
+    from rich.console import Console
+    from rich.table import Table
+
+    from .research import indicators as I
+    from .research.data import UNIVERSE, fetch_many
+
+    setup_console()
+    console = Console()
+    if not I.available():
+        console.print("[red]TA-Lib is not installed.[/red] "
+                      "[dim]pip install TA-Lib - since 0.6.5 it ships binary "
+                      "wheels, so the old compile-the-C-library step is gone.[/dim]")
+        return 1
+
+    console.print(f"[dim]loading {len(UNIVERSE)} markets, {args.range}...[/dim]")
+    series = fetch_many(UNIVERSE, rng=args.range, cache_hours=args.cache_hours)
+    console.print("[dim]sweeping every indicator, both directions...[/dim]")
+    sw = I.sweep(series.values(), cost=args.fee, limit=args.limit)
+
+    if args.save:
+        from .util import write_json
+
+        path = ROOT / "data" / "indicators.json"
+        write_json(path, sw.to_dict())
+        console.print(f"[dim]saved -> {path}[/dim]")
+    if args.json:
+        _print_json(sw.to_dict())
+        return 0
+
+    console.print(
+        f"\n[bold]{len(sw.results)} rules from {len(sw.results) // 2} indicators[/bold], "
+        f"{sw.markets} markets, {sw.span}, {args.fee:.2%} a round trip"
+    )
+    bars = Table(title="\nthe four bars a rule has to clear", title_justify="left",
+                 header_style="bold cyan", box=None, pad_edge=False)
+    bars.add_column("bar", overflow="fold")
+    bars.add_column("value", justify="right")
+    bars.add_row("buy and hold, equal weight, no costs", f"{sw.buy_and_hold:+.2%}")
+    bars.add_row("random signals, matched turnover, same costs",
+                 f"{sw.null_low:+.2%} .. {sw.null_high:+.2%}")
+    bars.add_row("Benjamini-Hochberg across the whole family", f"FDR {I.FDR:.0%}")
+    bars.add_row("actually trades (round trips a year)", f">= {I.MIN_TURNOVER:.0f}")
+    console.print(bars)
+
+    survivors = sw.survivors()
+    if survivors:
+        t = Table(title="\nsurvivors", title_justify="left", header_style="bold green")
+        for col in ("rule", "gross", "net", "turnover", "t"):
+            t.add_column(col, justify="right" if col != "rule" else "left")
+        for r in survivors:
+            t.add_row(r.label, f"{r.gross:+.2%}", f"{r.net:+.2%}",
+                      f"{r.turnover:.1f}/yr", f"{r.tstat:+.1f}")
+        console.print(t)
+    else:
+        console.print("\n[bold green]0 of "
+                      f"{len(sw.results)} rules survive all four bars.[/bold green]")
+
+    t = Table(title="\nbest by net, and what each one actually is",
+              title_justify="left", header_style="bold cyan")
+    for col in ("rule", "gross", "net", "turnover", "verdict"):
+        t.add_column(col, justify="right" if col not in ("rule", "verdict") else "left")
+    for r in sw.best(8):
+        if r in survivors:
+            verdict = "[green]beats every bar[/green]"
+        elif r.turnover < I.MIN_TURNOVER:
+            verdict = "[yellow]is buy-and-hold[/yellow]"
+        elif r.net <= sw.buy_and_hold:
+            verdict = "[dim]below buy-and-hold[/dim]"
+        else:
+            verdict = "[dim]inside the noise band[/dim]"
+        t.add_row(r.label, f"{r.gross:+.2%}", f"{r.net:+.2%}",
+                  f"{r.turnover:.1f}/yr", verdict)
+    console.print(t)
+
+    console.print(
+        "\n[dim]Testing 146 rules at 5% yields about seven passes on noise alone, "
+        "which is why the correction is there. The bar that does most of the work "
+        "is buy-and-hold: a rule that is long 95% of the time in markets that rose "
+        "has not beaten anything, it IS the market with an indicator drawn on "
+        "top.[/dim]"
+    )
+    return 0
+
+
+# --------------------------------------------------------------------------- #
+def cmd_venues(args: argparse.Namespace) -> int:
+    """Funding on every reachable exchange, and the widest same-contract gaps."""
+    from rich.console import Console
+    from rich.table import Table
+
+    from .carry import venues as V
+
+    setup_console()
+    console = Console()
+    if not V.available():
+        console.print("[red]ccxt is not installed.[/red] [dim]pip install ccxt[/dim]")
+        return 1
+
+    console.print(f"[dim]asking {len(V.VENUES)} venues...[/dim]")
+    rep = V.scan(top=args.top)
+
+    if args.json:
+        _print_json(rep.to_dict())
+        return 0
+
+    console.print(f"[green]reachable:[/green] {', '.join(rep.reachable)}")
+    for name, why in rep.failed.items():
+        console.print(f"[yellow]  {name}: {why}[/yellow]")
+    console.print(f"[dim]{len(rep.rates)} rates across {len(rep.by_symbol())} "
+                  f"contracts clearing ${V.MIN_VOLUME_USD/1e6:.0f}M a day[/dim]")
+
+    t = Table(title="\nsame contract, different funding", title_justify="left",
+              header_style="bold cyan")
+    t.add_column("contract")
+    t.add_column("long on")
+    t.add_column("pays", justify="right")
+    t.add_column("short on")
+    t.add_column("collects", justify="right")
+    t.add_column("spread", justify="right")
+    for s in rep.spreads:
+        t.add_row(s.symbol, s.long_venue, f"{s.long_annual:+.1%}",
+                  s.short_venue, f"{s.short_annual:+.1%}",
+                  f"[green]{s.spread_annual:+.1%}[/green]")
+    console.print(t)
+    console.print(
+        "\n[dim]A spread is not free money: it needs capital on two venues, two "
+        "sets of withdrawal risk, and it can flip between eight-hour settlements. "
+        "These are snapshots of one settlement annualised, not a rate anything "
+        "earns for a year.[/dim]"
+    )
+    return 0
+
+
+# --------------------------------------------------------------------------- #
 def cmd_score(args: argparse.Namespace) -> int:
     """How often the brief's own risk calls turned out to be right."""
     from rich.console import Console
@@ -1263,6 +1401,22 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--lang", choices=("th", "en"), default="th")
     common(sp)
     sp.set_defaults(func=cmd_why)
+
+    sp = sub.add_parser("indicators",
+                        help="every TA-Lib indicator against the fee wall")
+    sp.add_argument("--range", default="10y", help="how much history")
+    sp.add_argument("--fee", type=float, default=0.0010, help="round-trip cost")
+    sp.add_argument("--limit", type=int, default=None,
+                    help="only the first N indicators (for a quick look)")
+    sp.add_argument("--save", action="store_true", help="commit the sweep")
+    sp.add_argument("--cache-hours", type=float, default=24.0)
+    common(sp)
+    sp.set_defaults(func=cmd_indicators)
+
+    sp = sub.add_parser("venues", help="funding across exchanges, and the gaps")
+    sp.add_argument("--top", type=int, default=15, help="how many spreads to show")
+    common(sp)
+    sp.set_defaults(func=cmd_venues)
 
     sp = sub.add_parser("score", help="how often the brief's own calls were right")
     sp.add_argument("--save", action="store_true", help="commit the summary")
