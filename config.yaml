@@ -1,0 +1,169 @@
+# printmoney configuration
+#
+# Everything the engine does is driven from this file. Environment variables win
+# over it: PM_CAPITAL, PM_MIN_EDGE, PM_MODE, PM_POLL_SECONDS, PM_PATHS,
+# PM_LIVE_ENABLED, PM_LOG_LEVEL.
+
+log_level: INFO
+
+# --------------------------------------------------------------------------- #
+execution:
+  # paper = simulated fills against the real book (default and recommended)
+  # dry   = print the orders, touch nothing
+  # live  = real money. requires the live: block below to be armed.
+  mode: paper
+  poll_seconds: 20
+  record_snapshots: true
+  snapshot_dir: state/snapshots
+  ledger_path: state/ledger.json
+  equity_path: state/equity.json
+
+# --------------------------------------------------------------------------- #
+risk:
+  capital_usd: 1000.0
+  max_gross_exposure: 0.85    # fraction of equity that may be at risk at once
+  max_daily_loss: 0.10        # kill switch: stop for the day past this loss
+  max_drawdown: 0.25          # kill switch: stop entirely past this peak-to-trough
+  max_open_events: 5
+  max_orders_per_cycle: 12
+  max_trades_per_hour: 60
+  stale_book_seconds: 45
+  stale_spot_seconds: 30
+  require_complete_strip: true
+
+# --------------------------------------------------------------------------- #
+strategy:
+  # Required expected return on the capital a plan deploys, after fees.
+  min_edge: 0.015
+  # How deep into the book we are willing to reach, and how much of a quoted
+  # level we assume is really ours.
+  max_book_levels: 6
+  max_depth_fraction: 0.5
+  # The worst settlement outcome may not lose more than
+  #   max_loss_fraction * max_notional_per_event * capital_usd
+  # i.e. with the defaults below, 0.35 * 0.40 * $1000 = $140 per settlement date.
+  # Lower = more hedged, smaller positions, fewer trades clear the EV bar.
+  max_loss_fraction: 0.35
+  # Weight on conditional value at risk in the objective:
+  #     maximise  E[PnL] - risk_aversion * CVaR(loss)
+  # 0 = pure expected value, which would trade a certain profit for a lottery
+  # ticket with a marginally better mean. Raise it to trade less and hedge more.
+  risk_aversion: 0.25
+  cvar_alpha: 0.90            # CVaR looks at the worst 10% of outcomes
+  max_notional_per_event: 0.40
+  max_notional_per_leg: 0.15
+  min_order_shares: 5.0
+  tick_size: 0.001
+  # Barrier ("will BTC touch X") markets. Path-dependent, so they get a wider
+  # edge requirement and their own small budget.
+  enable_touch_markets: true
+  touch_min_edge: 0.05
+  touch_max_notional: 0.10
+
+# --------------------------------------------------------------------------- #
+model:
+  n_paths: 40000
+  steps_per_hour: 12          # 5-minute steps
+  max_steps: 4000
+  seed: 7
+
+  vol_lookback_hours: 720     # 30 days of hourly bars
+  vol_estimators: [yang_zhang, parkinson, ewma, close_to_close]
+  vol_estimator_weights: [0.4, 0.2, 0.3, 0.1]
+  ewma_lambda: 0.97
+  vol_risk_premium: 1.05      # >1 widens our distribution vs realised vol
+  vol_floor_annual: 0.15
+  vol_cap_annual: 3.0
+
+  # bootstrap = resample real BTC returns (fat tails, vol clustering)
+  # student_t = parametric fat tails
+  # gbm       = textbook lognormal
+  generator: bootstrap
+  bootstrap_block_hours: 2.0
+  student_t_df: 4.0
+  drift_annual: 0.0           # no directional view, on purpose
+
+  # A resampling model can only produce moves it has already seen. Thirty days
+  # of BTC history contains no 20% day, so the model would price one at zero and
+  # the engine would cheerfully sell that insurance. Mixing a little of a much
+  # wider distribution into every model puts a floor under the tails.
+  tail_mixture_weight: 0.03
+  tail_vol_mult: 2.5
+  tail_generator: student_t
+
+  # Fit the market's own volatility out of the quoted strip and anchor the
+  # trading model between it and realised vol. Turn this off and the engine
+  # stops being an arbitrage bot and becomes a bet that short-dated implied
+  # volatility is too high - which is a real trade, but a different one, and it
+  # loses slowly enough to look like alpha for weeks first.
+  calibrate_to_market: true
+  implied_vol_weight: 0.65    # 1.0 = trust the market's volatility completely
+
+  # Trade only what survives the least favourable member of this set.
+  # vol_source picks the volatility a member is built on:
+  #   base     - the blend of realised and implied
+  #   implied  - what the strip itself is charging
+  #   realized - what BTC has actually been doing
+  # Requiring a profit under all three is what makes the engine indifferent to
+  # the LEVEL of volatility and sensitive only to the SHAPE of the distribution.
+  robust: true
+  ensemble:
+    - {name: base,     vol_source: base,     vol_mult: 1.00, generator: bootstrap}
+    - {name: implied,  vol_source: implied,  vol_mult: 1.00, generator: bootstrap}
+    - {name: realized, vol_source: realized, vol_mult: 1.00, generator: bootstrap}
+    - {name: highvol,  vol_source: implied,  vol_mult: 1.15, generator: bootstrap}
+    - {name: gaussian, vol_source: base,     vol_mult: 1.00, generator: gbm}
+
+# --------------------------------------------------------------------------- #
+fees:
+  # Polymarket crypto_fees_v2: taker pays rate * min(p, 1-p)^exponent per share.
+  # The engine prefers whatever the market itself advertises; these are the
+  # fallback when a market does not publish a schedule.
+  rate: 0.07
+  exponent: 1.0
+  taker_only: true
+  prefer_market_schedule: true
+  slippage_pad: 0.002         # extra cushion demanded on every fill
+
+# --------------------------------------------------------------------------- #
+filters:
+  include_slug_patterns:
+    - bitcoin-price-on-
+    - bitcoin-above-
+    - what-price-will-bitcoin-hit
+  exclude_slug_patterns:
+    - up-or-down
+  min_seconds_to_expiry: 900          # 15 minutes
+  max_seconds_to_expiry: 1814400      # 21 days
+  min_event_liquidity_usd: 5000
+  min_leg_liquidity_usd: 250
+  max_events: 8
+
+# --------------------------------------------------------------------------- #
+data:
+  gamma_url: https://gamma-api.polymarket.com
+  clob_url: https://clob.polymarket.com
+  spot_sources: [binance, coinbase, kraken]
+  settlement_symbol: BTCUSDT
+  http_timeout: 20
+  books_batch_size: 40
+  max_book_workers: 8
+
+# --------------------------------------------------------------------------- #
+# LIVE TRADING - off, and it stays off until all four of these are true:
+#   1. execution.mode above is set to "live"
+#   2. enabled: true
+#   3. confirm_phrase: "I ACCEPT THE RISK"
+#   4. the private key env var below is exported in your shell
+# Never put a key in this file.
+live:
+  enabled: false
+  confirm_phrase: ""
+  host: https://clob.polymarket.com
+  chain_id: 137
+  signature_type: 1
+  private_key_env: POLYMARKET_PRIVATE_KEY
+  api_key_env: POLYMARKET_API_KEY
+  api_secret_env: POLYMARKET_API_SECRET
+  api_passphrase_env: POLYMARKET_API_PASSPHRASE
+  funder_address_env: POLYMARKET_FUNDER

@@ -1,0 +1,25 @@
+# Runtime state: ledger, open positions, risk flags, recorded book snapshots,
+# and the cached market-data bars. All machine-local, all regenerable.
+state/
+logs/
+
+# Never commit these.
+.env
+*.key
+*.pem
+
+# The daily brief IS committed - reports/printmoney.ics is the calendar feed a
+# phone subscribes to, and reports/brief.html is the page it links to. Only the
+# dated per-run copies are noise.
+reports/brief_*.txt
+reports/brief_*.json
+reports/brief_*.log
+reports/*.err
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.idea/
+.vscode/

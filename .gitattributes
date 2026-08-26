@@ -1,0 +1,17 @@
+# iCalendar is defined in terms of CRLF. If git normalises it on checkout the
+# file stops parsing, and the cloud runner checks out on Linux where it would.
+# Marking it binary is the only thing that reliably keeps git's hands off it.
+*.ics -text
+
+# Batch files are the opposite case: they need CRLF wherever they land.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Everything else is normal source.
+*.py    text eol=lf
+*.md    text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.json  text eol=lf
+*.txt   text eol=lf
+*.html  text eol=lf

@@ -1,0 +1,9 @@
+# core - everything the engine needs to scan, model, solve and paper trade
+numpy>=1.26
+scipy>=1.11
+httpx>=0.27
+PyYAML>=6.0
+rich>=13.7
+
+# live trading only. not needed for paper mode; install deliberately.
+# py-clob-client>=0.17
