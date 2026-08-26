@@ -27,7 +27,7 @@
     "XLV": "elevated"
   },
   "event_days": [],
-  "carry_net": null,
+  "carry_net": 0.03705,
   "quiet": false,
   "previous": null
 }

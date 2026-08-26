@@ -244,11 +244,31 @@ def _cboe_rows(name: str) -> list[dict[str, Any]]:
     return rows
 
 
+def _payload(text: str, want: type) -> Any:
+    """Parse, and check the shape is the one the caller is about to assume.
+
+    Every parser here reaches straight into a dict or iterates a list. When an
+    endpoint changes shape - an object where there was an array, an error
+    document where there was data - that reach raises an AttributeError deep
+    inside a comprehension rather than returning nothing. The callers catch it,
+    so the feed degrades either way; but "returns empty" and "raises" are
+    different contracts, and the tests hold every other parser here to the first.
+    """
+    try:
+        blob = json.loads(text)
+    except (json.JSONDecodeError, TypeError):
+        return want()
+    return blob if isinstance(blob, want) else want()
+
+
 def parse_effr(text: str) -> list[dict[str, Any]]:
-    payload = json.loads(text)
+    payload = _payload(text, dict)
+    rows = payload.get("refRates")
+    if not isinstance(rows, list):
+        return []
     return [{"day": r["effectiveDate"], "value": float(r["percentRate"])}
-            for r in payload.get("refRates", [])
-            if r.get("percentRate") is not None and r.get("effectiveDate")]
+            for r in rows if isinstance(r, dict)
+            and r.get("percentRate") is not None and r.get("effectiveDate")]
 
 
 def _effr_rows(n: int = 250) -> list[dict[str, Any]]:
@@ -276,8 +296,8 @@ def parse_auctions(text: str, field: str) -> list[dict[str, Any]]:
                           central banks. Higher means more foreign appetite.
     """
     rows: list[dict[str, Any]] = []
-    for a in json.loads(text):
-        if a.get("securityType") not in ("Note", "Bond"):
+    for a in _payload(text, list):
+        if not isinstance(a, dict) or a.get("securityType") not in ("Note", "Bond"):
             continue
         day = (a.get("auctionDate") or "")[:10]
         total = _num(a.get("totalAccepted"))
@@ -317,9 +337,14 @@ def _auction_rows(field: str, n: int = 400) -> list[dict[str, Any]]:
 
 def parse_soma(text: str) -> list[dict[str, Any]]:
     """The Fed's own holdings, in trillions. Weekly."""
-    payload = json.loads(text)
+    soma = _payload(text, dict).get("soma")
+    rows = soma.get("summary") if isinstance(soma, dict) else None
+    if not isinstance(rows, list):
+        return []
     out = []
-    for row in payload.get("soma", {}).get("summary", []):
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
         total = _num(row.get("total"))
         if row.get("asOfDate") and total:
             out.append({"day": row["asOfDate"], "value": total / 1e12})
