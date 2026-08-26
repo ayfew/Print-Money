@@ -160,6 +160,14 @@ def run(
                       feeds=macro_feeds, links=links,
                       venues=venue_report, capital=capital)
 
+    carry_error = (brief.carry or {}).get("error")
+    if include_carry and carry_error:
+        warnings.append(
+            f"funding carry unavailable, brief is missing that section: {carry_error}"
+        )
+    if include_carry and venue_report is not None and not venue_report.reachable:
+        warnings.append("no exchange answered - cross-venue funding is missing")
+
     m = Morning(brief=brief, decision=decision, previous=previous,
                 warnings=warnings)
 

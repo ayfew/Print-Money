@@ -276,6 +276,12 @@ def build_brief(
                     f"on ${capital:,.0f}) - below the {CARRY_ACTION_THRESHOLD:.0%} bar, so no."
                 )
         except Exception as exc:  # noqa: BLE001
+            # Recorded as an error on the carry block, not only as a note. A
+            # cloud runner sits on a US address and Binance answers 451 to
+            # those, so this path is not hypothetical - and a green run that
+            # quietly published a brief with one fewer section is the exact
+            # failure mode this project keeps having to design against.
+            brief.carry = {"error": f"{type(exc).__name__}: {exc}"}
             brief.observations.append(f"carry scan unavailable: {exc}")
 
     return brief

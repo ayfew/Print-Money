@@ -120,6 +120,8 @@ class _Spread:
 class _Venues:
     def __init__(self, spreads):
         self.spreads = spreads
+        self.reachable = ['stub']
+        self.failed = {}
 
 
 def _decision(**over):
@@ -458,3 +460,40 @@ class TestTheOnePage:
                         lang="th").read_bytes().decode("utf-8")
         assert f"URL:{SITE_URL}" in raw.replace("\r\n ", "")
         assert SITE_URL in raw.replace("\r\n ", "")
+
+
+class TestALostSectionIsNeverSilent:
+    """A green run that quietly published a smaller brief is the failure mode
+    this project keeps having to design against - most recently when the cloud
+    runner had no ccxt and dropped the venue section without a word."""
+
+    def _run(self, monkeypatch, tmp_path, carry):
+        monkeypatch.setattr(mr, "SNAPSHOT", tmp_path / "s.json")
+        monkeypatch.setattr(sc, "CLAIMS", tmp_path / "c.jsonl")
+        monkeypatch.setattr(mr, "build_brief", lambda **kw: _brief(carry=carry))
+        monkeypatch.setattr(mr.ev, "load_impacts", dict)
+        monkeypatch.setattr(mr.feeds, "load", lambda **kw: {})
+        monkeypatch.setattr(mr.macro, "load", M.Table)
+        monkeypatch.setattr(mr, "decide", lambda b, **kw: decide(b, today=TODAY))
+        # include_carry=True also reaches for the exchanges. Stub the whole
+        # module out: this file promises no network, and a test that quietly
+        # calls five venues takes four minutes and fails on a train.
+        import printmoney.carry.venues as venue_mod
+
+        monkeypatch.setattr(venue_mod, "available", lambda: True)
+        monkeypatch.setattr(venue_mod, "scan",
+                            lambda *a, **k: _Venues([]))
+        return mr.run(include_carry=True, today=date(2020, 6, 1), persist=False)
+
+    def test_a_blocked_exchange_is_reported_not_swallowed(self, monkeypatch,
+                                                          tmp_path):
+        m = self._run(monkeypatch, tmp_path,
+                      {"error": "HTTPStatusError: 451 restricted location"})
+        assert m.ok                                   # the brief still ships
+        assert any("carry" in w for w in m.warnings)  # but the loss is stated
+
+    def test_a_healthy_carry_produces_no_warning(self, monkeypatch, tmp_path):
+        m = self._run(monkeypatch, tmp_path,
+                      {"basket_net_annual": 0.046, "monthly_usd": 3.85,
+                       "capital": 1000.0})
+        assert not [w for w in m.warnings if "carry" in w]
