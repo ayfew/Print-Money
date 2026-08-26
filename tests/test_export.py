@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-import pytest
 
 from printmoney.research.brief import Brief, MarketLine
 from printmoney.research.export import brief_to_event, write_html, write_ics
