@@ -66,6 +66,13 @@ jobs:
       # of the brief's own calls only exist if git is holding them. Committing
       # the scorecard also means it can be audited commit by commit, which is
       # the only kind of track record worth publishing.
+      # The push is the step that actually failed the first time this ran. The
+      # job checks out a commit, spends a couple of minutes fetching markets,
+      # and by the time it pushes the branch may have moved - a hand-edit, or
+      # the monthly evidence job. A plain `git push` then rejects as
+      # non-fast-forward and a perfectly good brief is thrown away over a
+      # collision that a rebase resolves: this job only ever touches generated
+      # files, so there is nothing for a rebase to conflict with.
       - name: Commit and push
         run: |
           git config user.name  "github-actions[bot]"
@@ -77,4 +84,13 @@ jobs:
             exit 0
           fi
           git commit -m "brief: $(date -u +%Y-%m-%d)"
-          git push
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "push rejected, rebasing onto the current main (attempt $attempt)"
+            git pull --rebase --autostash origin main || exit 1
+          done
+          echo "could not push after three attempts"
+          exit 1

@@ -4,3 +4,9 @@
 httpx>=0.27
 PyYAML>=6.0
 rich>=13.7
+
+# ...plus ccxt, since the cross-venue funding spread became part of the brief
+# rather than a research aside. Without it the cloud run still succeeds and
+# still publishes - it just quietly drops the one section that names something
+# actionable, which is the worst way to lose a feature.
+ccxt>=4.5.0

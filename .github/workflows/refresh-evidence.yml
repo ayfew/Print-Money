@@ -59,4 +59,17 @@ jobs:
             exit 0
           fi
           git commit -m "evidence: $(date -u +%Y-%m)"
-          git push
+          # Same rebase-and-retry as the daily job: this run takes half an hour
+          # and only ever rewrites generated tables, so a branch that moved
+          # underneath it is a collision to resolve rather than a reason to
+          # throw the measurement away.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "push rejected, rebasing onto the current main (attempt $attempt)"
+            git pull --rebase --autostash origin main || exit 1
+          done
+          echo "could not push after three attempts"
+          exit 1

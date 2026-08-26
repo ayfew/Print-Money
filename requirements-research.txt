@@ -1,0 +1,14 @@
+# Optional. Each earns its place for exactly one command.
+#
+#   TA-Lib  the 161-indicator sweep in `pm indicators`. Since 0.6.5 it ships
+#           binary wheels, so the old compile-the-C-library step is gone.
+#   ccxt    one interface over 100+ exchanges for `pm venues`. Taken on for the
+#           funding endpoint only - it is not a strategy library, so it imports
+#           nobody's opinion about what to trade.
+#
+#     pip install -r requirements-research.txt
+#
+# Everything that uses these degrades to a warning when they are absent, so the
+# daily brief never depends on having run this.
+TA-Lib>=0.7.1
+ccxt>=4.5.0

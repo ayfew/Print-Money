@@ -8,11 +8,8 @@ rich>=13.7
 # live trading only. not needed for paper mode; install deliberately.
 # py-clob-client>=0.17
 
-# Optional, and each earns its place for exactly one job:
-#   TA-Lib  the 161-indicator sweep in `pm indicators`. Since 0.6.5 it ships
-#           binary wheels, so the old compile-the-C-library step is gone.
-#   ccxt    one interface over 100+ exchanges for `pm venues`. Taken on for the
-#           funding endpoint only - it is not a strategy library, so it imports
-#           nobody's opinion about what to trade.
-TA-Lib>=0.7.1 ; extra == "research"
-ccxt>=4.5.0 ; extra == "research"
+# The research extras live in requirements-research.txt. They were listed here
+# with an `extra == "research"` marker, which is only defined while resolving a
+# package's extras - in a bare requirements file it evaluates False, so pip
+# skipped both lines without a word and nobody got the tools the comment
+# promised. A separate file cannot lie the same way.
