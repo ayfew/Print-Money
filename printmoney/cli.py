@@ -509,6 +509,43 @@ def cmd_study(args: argparse.Namespace) -> int:
         f"{band.low:+.2%} and {band.high:+.2%} a year, median {band.median:+.2%}. "
         f"A rule inside that range is a coin that charges admission.[/dim]"
     )
+
+    # ---- what IS forecastable
+    pers = report.persistence
+    if pers is not None:
+        t4 = Table(title="so is anything forecastable? same markets, same windows",
+                   title_justify="left", header_style="bold cyan")
+        t4.add_column("this month predicts next month's...")
+        t4.add_column("correlation", justify="right")
+        t4.add_column("positive in", justify="right")
+        t4.add_row(
+            "volatility",
+            Text(f"{pers.vol_r:+.3f}", style="green"),
+            f"{pers.vol_positive}/{pers.markets} markets",
+        )
+        t4.add_row(
+            "return",
+            Text(f"{pers.return_r:+.3f}", style="red"),
+            f"{pers.return_positive}/{pers.markets} markets",
+        )
+        console.print(t4)
+
+        if pers.buckets:
+            t5 = Table(title="sorted by today's volatility", title_justify="left",
+                       header_style="bold cyan")
+            t5.add_column("bucket")
+            t5.add_column("vol now", justify="right")
+            t5.add_column("vol next month", justify="right")
+            t5.add_column("return next month", justify="right")
+            for label, now, nxt, fwd in pers.buckets:
+                t5.add_row(label, f"{now:.1%}", f"{nxt:.1%}", f"{fwd:+.2%}")
+            console.print(t5)
+
+        console.print(
+            "[dim]Danger is forecastable and direction is not. That asymmetry is why "
+            "the daily brief flags markets running hot by their own standards and "
+            "refuses to name anything to buy.[/dim]"
+        )
     return 0
 
 

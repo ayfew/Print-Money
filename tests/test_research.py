@@ -157,3 +157,53 @@ class TestNoiseBand:
         assert idle.trades_per_year == 0.0
         assert idle.net == 0.0
         assert traded.net < traded.gross
+
+
+class TestWhatIsForecastable:
+    """The claim the risk section rests on, tested rather than asserted."""
+
+    def _aligned(self, n=900):
+        series = [_series(f"S{i}", n=n, seed=i) for i in range(5)]
+        _days, aligned = align(series)
+        return aligned
+
+    def test_persistence_runs_over_every_market(self):
+        from printmoney.research.study import persistence
+
+        p = persistence(self._aligned())
+        assert p.markets == 5
+        assert -1.0 <= p.vol_r <= 1.0
+        assert -1.0 <= p.return_r <= 1.0
+        assert len(p.buckets) == 5
+
+    def test_it_detects_persistence_when_persistence_exists(self):
+        """A series whose volatility is deliberately regime-switching must read
+        as forecastable; the same series' returns must not."""
+        import random
+        from printmoney.research.data import Bar, Series
+        from printmoney.research.study import persistence
+
+        rng = random.Random(5)
+        series = []
+        for k in range(4):
+            bars, close, vol = [], 100.0, 0.005
+            for i in range(900):
+                if i % 120 == 0:                      # switch regime slowly
+                    vol = rng.choice([0.003, 0.02])
+                r = rng.gauss(0, vol)
+                o = close
+                close = o * (1 + r)
+                bars.append(Bar(START + i * DAY, o, max(o, close), min(o, close), close, 1e6))
+            series.append(Series(symbol=f"R{k}", name=f"R{k}", bars=bars))
+        _days, aligned = align(series)
+        p = persistence(aligned)
+        assert p.volatility_is_forecastable, p.vol_r
+        assert not p.return_is_forecastable, p.return_r
+        assert p.vol_r > p.return_r
+
+    def test_the_quintiles_are_ordered_by_current_volatility(self):
+        from printmoney.research.study import persistence
+
+        p = persistence(self._aligned())
+        vols = [b[1] for b in p.buckets]
+        assert vols == sorted(vols), "buckets must be sorted by today's volatility"

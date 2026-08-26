@@ -181,3 +181,38 @@ class TestHtmlPage:
             _brief(actions=["do the thing"]), tmp_path / "b.html"
         ).read_text(encoding="utf-8")
         assert "do the thing" in html
+
+
+class TestRiskSection:
+    """Danger is reported; direction is not."""
+
+    def _hot(self, symbol="USO", name="Oil", pct=0.93, vol=0.48, dd=-0.175):
+        line = _line(symbol, name)
+        line.vol_percentile = pct
+        line.vol_annual = vol
+        line.drawdown = dd
+        return line
+
+    def test_a_market_hot_by_its_own_history_is_flagged(self):
+        body = brief_to_event(_brief(lines=[self._hot()])).body
+        assert MARKET_TH["USO"] in body
+        assert "48%" in body and "93%" in body and "-17.5%" in body
+
+    def test_the_flag_carries_its_evidence(self):
+        body = brief_to_event(_brief(lines=[self._hot()])).body
+        assert "r = +0.76" in body
+        assert "ไม่ได้บอกว่าจะขึ้นหรือลง" in body, "must refuse to imply a direction"
+
+    def test_a_market_calm_by_its_own_history_is_not_flagged(self):
+        body = brief_to_event(_brief(lines=[self._hot(pct=0.10)])).body
+        assert "ระวัง" not in body
+
+    def test_high_absolute_volatility_alone_is_not_danger(self):
+        """Bitcoin at 38% is ordinary for Bitcoin; bonds at 15% would not be."""
+        calm_but_volatile = self._hot("BTC-USD", "Bitcoin", pct=0.15, vol=0.38)
+        assert "ระวัง" not in brief_to_event(_brief(lines=[calm_but_volatile])).body
+
+    def test_low_absolute_volatility_can_still_be_danger(self):
+        quiet_but_stretched = self._hot("XLP", "Consumer staples", pct=0.86, vol=0.15)
+        body = brief_to_event(_brief(lines=[quiet_but_stretched])).body
+        assert MARKET_TH["XLP"] in body

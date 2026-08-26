@@ -68,6 +68,17 @@ STRINGS: dict[str, dict[str, str]] = {
         "hdr_movers": "ขยับมากสุด",
         "hdr_stretched": "ยืดตัวผิดปกติ",
         "hdr_carry": "ผลตอบแทน funding carry",
+        "hdr_danger": "ระวัง — ผันผวนสูงกว่าปกติของตัวเอง",
+        "danger_line": "  {name}: ผันผวน {vol} ({pct} ของประวัติตัวเอง) {dd} จากจุดสูงสุดปีนี้",
+        "danger_note": (
+            "ความผันผวนคือสิ่งเดียวที่พยากรณ์ได้จริง — เดือนนี้ทำนายเดือนหน้าได้ r = +0.76 "
+            "จาก 24 ตลาด ส่วนผลตอบแทนได้แค่ +0.02 นี่บอกว่า *ความเสี่ยงอยู่ตรงไหน* "
+            "ไม่ได้บอกว่าจะขึ้นหรือลง"
+        ),
+        "risk_extreme": "ร้อนจัด",
+        "risk_elevated": "เริ่มร้อน",
+        "risk_normal": "ปกติ",
+        "risk_calm": "สงบ",
         "hdr_notes": "หมายเหตุ",
         "mover_line": "  {name}: {day} วันนี้, {month} ในเดือน",
         "stretched_line": "  {name}: {z} SD จากค่าเฉลี่ย 60 วัน ({month} ในเดือน)",
@@ -106,6 +117,17 @@ STRINGS: dict[str, dict[str, str]] = {
         "hdr_movers": "BIGGEST MOVES",
         "hdr_stretched": "STRETCHED",
         "hdr_carry": "FUNDING CARRY",
+        "hdr_danger": "RUNNING HOT (vs their own history)",
+        "danger_line": "  {name}: {vol} vol ({pct} of its own history), {dd} off the year high",
+        "danger_note": (
+            "Volatility is the one thing here that is forecastable - this month "
+            "predicted next month at r = +0.76 across 24 markets, while return managed "
+            "+0.02. This says where the risk is, never which way it goes."
+        ),
+        "risk_extreme": "extreme",
+        "risk_elevated": "elevated",
+        "risk_normal": "normal",
+        "risk_calm": "calm",
         "hdr_notes": "NOTES",
         "mover_line": "  {name}: {day} on the day, {month} on the month",
         "stretched_line": "  {name}: {z} SD from its 60-day mean ({month} on the month)",

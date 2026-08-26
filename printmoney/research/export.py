@@ -154,6 +154,23 @@ def brief_to_event(brief: Brief, lang: str = "th") -> CalendarEvent:
         parts.append("  " + t("stretched_note", lang))
         parts.append("")
 
+    danger = brief.dangerous(5)
+    if danger:
+        parts.append(t("hdr_danger", lang) + ":")
+        for m in danger:
+            parts.append(
+                t(
+                    "danger_line",
+                    lang,
+                    name=market_name(m.symbol, m.name, lang),
+                    vol=f"{m.vol_annual:.0%}",
+                    pct=f"{m.vol_percentile:.0%}",
+                    dd=f"{m.drawdown:+.1%}",
+                )
+            )
+        parts.append("  " + t("danger_note", lang))
+        parts.append("")
+
     if brief.carry and not brief.carry.get("error"):
         c = brief.carry
         parts.append(t("hdr_carry", lang) + ":")
