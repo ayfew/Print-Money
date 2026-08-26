@@ -1053,10 +1053,10 @@ def cmd_venues(args: argparse.Namespace) -> int:
                   f"[green]{s.spread_annual:+.1%}[/green]")
     console.print(t)
     console.print(
-        "\n[dim]A spread is not free money: it needs capital on two venues, two "
-        "sets of withdrawal risk, and it can flip between eight-hour settlements. "
-        "These are snapshots of one settlement annualised, not a rate anything "
-        "earns for a year.[/dim]"
+        "\n[dim]Each leg is the MEDIAN of its last 60 settlements, not the current "
+        "print - one snapshot annualised put a microcap at -124% a year when its "
+        "median was +19.7%. Still not free money: it needs capital on two venues, "
+        "two withdrawal paths, and the gap can close.[/dim]"
     )
     return 0
 

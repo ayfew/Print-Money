@@ -169,6 +169,16 @@ STRINGS: dict[str, dict[str, str]] = {
             "{event} {when} ({note}) — จากสถิติ {n} ครั้ง วันแบบนี้ขยับ {ratio} "
             "ของวันปกติ แรงสุดถึง {top} ที่ควรดูคือ {names}"
         ),
+        "watch_venue_spread": (
+            "{symbol} จ่าย funding ไม่เท่ากันระหว่างกระดาน — long ที่ {long} ({long_rate}) "
+            "short ที่ {short} ({short_rate}) ส่วนต่าง {spread} ต่อปี "
+            "บนทุน {capital} แบ่งสองฝั่ง = {monthly} ต่อเดือน "
+            "(มี {n} คู่ที่ผ่านเกณฑ์วันนี้) — ราคาหักล้างกัน แต่ต้องมีบัญชีสองที่"
+        ),
+        "ignore_venue_small": (
+            "ส่วนต่าง funding ที่กว้างสุดคือ {symbol} {spread} ต่อปี "
+            "แต่บนทุน {capital} ได้แค่ {monthly} ต่อเดือน — ไม่คุ้มเปิดบัญชีสองที่"
+        ),
         "watch_carry": (
             "funding carry ให้ {rate} ต่อปีสุทธิ = {monthly} ต่อเดือน บนทุน {capital} "
             "ซึ่งเกินเกณฑ์ 15% แล้ว"
@@ -336,6 +346,16 @@ STRINGS: dict[str, dict[str, str]] = {
         "watch_event": (
             "{event} {when} ({note}). Across {n} of them, days like it ran {ratio} "
             "an ordinary day, up to {top}. The ones to look at are {names}."
+        ),
+        "watch_venue_spread": (
+            "{symbol} is funded differently across venues - long on {long} "
+            "({long_rate}), short on {short} ({short_rate}), a {spread} a year "
+            "spread. On {capital} split between them that is {monthly} a month "
+            "({n} pairs clear the bar today). Price nets out; two accounts do not."
+        ),
+        "ignore_venue_small": (
+            "The widest funding spread is {symbol} at {spread} a year, but on "
+            "{capital} that is {monthly} a month - not worth two accounts."
         ),
         "watch_carry": (
             "Funding carry nets {rate} a year = {monthly} a month on {capital}, "

@@ -25,6 +25,7 @@ is filtered out before it is allowed into a comparison.
 from __future__ import annotations
 
 import logging
+import statistics as st
 from dataclasses import dataclass, field
 from typing import Any, Sequence
 
@@ -52,6 +53,19 @@ MIN_VOLUME_USD = 25_000_000.0
 #: annualised, not a rate a position could actually earn for a year.
 MAX_PLAUSIBLE_ANNUAL = 2.0
 
+#: How many past settlements a shortlisted spread is checked against.
+#:
+#: A single funding print annualised is not a carry estimate, and the first
+#: version of this module proved it the expensive way: it put BTR at the top of
+#: the brief at -124% a year, worth "$56 a month", on one snapshot. The median
+#: of its last sixty settlements was +19.7% - the opposite sign. Twenty days of
+#: history is what separates a rate you could collect from a moment you happened
+#: to look at.
+HISTORY_SETTLEMENTS = 60
+
+#: Only the widest few are checked, because history costs two API calls each.
+SHORTLIST = 12
+
 
 @dataclass(frozen=True)
 class VenueRate:
@@ -77,24 +91,39 @@ class VenueRate:
 
 @dataclass
 class Spread:
-    """The same contract, funded differently on two venues."""
+    """The same contract, funded differently on two venues.
+
+    ``spread_annual`` is the *persistent* gap - the median of each leg over
+    ``HISTORY_SETTLEMENTS`` past settlements - whenever history could be read.
+    ``snapshot_annual`` keeps what the single current print said, so the two can
+    be compared and a spike is visible rather than hidden.
+    """
 
     symbol: str
     long_venue: str             # pay the least (or get paid) - go long here
     short_venue: str            # collect the most - go short here
     long_annual: float
     short_annual: float
+    snapshot_annual: float = 0.0
+    settlements: int = 0        # 0 means the snapshot is all there is
 
     @property
     def spread_annual(self) -> float:
         return self.short_annual - self.long_annual
+
+    @property
+    def verified(self) -> bool:
+        """Was this gap there for weeks, or only at the moment we looked?"""
+        return self.settlements >= 20
 
     def to_dict(self) -> dict[str, Any]:
         return {"symbol": self.symbol, "long_venue": self.long_venue,
                 "short_venue": self.short_venue,
                 "long_annual": round(self.long_annual, 5),
                 "short_annual": round(self.short_annual, 5),
-                "spread_annual": round(self.spread_annual, 5)}
+                "spread_annual": round(self.spread_annual, 5),
+                "snapshot_annual": round(self.snapshot_annual, 5),
+                "settlements": self.settlements, "verified": self.verified}
 
 
 @dataclass
@@ -174,8 +203,51 @@ def _fetch_one(name: str, *, timeout_ms: int = 20_000,
     return out
 
 
+def _median_annual(name: str, symbol: str, *,
+                   settlements: int = HISTORY_SETTLEMENTS) -> tuple[float, int]:
+    """Median funding over the recent past, annualised. (rate, samples)."""
+    import ccxt
+
+    try:
+        ex = getattr(ccxt, name)({"enableRateLimit": True, "timeout": 20_000,
+                                  "options": {"defaultType": "swap"}})
+        rows = ex.fetch_funding_rate_history(symbol, limit=settlements)
+    except Exception:                              # noqa: BLE001 - optional
+        return 0.0, 0
+    rates = [float(r["fundingRate"]) for r in rows
+             if r.get("fundingRate") is not None]
+    if len(rates) < 20:
+        return 0.0, len(rates)
+    return st.median(rates) * SETTLEMENTS_PER_YEAR, len(rates)
+
+
+def _contract(name: str, base: str) -> str:
+    """The venue's own spelling of a linear USDT perp on this base."""
+    return f"{base}/USDT:USDT"
+
+
+def _verify(shortlist: Sequence[Spread]) -> list[Spread]:
+    """Re-price the shortlist off funding history instead of one print."""
+    out: list[Spread] = []
+    for sp in shortlist:
+        lo, n_lo = _median_annual(sp.long_venue, _contract(sp.long_venue, sp.symbol))
+        hi, n_hi = _median_annual(sp.short_venue, _contract(sp.short_venue, sp.symbol))
+        n = min(n_lo, n_hi)
+        if not n:
+            continue                    # no history means no claim
+        out.append(Spread(
+            symbol=sp.symbol, long_venue=sp.long_venue,
+            short_venue=sp.short_venue, long_annual=lo, short_annual=hi,
+            snapshot_annual=sp.spread_annual, settlements=n))
+    # A leg whose median has the wrong sign is not a trade; sorting after the
+    # re-price rather than before is the whole point of doing it.
+    out = [s for s in out if s.verified and s.spread_annual > 0]
+    out.sort(key=lambda s: -s.spread_annual)
+    return out
+
+
 def scan(venues: Sequence[str] = VENUES, *, min_venues: int = 3,
-         top: int = 15) -> VenueReport:
+         top: int = 15, verify: bool = True) -> VenueReport:
     """Funding on every reachable venue, and the widest same-contract spreads.
 
     A venue that times out or changes its API costs its own row and nothing
@@ -215,5 +287,8 @@ def scan(venues: Sequence[str] = VENUES, *, min_venues: int = 3,
             long_annual=lo.annual, short_annual=hi.annual))
 
     report.spreads.sort(key=lambda s: -s.spread_annual)
-    report.spreads = report.spreads[:top]
+    if verify:
+        report.spreads = _verify(report.spreads[:SHORTLIST])[:top]
+    else:
+        report.spreads = report.spreads[:top]
     return report

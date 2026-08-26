@@ -140,9 +140,25 @@ def run(
         except Exception as exc:                  # noqa: BLE001 - never fatal
             warnings.append(f"event calendar unavailable: {exc}")
 
+    # Cross-venue funding, which the single-exchange scanner cannot see. Optional
+    # in every sense: ccxt may not be installed, an exchange may be down, and the
+    # brief loses one line rather than the morning.
+    venue_report = None
+    if include_carry:
+        try:
+            from ..carry import venues as venue_mod
+
+            if venue_mod.available():
+                venue_report = venue_mod.scan()
+            else:
+                warnings.append("ccxt not installed - cross-venue funding skipped")
+        except Exception as exc:              # noqa: BLE001 - never fatal
+            warnings.append(f"cross-venue funding unavailable: {exc}")
+
     decision = decide(brief, events=upcoming, impacts=impacts,
                       previous=previous, today=today,
-                      feeds=macro_feeds, links=links)
+                      feeds=macro_feeds, links=links,
+                      venues=venue_report, capital=capital)
 
     m = Morning(brief=brief, decision=decision, previous=previous,
                 warnings=warnings)

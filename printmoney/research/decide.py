@@ -168,6 +168,8 @@ def decide(
     today: date | None = None,
     feeds: dict[str, Any] | None = None,
     links: Any = None,
+    venues: Any = None,
+    capital: float = 1_000.0,
 ) -> Decision:
     """Assemble today's decision from the brief, the calendar and yesterday."""
     impacts = impacts or {}
@@ -196,7 +198,58 @@ def decide(
         _context_notes(d, feeds)
         if links is not None:
             _why_notes(d, brief, feeds, links)
+    if venues is not None:
+        _venue_notes(d, venues, capital=capital)
     return d
+
+
+#: A cross-venue funding spread has to beat this before it is worth two accounts.
+#: Higher than the single-venue bar because it costs more to run: capital sitting
+#: on two exchanges, two withdrawal paths, and a leg that can flip between
+#: eight-hour settlements.
+VENUE_SPREAD_THRESHOLD = 0.20
+
+#: And it has to pay for itself in cash, not only in percent. A spread only earns
+#: on the smaller of the two legs, and half of a small account split across two
+#: venues is a very small leg.
+MIN_MONTHLY_USD = 5.0
+
+
+def _venue_notes(d: Decision, venues: Any, *, capital: float) -> None:
+    """The same perp funded differently on two exchanges.
+
+    Reported in dollars a month as well as percent a year, because that is the
+    number that decides whether it is worth opening two accounts. On a thousand
+    dollars split in half, a twenty percent spread is about eight dollars a
+    month before anything goes wrong, and saying so is the difference between
+    research and a sales pitch.
+    """
+    spreads = [s for s in getattr(venues, "spreads", [])
+               if s.spread_annual >= VENUE_SPREAD_THRESHOLD]
+    if not spreads:
+        return
+    best = spreads[0]
+    # Only half the capital works on each side, and the spread is earned on one
+    # leg's notional rather than on the total.
+    leg = capital / 2.0
+    monthly = leg * best.spread_annual / 12.0
+    if monthly < MIN_MONTHLY_USD:
+        d.ignore.append(Note(
+            kind="ignore", key="ignore_venue_small", source="binance",
+            params={"symbol": best.symbol, "spread": _pct(best.spread_annual),
+                    "monthly": f"${monthly:,.2f}", "capital": f"${capital:,.0f}"},
+        ))
+        return
+    d.watch.append(Note(
+        kind="watch", key="watch_venue_spread", source="binance",
+        params={"symbol": best.symbol, "long": best.long_venue,
+                "short": best.short_venue,
+                "long_rate": _pct(best.long_annual),
+                "short_rate": _pct(best.short_annual),
+                "spread": _pct(best.spread_annual),
+                "monthly": f"${monthly:,.2f}", "capital": f"${capital:,.0f}",
+                "n": str(len(spreads))},
+    ))
 
 
 # --------------------------------------------------------------------------- #
