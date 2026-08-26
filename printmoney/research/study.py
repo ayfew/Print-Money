@@ -55,6 +55,17 @@ FEE_SCENARIOS: list[tuple[float, str]] = [
 
 
 # --------------------------------------------------------------------------- #
+
+def _prev_traded(bars: Sequence[Any], i: int) -> float:
+    """Yesterday's close as it actually printed, for comparing against an open.
+
+    ``Bar.close`` is dividend-adjusted and ``Bar.open`` is not, so an overnight
+    gap has to be measured on the raw pair or every ex-dividend date invents a
+    move nobody could have traded.
+    """
+    prev = bars[i - 1]
+    return getattr(prev, "raw_close", 0.0) or prev.close
+
 def annualise(returns: Sequence[float], periods_per_year: float = TRADING_DAYS_PER_YEAR) -> float:
     """Geometric annual return. Returns -100% if the equity curve hits zero."""
     if not returns:
@@ -165,7 +176,8 @@ def session_split(aligned: dict[str, list[Bar]]) -> SessionSplit:
     n = len(next(iter(aligned.values())))
     intraday = [st.fmean(aligned[s][i].intraday for s in symbols) for i in range(n)]
     overnight = [
-        st.fmean(aligned[s][i].open / aligned[s][i - 1].close - 1.0 for s in symbols)
+        st.fmean(aligned[s][i].open / _prev_traded(aligned[s], i) - 1.0
+                 for s in symbols)
         for i in range(1, n)
     ]
     hold = [
@@ -293,10 +305,10 @@ def standard_rules() -> dict[str, Callable[[int, dict[str, list[Bar]]], str | No
         return min(a, key=lambda s: a[s][i - 1].intraday)
 
     def biggest_gap_up(i, a):
-        return max(a, key=lambda s: a[s][i].open / a[s][i - 1].close)
+        return max(a, key=lambda s: a[s][i].open / _prev_traded(a[s], i))
 
     def biggest_gap_down(i, a):
-        return min(a, key=lambda s: a[s][i].open / a[s][i - 1].close)
+        return min(a, key=lambda s: a[s][i].open / _prev_traded(a[s], i))
 
     def strongest_trend(i, a):
         if i < 22:

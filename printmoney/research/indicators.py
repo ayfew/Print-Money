@@ -224,11 +224,16 @@ def _signal(name: str, group: str, series: Series) -> np.ndarray | None:
     bars = series.bars
     if len(bars) < WARMUP + 60:
         return None
+    # Indicators read the *traded* tape: open, high and low are never adjusted,
+    # so pairing them with a dividend-adjusted close would make every range and
+    # every crossover slightly fictional. Returns are scored on the adjusted
+    # series separately, because that is the holder's return rather than the
+    # shape of the chart.
     inputs = {
         "open": np.array([b.open for b in bars], dtype=float),
         "high": np.array([b.high for b in bars], dtype=float),
         "low": np.array([b.low for b in bars], dtype=float),
-        "close": np.array([b.close for b in bars], dtype=float),
+        "close": np.array([b.raw_close or b.close for b in bars], dtype=float),
         "volume": np.array([b.volume for b in bars], dtype=float),
     }
     c = inputs["close"]

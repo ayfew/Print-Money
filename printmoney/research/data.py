@@ -94,9 +94,19 @@ class Series:
         return [b.intraday for b in self.bars]
 
     def overnight_returns(self) -> list[float]:
-        """Previous close to this open: the other half of the day."""
+        """Previous close to this open: the other half of the day.
+
+        Both legs must be the *raw* print. ``open`` is never adjusted, so
+        dividing it by the adjusted close mixes two different scales: on every
+        split and ex-dividend date the adjusted close is a smaller number than
+        the price that actually traded, and the ratio reads as an enormous
+        overnight gain that never happened. Compounded across ten years and
+        twenty-four markets it produced +623,264,997,389% a year, which is at
+        least an obvious kind of wrong - the same mistake at a tenth the size
+        would have looked like a discovery.
+        """
         return [
-            self.bars[i].open / self.bars[i - 1].close - 1.0
+            self.bars[i].open / (self.bars[i - 1].raw_close or self.bars[i - 1].close) - 1.0
             for i in range(1, len(self.bars))
         ]
 
