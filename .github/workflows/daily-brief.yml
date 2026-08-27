@@ -9,9 +9,16 @@ name: daily brief
 
 on:
   schedule:
-    # 00:00 UTC = 07:00 Asia/Bangkok. GitHub queues cron runs under load, so the
-    # actual fire time drifts by a few minutes. Nothing here is time-sensitive.
-    - cron: "0 0 * * *"
+    # 00:17 UTC = 07:17 Asia/Bangkok.
+    #
+    # Deliberately not on the hour. GitHub runs scheduled workflows on a
+    # best-effort basis and drops them under load rather than queueing them, and
+    # the top of the hour - 00:00 most of all - is when every cron on the
+    # platform fires at once. The first scheduled run this repo ever had was due
+    # at 00:00 UTC during an Actions outage and simply never appeared: zero
+    # scheduled runs, no failure to look at. Seventeen past the hour costs
+    # nothing and misses the stampede.
+    - cron: "17 0 * * *"
   workflow_dispatch:            # lets you run it by hand from the Actions tab
 
 concurrency:

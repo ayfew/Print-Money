@@ -12,9 +12,11 @@ name: refresh evidence
 
 on:
   schedule:
-    # 01:00 UTC on the first of the month, an hour after the daily brief so the
-    # two never race each other for the same push.
-    - cron: "0 1 1 * *"
+    # 01:23 UTC on the first of the month - well after the daily brief so the
+    # two never race for the same push, and off the hour for the same reason it
+    # is: scheduled runs are dropped under load, and the top of the hour is
+    # where the load is.
+    - cron: "23 1 1 * *"
   workflow_dispatch:
 
 concurrency:
