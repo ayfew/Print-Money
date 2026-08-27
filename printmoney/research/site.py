@@ -103,7 +103,8 @@ def _brief_payload(item: Any, lang: str) -> dict[str, Any]:
         "score": getattr(item, "score", None),
         "carry": {"rate": carry.get("basket_net_annual"),
                   "monthly": fmt_usd(carry.get("monthly_usd", 0.0)),
-                  "capital": fmt_usd(carry.get("capital", 0.0))} if carry else None,
+                  "capital": fmt_usd(carry.get("capital", 0.0)),
+                  "venue": carry.get("venue") or "?"} if carry else None,
         "sources": [s.to_dict() for s in __import__(
             "printmoney.research.sources", fromlist=["cited"]).cited(
                 decision.source_ids)] if decision else [],

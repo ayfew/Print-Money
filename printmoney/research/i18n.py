@@ -246,7 +246,7 @@ STRINGS: dict[str, dict[str, str]] = {
             "ยืดตัวคือข้อเท็จจริงเรื่องราคา ไม่ใช่สัญญาณ — งานวิจัยพบว่ากฎ "
             "mean-reversion แยกไม่ออกจากการสุ่ม"
         ),
-        "carry_line": "  ตะกร้าให้ {rate} ต่อปีสุทธิ = {monthly} ต่อเดือน บนทุน {capital}",
+        "carry_line": "  ตะกร้าให้ {rate} ต่อปีสุทธิ = {monthly} ต่อเดือน บนทุน {capital} (จาก {venue})",
         "carry_below": "  ต่ำกว่าเกณฑ์ {threshold} จึงยังไม่ทำอะไร",
         "carry_above": "  สูงกว่าเกณฑ์ {threshold} คุ้มที่จะเปิดสถานะ",
         "footer": (
@@ -439,7 +439,7 @@ STRINGS: dict[str, dict[str, str]] = {
             "Stretched is a fact about price, not a signal - the study found "
             "mean-reversion rules indistinguishable from random."
         ),
-        "carry_line": "  basket nets {rate} a year = {monthly} a month on {capital}",
+        "carry_line": "  basket nets {rate} a year = {monthly} a month on {capital} (on {venue})",
         "carry_below": "  below the {threshold} bar, so nothing to do",
         "carry_above": "  above the {threshold} bar, worth opening",
         "footer": (

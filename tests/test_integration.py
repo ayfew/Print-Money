@@ -125,13 +125,17 @@ class _Venues:
 
 
 def _decision(**over):
+    # Pop the brief BEFORE merging the rest, or it lands in kw as well and
+    # decide() receives it twice. Latent since this file was written; the first
+    # test to pass brief= found it.
+    brief = over.pop("brief", None) or _brief()
     kw = dict(events=[Event(day=TODAY.isoformat(), kind="fomc",
                             name="Fed rate decision (FOMC)", source="x",
                             note="14:00 New York")],
               impacts=_impacts(), feeds=_feeds(), links=_links(),
               today=TODAY, capital=1000.0)
     kw.update(over)
-    return decide(over.pop("brief", None) or _brief(), **kw)
+    return decide(brief, **kw)
 
 
 # --------------------------------------------------------------------------- #
@@ -497,3 +501,38 @@ class TestALostSectionIsNeverSilent:
                       {"basket_net_annual": 0.046, "monthly_usd": 3.85,
                        "capital": 1000.0})
         assert not [w for w in m.warnings if "carry" in w]
+
+
+class TestACarryNumberAlwaysNamesItsExchange:
+    """Funding differs between venues and the cloud runner falls back to
+    whichever answers, so a rate with no venue on it cannot be compared with
+    yesterday's. The venue was being recorded and not printed."""
+
+    def _body(self, carry, lang="th"):
+        b = _brief(carry=carry)
+        return brief_to_event(b, lang, decision=_decision(brief=b)).body
+
+    def test_the_calendar_names_the_venue(self):
+        body = self._body({"basket_net_annual": 0.037, "monthly_usd": 3.09,
+                           "capital": 1000.0, "venue": "bybit"})
+        assert "bybit" in body
+
+    def test_english_names_it_too(self):
+        body = self._body({"basket_net_annual": 0.037, "monthly_usd": 3.09,
+                           "capital": 1000.0, "venue": "gate"}, lang="en")
+        assert "gate" in body
+
+    def test_a_missing_venue_is_marked_rather_than_left_blank(self):
+        body = self._body({"basket_net_annual": 0.037, "monthly_usd": 3.09,
+                           "capital": 1000.0})
+        assert "{venue}" not in body and "?" in body
+
+    def test_the_page_carries_it_as_well(self, tmp_path):
+        from printmoney.research.site import write_site
+
+        b = _brief(carry={"basket_net_annual": 0.037, "monthly_usd": 3.09,
+                          "capital": 1000.0, "venue": "bitget"})
+        g = build_graph(links=_links())
+        html = write_site(_Morning(b, _decision(brief=b)), g,
+                          tmp_path / "i.html").read_text("utf-8")
+        assert "bitget" in html

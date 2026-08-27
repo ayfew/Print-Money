@@ -287,6 +287,11 @@ def brief_to_event(brief: Brief, lang: str = "th", *,
                 rate=_pct(c.get("basket_net_annual", 0.0), 1),
                 monthly=fmt_usd(c.get("monthly_usd", 0.0)),
                 capital=fmt_usd(c.get("capital", 0.0)),
+                # Which exchange this came from. Funding differs between venues
+                # and the cloud runner falls back to whichever answers, so a
+                # rate with no venue on it cannot be compared with yesterday's -
+                # today's +3.7% and yesterday's +3.6% were two different books.
+                venue=c.get("venue") or "?",
             )
         )
         net = c.get("basket_net_annual", 0.0)
