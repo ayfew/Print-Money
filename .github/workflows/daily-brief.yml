@@ -22,8 +22,27 @@ on:
   workflow_dispatch:            # lets you run it by hand from the Actions tab
 
 concurrency:
-  group: daily-brief
-  cancel-in-progress: false
+  # A fresh group name, and a fresh policy, both for the same reason.
+  #
+  # The old group was shared with the monthly evidence job and set to
+  # cancel-in-progress: false, so anything already in it had to finish before
+  # the next run could start. During the Actions outage on 26 August two runs
+  # entered that group and never got a runner - still queued 36 hours later -
+  # and everything behind them, including the scheduled morning brief, was stuck
+  # behind two jobs that will never move. A design where one bad day at GitHub
+  # silently stops the product until somebody notices and clicks Cancel is the
+  # wrong design.
+  #
+  # Renaming the group leaves the two zombies sitting harmlessly in the old one
+  # and lets new runs through immediately, with nothing to clean up by hand.
+  #
+  # cancel-in-progress is now true because that is what a daily brief actually
+  # wants: if a new one starts while an old one is still going, the old one is
+  # producing yesterday's answer and is worth nothing. The two jobs no longer
+  # share a group at all - they write disjoint files, and both retry their push
+  # on a rebase, so there was never a race to serialise.
+  group: daily-brief-run
+  cancel-in-progress: true
 
 permissions:
   contents: write               # needed to push the regenerated calendar

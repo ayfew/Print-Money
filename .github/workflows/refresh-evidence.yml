@@ -20,7 +20,15 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: daily-brief          # deliberately shared: never push at the same time
+  # Its own group. It used to share one with the daily brief to stop the two
+  # pushing at once, but they touch entirely separate files - the brief writes
+  # reports/ plus claims and snapshot, this writes the three measured tables -
+  # and both rebase and retry if the branch moved underneath them. Sharing bought
+  # nothing and cost the ability to run at all whenever the other job jammed.
+  #
+  # Not cancel-in-progress: a half-finished re-measurement is worth resuming
+  # rather than restarting; it takes half an hour of downloads to get there.
+  group: refresh-evidence
   cancel-in-progress: false
 
 permissions:
