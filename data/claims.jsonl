@@ -38,3 +38,15 @@
 {"day": "2026-08-28", "symbol": "XLK", "call": "elevated", "called_percentile": 0.8229, "recorded_at": "2026-08-28T03:38:48.538013+00:00"}
 {"day": "2026-08-28", "symbol": "XLP", "call": "elevated", "called_percentile": 0.8021, "recorded_at": "2026-08-28T03:38:48.538015+00:00"}
 {"day": "2026-08-28", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8125, "recorded_at": "2026-08-28T03:38:48.538018+00:00"}
+{"day": "2026-08-29", "symbol": "BTC-USD", "call": "elevated", "called_percentile": 0.831, "recorded_at": "2026-08-29T00:26:36.176125+00:00"}
+{"day": "2026-08-29", "symbol": "EFA", "call": "calm", "called_percentile": 0.0625, "recorded_at": "2026-08-29T00:26:36.176136+00:00"}
+{"day": "2026-08-29", "symbol": "ETH-USD", "call": "elevated", "called_percentile": 0.831, "recorded_at": "2026-08-29T00:26:36.176139+00:00"}
+{"day": "2026-08-29", "symbol": "FXI", "call": "calm", "called_percentile": 0.0104, "recorded_at": "2026-08-29T00:26:36.176142+00:00"}
+{"day": "2026-08-29", "symbol": "GLD", "call": "elevated", "called_percentile": 0.75, "recorded_at": "2026-08-29T00:26:36.176145+00:00"}
+{"day": "2026-08-29", "symbol": "HYG", "call": "calm", "called_percentile": 0.1562, "recorded_at": "2026-08-29T00:26:36.176149+00:00"}
+{"day": "2026-08-29", "symbol": "IWM", "call": "calm", "called_percentile": 0.0625, "recorded_at": "2026-08-29T00:26:36.176151+00:00"}
+{"day": "2026-08-29", "symbol": "THD", "call": "calm", "called_percentile": 0.1354, "recorded_at": "2026-08-29T00:26:36.176154+00:00"}
+{"day": "2026-08-29", "symbol": "UUP", "call": "calm", "called_percentile": 0.1875, "recorded_at": "2026-08-29T00:26:36.176157+00:00"}
+{"day": "2026-08-29", "symbol": "VNQ", "call": "calm", "called_percentile": 0.125, "recorded_at": "2026-08-29T00:26:36.176159+00:00"}
+{"day": "2026-08-29", "symbol": "XLF", "call": "calm", "called_percentile": 0.0208, "recorded_at": "2026-08-29T00:26:36.176161+00:00"}
+{"day": "2026-08-29", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8021, "recorded_at": "2026-08-29T00:26:36.176164+00:00"}

@@ -1,5 +1,5 @@
 {
-  "day": "2026-08-28",
+  "day": "2026-08-29",
   "risk": {
     "BTC-USD": "elevated",
     "DIA": "normal",
@@ -29,19 +29,19 @@
   "event_days": [
     "2026-09-04"
   ],
-  "carry_net": 0.11516,
+  "carry_net": 0.07242,
   "quiet": false,
   "previous": {
-    "day": "2026-08-27",
+    "day": "2026-08-28",
     "risk": {
       "BTC-USD": "elevated",
       "DIA": "normal",
       "EEM": "normal",
-      "EFA": "normal",
+      "EFA": "calm",
       "ETH-USD": "elevated",
-      "EWJ": "elevated",
+      "EWJ": "normal",
       "FXI": "calm",
-      "GLD": "normal",
+      "GLD": "elevated",
       "HYG": "calm",
       "IWM": "calm",
       "QQQ": "normal",
@@ -49,18 +49,20 @@
       "SPY": "normal",
       "THD": "calm",
       "TLT": "normal",
-      "USO": "elevated",
-      "UUP": "normal",
+      "USO": "normal",
+      "UUP": "calm",
       "VNQ": "calm",
-      "XLE": "elevated",
+      "XLE": "normal",
       "XLF": "calm",
-      "XLK": "elevated",
-      "XLP": "elevated",
+      "XLK": "normal",
+      "XLP": "normal",
       "XLU": "normal",
       "XLV": "elevated"
     },
-    "event_days": [],
-    "carry_net": 0.09441,
+    "event_days": [
+      "2026-09-04"
+    ],
+    "carry_net": 0.11516,
     "quiet": false
   }
 }
