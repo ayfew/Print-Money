@@ -1,5 +1,5 @@
 {
-  "day": "2026-08-29",
+  "day": "2026-08-30",
   "risk": {
     "BTC-USD": "elevated",
     "DIA": "normal",
@@ -29,10 +29,10 @@
   "event_days": [
     "2026-09-04"
   ],
-  "carry_net": 0.07242,
+  "carry_net": 0.06938,
   "quiet": false,
   "previous": {
-    "day": "2026-08-28",
+    "day": "2026-08-29",
     "risk": {
       "BTC-USD": "elevated",
       "DIA": "normal",
@@ -62,7 +62,7 @@
     "event_days": [
       "2026-09-04"
     ],
-    "carry_net": 0.11516,
+    "carry_net": 0.07242,
     "quiet": false
   }
 }
