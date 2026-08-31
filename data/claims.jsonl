@@ -62,3 +62,15 @@
 {"day": "2026-08-30", "symbol": "VNQ", "call": "calm", "called_percentile": 0.125, "recorded_at": "2026-08-30T00:26:04.181201+00:00"}
 {"day": "2026-08-30", "symbol": "XLF", "call": "calm", "called_percentile": 0.0208, "recorded_at": "2026-08-30T00:26:04.181204+00:00"}
 {"day": "2026-08-30", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8021, "recorded_at": "2026-08-30T00:26:04.181207+00:00"}
+{"day": "2026-08-31", "symbol": "BTC-USD", "call": "elevated", "called_percentile": 0.838, "recorded_at": "2026-08-31T00:27:24.216079+00:00"}
+{"day": "2026-08-31", "symbol": "EFA", "call": "calm", "called_percentile": 0.0625, "recorded_at": "2026-08-31T00:27:24.216089+00:00"}
+{"day": "2026-08-31", "symbol": "ETH-USD", "call": "elevated", "called_percentile": 0.831, "recorded_at": "2026-08-31T00:27:24.216092+00:00"}
+{"day": "2026-08-31", "symbol": "FXI", "call": "calm", "called_percentile": 0.0104, "recorded_at": "2026-08-31T00:27:24.216095+00:00"}
+{"day": "2026-08-31", "symbol": "GLD", "call": "elevated", "called_percentile": 0.75, "recorded_at": "2026-08-31T00:27:24.216098+00:00"}
+{"day": "2026-08-31", "symbol": "HYG", "call": "calm", "called_percentile": 0.1562, "recorded_at": "2026-08-31T00:27:24.216102+00:00"}
+{"day": "2026-08-31", "symbol": "IWM", "call": "calm", "called_percentile": 0.0625, "recorded_at": "2026-08-31T00:27:24.216104+00:00"}
+{"day": "2026-08-31", "symbol": "THD", "call": "calm", "called_percentile": 0.1354, "recorded_at": "2026-08-31T00:27:24.216107+00:00"}
+{"day": "2026-08-31", "symbol": "UUP", "call": "calm", "called_percentile": 0.1875, "recorded_at": "2026-08-31T00:27:24.216110+00:00"}
+{"day": "2026-08-31", "symbol": "VNQ", "call": "calm", "called_percentile": 0.125, "recorded_at": "2026-08-31T00:27:24.216112+00:00"}
+{"day": "2026-08-31", "symbol": "XLF", "call": "calm", "called_percentile": 0.0208, "recorded_at": "2026-08-31T00:27:24.216114+00:00"}
+{"day": "2026-08-31", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8021, "recorded_at": "2026-08-31T00:27:24.216118+00:00"}
