@@ -1,26 +1,26 @@
 {
-  "measured_at": "2026-08-26T05:22:30.202726+00:00",
+  "measured_at": "2026-09-01T01:39:47.130518+00:00",
   "span": "10y over 24 markets",
   "backtest": {
     "label": "backtest",
-    "n": 5148,
-    "hits": 4149,
-    "rate": 0.8059,
+    "n": 5179,
+    "hits": 4187,
+    "rate": 0.8085,
     "stderr": 0.0055,
-    "lower_bound": 0.7947,
+    "lower_bound": 0.7973,
     "beats_coin": true,
     "by_call": {
       "calm": {
-        "n": 1554,
-        "rate": 0.7091
+        "n": 1540,
+        "rate": 0.7084
       },
       "elevated": {
-        "n": 2028,
-        "rate": 0.783
+        "n": 2075,
+        "rate": 0.7855
       },
       "extreme": {
-        "n": 1566,
-        "rate": 0.9317
+        "n": 1564,
+        "rate": 0.9373
       }
     }
   },
@@ -36,29 +36,29 @@
   },
   "worst_markets": [
     {
-      "symbol": "UUP",
-      "n": 253,
-      "rate": 0.6996
-    },
-    {
       "symbol": "XLF",
-      "n": 222,
-      "rate": 0.7117
+      "n": 223,
+      "rate": 0.7085
     },
     {
       "symbol": "USO",
-      "n": 231,
-      "rate": 0.7229
+      "n": 230,
+      "rate": 0.7261
+    },
+    {
+      "symbol": "UUP",
+      "n": 253,
+      "rate": 0.7273
     },
     {
       "symbol": "ETH-USD",
-      "n": 294,
-      "rate": 0.7313
+      "n": 295,
+      "rate": 0.7288
     },
     {
       "symbol": "EEM",
-      "n": 204,
-      "rate": 0.7745
+      "n": 202,
+      "rate": 0.7723
     }
   ]
 }
