@@ -85,3 +85,15 @@
 {"day": "2026-09-01", "symbol": "XLE", "call": "elevated", "called_percentile": 0.7708, "recorded_at": "2026-09-01T00:42:56.653314+00:00"}
 {"day": "2026-09-01", "symbol": "XLF", "call": "calm", "called_percentile": 0.0208, "recorded_at": "2026-09-01T00:42:56.653316+00:00"}
 {"day": "2026-09-01", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8125, "recorded_at": "2026-09-01T00:42:56.653320+00:00"}
+{"day": "2026-09-02", "symbol": "BTC-USD", "call": "elevated", "called_percentile": 0.831, "recorded_at": "2026-09-02T00:40:17.270787+00:00"}
+{"day": "2026-09-02", "symbol": "DIA", "call": "calm", "called_percentile": 0.1979, "recorded_at": "2026-09-02T00:40:17.270797+00:00"}
+{"day": "2026-09-02", "symbol": "EFA", "call": "calm", "called_percentile": 0.0833, "recorded_at": "2026-09-02T00:40:17.270801+00:00"}
+{"day": "2026-09-02", "symbol": "ETH-USD", "call": "elevated", "called_percentile": 0.831, "recorded_at": "2026-09-02T00:40:17.270804+00:00"}
+{"day": "2026-09-02", "symbol": "FXI", "call": "calm", "called_percentile": 0.0104, "recorded_at": "2026-09-02T00:40:17.270807+00:00"}
+{"day": "2026-09-02", "symbol": "GLD", "call": "elevated", "called_percentile": 0.8229, "recorded_at": "2026-09-02T00:40:17.270810+00:00"}
+{"day": "2026-09-02", "symbol": "IWM", "call": "calm", "called_percentile": 0.0417, "recorded_at": "2026-09-02T00:40:17.270813+00:00"}
+{"day": "2026-09-02", "symbol": "SPY", "call": "calm", "called_percentile": 0.1562, "recorded_at": "2026-09-02T00:40:17.270816+00:00"}
+{"day": "2026-09-02", "symbol": "THD", "call": "calm", "called_percentile": 0.125, "recorded_at": "2026-09-02T00:40:17.270819+00:00"}
+{"day": "2026-09-02", "symbol": "VNQ", "call": "calm", "called_percentile": 0.1458, "recorded_at": "2026-09-02T00:40:17.270822+00:00"}
+{"day": "2026-09-02", "symbol": "XLF", "call": "calm", "called_percentile": 0.0312, "recorded_at": "2026-09-02T00:40:17.270825+00:00"}
+{"day": "2026-09-02", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8125, "recorded_at": "2026-09-02T00:40:17.270827+00:00"}
