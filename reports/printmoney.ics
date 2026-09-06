@@ -1125,4 +1125,85 @@ DESCRIPTION:อ่านประมาณ 77 วินาที\n\nว
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:311b32fb9bb98bb2d742@printmoney
+DTSTAMP:20260906T004426Z
+DTSTART;VALUE=DATE:20260906
+DTEND;VALUE=DATE:20260907
+SUMMARY:ช้างขาว: 3 ตลาดกำลังร้อน
+DESCRIPTION:อ่านประมาณ 86 วินาที\n\nว
+ ันนี้ไม่มีอะไรต้องทำ แต่ 3
+  จาก 24 ตลาดผันผวนเกินปกติข
+ องตัวเอง เริ่มที่ บิตคอยน
+ ์ · อีเธอเรียม — เป็นเรื่อง
+ ความเสี่ยง ไม่ใช่สัญญาณใ
+ ห้ซื้อหรือขาย\n\nบริบทมหภา
+ ค:\n  - ดอกเบี้ยนโยบายสหรัฐ (EFF
+ R): 3.63% (+0bp จากเมื่อวาน\, สูงกว่
+ า 34% ของ 2 ปีที่ผ่านมา)\n  - พันธ
+ บัตร 2 ปี: 4.37% (+3bp จากเมื่อวาน\, 
+ สูงกว่า 99% ของ 2 ปีที่ผ่านมา)
+ \n  - พันธบัตร 10 ปี: 4.78% (+1bp จากเมื
+ ่อวาน\, สูงกว่า 99% ของ 2 ปีที่
+ ผ่านมา)\n  - ส่วนต่าง 2 ปี–10 ปี: 
+ 0.41% — ปกติ (-2bp จากเมื่อวาน)\n  - ผ
+ ลตอบแทนแท้จริง 10 ปี (TIPS): 2.43% (+1bp
+  จากเมื่อวาน\, สูงกว่า 99% ของ
+  2 ปีที่ผ่านมา)\n  - VIX (ดัชนีควา
+ มกลัว): 14.53 (+0.21 จากเมื่อวาน\, ส
+ ูงกว่า 7% ของ 2 ปีที่ผ่านมา)\n\n
+ จับตา:\n  - PONS จ่าย funding ไม่เท่าก
+ ันระหว่างกระดาน — long ที่ hyperli
+ quid (+4.8%) short ที่ bitget (+40.0%) ส่วนต่าง +3
+ 5.1% ต่อปี บนทุน $1\,000 แบ่งสองฝั
+ ่ง = $14.64 ต่อเดือน (มี 1 คู่ที่ผ
+ ่านเกณฑ์วันนี้) — ราคาหักล
+ ้างกัน แต่ต้องมีบัญชีสอง
+ ที่\n\nระวัง:\n  - 3 จาก 24 ตลาดผัน
+ ผวนเกินปกติของตัวเอง เช่
+ น บิตคอยน์ · อีเธอเรียม · กล
+ ุ่มสุขภาพ — สุดโต่งสุดคือ 
+ บิตคอยน์ ที่ผันผวน 39% ต่อปี
+  สูงกว่า 86% ของประวัติตัวเอ
+ ง\n\nไม่ต้องสนใจ:\n  - 10 จาก 24 ตลา
+ ดเงียบกว่าปกติของตัวเอง 
+ เช่น หุ้นเล็กสหรัฐ · หุ้นจ
+ ีน · ดาวโจนส์ · หุ้นสหรัฐ S&P 50
+ 0 ตลาดนิ่งคือสภาพที่แย่ที
+ ่สุดของอะไรก็ตามที่เสียค
+ ่าธรรมเนียมต่อครั้ง\n\nไม่
+ มีอะไรเปลี่ยนจากเมื่อวาน
+ \n\nขยับมากสุด:\n  ตลาดเกิดใหม
+ ่: +1.82% วันนี้\, +5.7% ในเดือน\n  หุ
+ ้นจีน: +1.53% วันนี้\, -0.2% ในเดือน
+ \n  อีเธอเรียม: +1.31% วันนี้\, +32.3% 
+ ในเดือน\n  เงิน: -1.21% วันนี้\, +7.1%
+  ในเดือน\n  กลุ่มสุขภาพ: -1.04% ว
+ ันนี้\, +4.3% ในเดือน\n\nผลตอบแท
+ น funding carry:\n  ตะกร้าให้ +10.7% ต่อปี
+ สุทธิ = $8.96 ต่อเดือน บนทุน $1\,000
+ .00 (จาก gate)\n  ต่ำกว่าเกณฑ์ 15% จึ
+ งยังไม่ทำอะไร\n\nดูฉบับเต็
+ ม (แผนที่ + หลักฐาน): https://ayfew.github.i
+ o/Print-Money/\n\nสถิติความแม่นของบร
+ ีฟนี้:\n  ที่ผ่านมาบรีฟนี้ท
+ ายถูก 81% จาก 5179 ครั้ง (เหรียญ
+ ได้ 50%) — ดูเองได้ด้วย `pm score`\n\n
+ แหล่งข้อมูล:\n  [official] Federal Reserve Bank of
+  New York — https://www.newyorkfed.org/markets/reference-rates/effr\n 
+  [official] US Treasury — https://home.treasury.gov/resource-center/da
+ ta-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve\
+ n  [primary] Binance — https://www.binance.com/en/futures/funding-hist
+ ory/perpetual/real-time-funding-rate\n  [primary] Cboe Global Markets 
+ — https://www.cboe.com/tradable_products/vix/\n  [derived] printmoney 
+ 2s10s spread — https://github.com/ayfew/Print-Money#readme\n  [derived
+ ] printmoney volatility percentile — https://github.com/ayfew/Print-Mo
+ ney#readme\n\nส่วนใหญ่มันจะบอกว่า
+ ไม่มีอะไร และส่วนใหญ่นั่
+ นคือคำตอบที่ถูก — รัน `pm study` 
+ เพื่อดูเลขคณิต 10 ปีที่อยู
+ ่เบื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
