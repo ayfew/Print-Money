@@ -1206,4 +1206,82 @@ DESCRIPTION:อ่านประมาณ 86 วินาที\n\nว
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:e21942c4830ba4fc0268@printmoney
+DTSTAMP:20260907T004427Z
+DTSTART;VALUE=DATE:20260907
+DTEND;VALUE=DATE:20260908
+SUMMARY:ช้างขาว: มี 1 อย่างที่ควร
+ ทำ
+DESCRIPTION:อ่านประมาณ 90 วินาที\n\nม
+ ี 1 เรื่องที่ผ่านเกณฑ์ต้นท
+ ุนวันนี้ นอกนั้นไม่ต้องส
+ นใจ\n\nเปลี่ยนจากเมื่อวาน:\n  
+ - funding carry ข้ามเกณฑ์: +10.7% → +20.7% ต่อ
+ ปี\n\nบริบทมหภาค:\n  - ดอกเบี้ย
+ นโยบายสหรัฐ (EFFR): 3.63% (+0bp จากเมื
+ ่อวาน\, สูงกว่า 34% ของ 2 ปีที่
+ ผ่านมา)\n  - พันธบัตร 2 ปี: 4.37% (+3bp 
+ จากเมื่อวาน\, สูงกว่า 99% ของ 
+ 2 ปีที่ผ่านมา)\n  - พันธบัตร 10 
+ ปี: 4.78% (+1bp จากเมื่อวาน\, สูงกว
+ ่า 99% ของ 2 ปีที่ผ่านมา)\n  - ส่ว
+ นต่าง 2 ปี–10 ปี: 0.41% — ปกติ (-2bp จ
+ ากเมื่อวาน)\n  - ผลตอบแทนแท้
+ จริง 10 ปี (TIPS): 2.43% (+1bp จากเมื่อว
+ าน\, สูงกว่า 99% ของ 2 ปีที่ผ่า
+ นมา)\n  - VIX (ดัชนีความกลัว): 14.53 (+0
+ .21 จากเมื่อวาน\, สูงกว่า 7% ขอ
+ ง 2 ปีที่ผ่านมา)\n\nจับตา:\n  - fundin
+ g carry ให้ +20.7% ต่อปีสุทธิ = $17.25 ต่
+ อเดือน บนทุน $1\,000 ซึ่งเกินเ
+ กณฑ์ 15% แล้ว\n\nระวัง:\n  - 3 จาก 24 
+ ตลาดผันผวนเกินปกติของตัว
+ เอง เช่น บิตคอยน์ · อีเธอเร
+ ียม · กลุ่มสุขภาพ — สุดโต่ง
+ สุดคือ บิตคอยน์ ที่ผันผวน 
+ 39% ต่อปี สูงกว่า 85% ของประวั
+ ติตัวเอง\n\nไม่ต้องสนใจ:\n  - 10 
+ จาก 24 ตลาดเงียบกว่าปกติขอ
+ งตัวเอง เช่น หุ้นเล็กสหรั
+ ฐ · หุ้นจีน · ดาวโจนส์ · หุ้น
+ สหรัฐ S&P 500 ตลาดนิ่งคือสภาพท
+ ี่แย่ที่สุดของอะไรก็ตามท
+ ี่เสียค่าธรรมเนียมต่อครั
+ ้ง\n\nควรทำ:\n  - Funding carry is paying 20.7% a year net
+  - above the 15% bar. On 1\,000 that is $17.25 a month. Worth opening.\n
+ \nขยับมากสุด:\n  ตลาดเกิดใหม
+ ่: +1.82% วันนี้\, +5.7% ในเดือน\n  หุ
+ ้นจีน: +1.53% วันนี้\, -0.2% ในเดือน
+ \n  อีเธอเรียม: +1.39% วันนี้\, +34.2% 
+ ในเดือน\n  เงิน: -1.21% วันนี้\, +7.1%
+  ในเดือน\n  กลุ่มสุขภาพ: -1.04% ว
+ ันนี้\, +4.3% ในเดือน\n\nผลตอบแท
+ น funding carry:\n  ตะกร้าให้ +20.7% ต่อปี
+ สุทธิ = $17.25 ต่อเดือน บนทุน $1\,00
+ 0.00 (จาก gate)\n  สูงกว่าเกณฑ์ 15% คุ
+ ้มที่จะเปิดสถานะ\n\nดูฉบับ
+ เต็ม (แผนที่ + หลักฐาน): https://ayfew
+ .github.io/Print-Money/\n\nสถิติความแม่นขอ
+ งบรีฟนี้:\n  ที่ผ่านมาบรีฟน
+ ี้ทายถูก 81% จาก 5179 ครั้ง (เหร
+ ียญได้ 50%) — ดูเองได้ด้วย `pm sco
+ re`\n\nแหล่งข้อมูล:\n  [official] Federal Reserve 
+ Bank of New York — https://www.newyorkfed.org/markets/reference-rates/
+ effr\n  [official] US Treasury — https://home.treasury.gov/resource-ce
+ nter/data-chart-center/interest-rates/TextView?type=daily_treasury_yield
+ _curve\n  [primary] Binance — https://www.binance.com/en/futures/fundi
+ ng-history/perpetual/real-time-funding-rate\n  [primary] Cboe Global Mar
+ kets — https://www.cboe.com/tradable_products/vix/\n  [derived] printm
+ oney 2s10s spread — https://github.com/ayfew/Print-Money#readme\n  [de
+ rived] printmoney study — https://github.com/ayfew/Print-Money#readme\
+ n  [derived] printmoney volatility percentile — https://github.com/ayf
+ ew/Print-Money#readme\n\nส่วนใหญ่มันจะบอ
+ กว่าไม่มีอะไร และส่วนใหญ
+ ่นั่นคือคำตอบที่ถูก — รัน 
+ `pm study` เพื่อดูเลขคณิต 10 ปีที่
+ อยู่เบื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
