@@ -1284,4 +1284,78 @@ DESCRIPTION:อ่านประมาณ 90 วินาที\n\nม
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:f0ef6ca409ad258705ba@printmoney
+DTSTAMP:20260908T004320Z
+DTSTART;VALUE=DATE:20260908
+DTEND;VALUE=DATE:20260909
+SUMMARY:ช้างขาว: 3 ตลาดกำลังร้อน
+DESCRIPTION:อ่านประมาณ 78 วินาที\n\nว
+ ันนี้ไม่มีอะไรต้องทำ แต่ 3
+  จาก 24 ตลาดผันผวนเกินปกติข
+ องตัวเอง เริ่มที่ บิตคอยน
+ ์ · อีเธอเรียม — เป็นเรื่อง
+ ความเสี่ยง ไม่ใช่สัญญาณใ
+ ห้ซื้อหรือขาย\n\nเปลี่ยนจา
+ กเมื่อวาน:\n  - funding carry ข้ามเกณฑ
+ ์: +20.7% → +6.4% ต่อปี\n\nบริบทมหภาค:
+ \n  - ดอกเบี้ยนโยบายสหรัฐ (EFFR): 
+ 3.63% (+0bp จากเมื่อวาน\, สูงกว่า 34
+ % ของ 2 ปีที่ผ่านมา)\n  - พันธบั
+ ตร 2 ปี: 4.37% (+3bp จากเมื่อวาน\, สู
+ งกว่า 99% ของ 2 ปีที่ผ่านมา)\n  - 
+ พันธบัตร 10 ปี: 4.78% (+1bp จากเมื่อ
+ วาน\, สูงกว่า 99% ของ 2 ปีที่ผ่
+ านมา)\n  - ส่วนต่าง 2 ปี–10 ปี: 0.41% 
+ — ปกติ (-2bp จากเมื่อวาน)\n  - ผลต
+ อบแทนแท้จริง 10 ปี (TIPS): 2.43% (+1bp จ
+ ากเมื่อวาน\, สูงกว่า 99% ของ 2 
+ ปีที่ผ่านมา)\n  - VIX (ดัชนีความ
+ กลัว): 14.53 (+0.21 จากเมื่อวาน\, สู
+ งกว่า 7% ของ 2 ปีที่ผ่านมา)\n\nร
+ ะวัง:\n  - 3 จาก 24 ตลาดผันผวนเก
+ ินปกติของตัวเอง เช่น บิตค
+ อยน์ · อีเธอเรียม · กลุ่มสุ
+ ขภาพ — สุดโต่งสุดคือ บิตคอ
+ ยน์ ที่ผันผวน 39% ต่อปี สูงก
+ ว่า 85% ของประวัติตัวเอง\n\nไม
+ ่ต้องสนใจ:\n  - 10 จาก 24 ตลาดเงี
+ ยบกว่าปกติของตัวเอง เช่น 
+ หุ้นเล็กสหรัฐ · หุ้นจีน · ด
+ าวโจนส์ · หุ้นสหรัฐ S&P 500 ตลา
+ ดนิ่งคือสภาพที่แย่ที่สุด
+ ของอะไรก็ตามที่เสียค่าธร
+ รมเนียมต่อครั้ง\n\nขยับมาก
+ สุด:\n  ตลาดเกิดใหม่: +1.82% วันน
+ ี้\, +5.7% ในเดือน\n  หุ้นจีน: +1.53% 
+ วันนี้\, -0.2% ในเดือน\n  บิตคอย
+ น์: -1.43% วันนี้\, +22.8% ในเดือน\n  เ
+ งิน: -1.21% วันนี้\, +7.1% ในเดือน\n  
+ กลุ่มสุขภาพ: -1.04% วันนี้\, +4.3% ใ
+ นเดือน\n\nผลตอบแทน funding carry:\n  ตะ
+ กร้าให้ +6.4% ต่อปีสุทธิ = $5.34 ต
+ ่อเดือน บนทุน $1\,000.00 (จาก gate)\n  ต
+ ่ำกว่าเกณฑ์ 15% จึงยังไม่ทำ
+ อะไร\n\nดูฉบับเต็ม (แผนที่ + ห
+ ลักฐาน): https://ayfew.github.io/Print-Money/\n\nสถิ
+ ติความแม่นของบรีฟนี้:\n  ที
+ ่ผ่านมาบรีฟนี้ทายถูก 81% จา
+ ก 5179 ครั้ง (เหรียญได้ 50%) — ดูเ
+ องได้ด้วย `pm score`\n\nแหล่งข้อมู
+ ล:\n  [official] Federal Reserve Bank of New York — https://www.newy
+ orkfed.org/markets/reference-rates/effr\n  [official] US Treasury — ht
+ tps://home.treasury.gov/resource-center/data-chart-center/interest-rates
+ /TextView?type=daily_treasury_yield_curve\n  [primary] Binance — https
+ ://www.binance.com/en/futures/funding-history/perpetual/real-time-fundin
+ g-rate\n  [primary] Cboe Global Markets — https://www.cboe.com/tradabl
+ e_products/vix/\n  [derived] printmoney 2s10s spread — https://github.
+ com/ayfew/Print-Money#readme\n  [derived] printmoney volatility percenti
+ le — https://github.com/ayfew/Print-Money#readme\n\nส่วนให
+ ญ่มันจะบอกว่าไม่มีอะไร แ
+ ละส่วนใหญ่นั่นคือคำตอบที
+ ่ถูก — รัน `pm study` เพื่อดูเลขค
+ ณิต 10 ปีที่อยู่เบื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
