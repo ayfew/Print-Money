@@ -174,3 +174,17 @@
 {"day": "2026-09-08", "symbol": "VNQ", "call": "calm", "called_percentile": 0.1771, "recorded_at": "2026-09-08T00:43:20.865992+00:00"}
 {"day": "2026-09-08", "symbol": "XLF", "call": "calm", "called_percentile": 0.1667, "recorded_at": "2026-09-08T00:43:20.865995+00:00"}
 {"day": "2026-09-08", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8125, "recorded_at": "2026-09-08T00:43:20.865998+00:00"}
+{"day": "2026-09-09", "symbol": "BTC-USD", "call": "elevated", "called_percentile": 0.8592, "recorded_at": "2026-09-09T00:43:19.733987+00:00"}
+{"day": "2026-09-09", "symbol": "DIA", "call": "calm", "called_percentile": 0.0625, "recorded_at": "2026-09-09T00:43:19.733998+00:00"}
+{"day": "2026-09-09", "symbol": "EFA", "call": "calm", "called_percentile": 0.0729, "recorded_at": "2026-09-09T00:43:19.734002+00:00"}
+{"day": "2026-09-09", "symbol": "ETH-USD", "call": "elevated", "called_percentile": 0.8521, "recorded_at": "2026-09-09T00:43:19.734005+00:00"}
+{"day": "2026-09-09", "symbol": "FXI", "call": "calm", "called_percentile": 0.0625, "recorded_at": "2026-09-09T00:43:19.734009+00:00"}
+{"day": "2026-09-09", "symbol": "GLD", "call": "elevated", "called_percentile": 0.75, "recorded_at": "2026-09-09T00:43:19.734012+00:00"}
+{"day": "2026-09-09", "symbol": "HYG", "call": "calm", "called_percentile": 0.1562, "recorded_at": "2026-09-09T00:43:19.734016+00:00"}
+{"day": "2026-09-09", "symbol": "IWM", "call": "calm", "called_percentile": 0.0208, "recorded_at": "2026-09-09T00:43:19.734019+00:00"}
+{"day": "2026-09-09", "symbol": "QQQ", "call": "calm", "called_percentile": 0.1667, "recorded_at": "2026-09-09T00:43:19.734021+00:00"}
+{"day": "2026-09-09", "symbol": "SPY", "call": "calm", "called_percentile": 0.0625, "recorded_at": "2026-09-09T00:43:19.734024+00:00"}
+{"day": "2026-09-09", "symbol": "THD", "call": "calm", "called_percentile": 0.1458, "recorded_at": "2026-09-09T00:43:19.734026+00:00"}
+{"day": "2026-09-09", "symbol": "VNQ", "call": "calm", "called_percentile": 0.1875, "recorded_at": "2026-09-09T00:43:19.734029+00:00"}
+{"day": "2026-09-09", "symbol": "XLF", "call": "calm", "called_percentile": 0.1771, "recorded_at": "2026-09-09T00:43:19.734032+00:00"}
+{"day": "2026-09-09", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8125, "recorded_at": "2026-09-09T00:43:19.734035+00:00"}
