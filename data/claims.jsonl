@@ -198,3 +198,13 @@
 {"day": "2026-09-10", "symbol": "SPY", "call": "calm", "called_percentile": 0.0625, "recorded_at": "2026-09-10T00:39:27.794549+00:00"}
 {"day": "2026-09-10", "symbol": "VNQ", "call": "calm", "called_percentile": 0.1875, "recorded_at": "2026-09-10T00:39:27.794552+00:00"}
 {"day": "2026-09-10", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8854, "recorded_at": "2026-09-10T00:39:27.794556+00:00"}
+{"day": "2026-09-11", "symbol": "DIA", "call": "calm", "called_percentile": 0.1562, "recorded_at": "2026-09-11T00:39:15.750695+00:00"}
+{"day": "2026-09-11", "symbol": "EFA", "call": "calm", "called_percentile": 0.0625, "recorded_at": "2026-09-11T00:39:15.750705+00:00"}
+{"day": "2026-09-11", "symbol": "FXI", "call": "calm", "called_percentile": 0.1667, "recorded_at": "2026-09-11T00:39:15.750709+00:00"}
+{"day": "2026-09-11", "symbol": "HYG", "call": "calm", "called_percentile": 0.1458, "recorded_at": "2026-09-11T00:39:15.750712+00:00"}
+{"day": "2026-09-11", "symbol": "IWM", "call": "calm", "called_percentile": 0.0208, "recorded_at": "2026-09-11T00:39:15.750715+00:00"}
+{"day": "2026-09-11", "symbol": "QQQ", "call": "calm", "called_percentile": 0.125, "recorded_at": "2026-09-11T00:39:15.750718+00:00"}
+{"day": "2026-09-11", "symbol": "SPY", "call": "calm", "called_percentile": 0.0729, "recorded_at": "2026-09-11T00:39:15.750721+00:00"}
+{"day": "2026-09-11", "symbol": "VNQ", "call": "calm", "called_percentile": 0.1146, "recorded_at": "2026-09-11T00:39:15.750724+00:00"}
+{"day": "2026-09-11", "symbol": "XLE", "call": "calm", "called_percentile": 0.0625, "recorded_at": "2026-09-11T00:39:15.750727+00:00"}
+{"day": "2026-09-11", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8333, "recorded_at": "2026-09-11T00:39:15.750731+00:00"}
