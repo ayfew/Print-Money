@@ -1910,4 +1910,109 @@ DESCRIPTION:อ่านประมาณ 117 วินาที\n\nม
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:9f03f69aca60e4391511@printmoney
+DTSTAMP:20260914T004044Z
+DTSTART;VALUE=DATE:20260914
+DTEND;VALUE=DATE:20260915
+SUMMARY:ช้างขาว: วันนี้ไม่มีอะไ
+ ร
+DESCRIPTION:อ่านประมาณ 107 วินาที\n\nม
+ ี 1 เรื่องที่ผ่านเกณฑ์ต้นท
+ ุนวันนี้ นอกนั้นไม่ต้องส
+ นใจ\n\nทำไมถึงขยับ:\n  - หุ้นญี
+ ่ปุ่น +2.20% วันนี้ — VIX (ดัชนีคว
+ ามกลัว) ขยับ -2.00 ทั้งสองเคยส
+ วนทางกันที่ r = -0.59 จาก 750 วัน (ค
+ วามสัมพันธ์แรง)\n  นี่คือกา
+ รอธิบายสิ่งที่เกิดไปแล้ว
+  ไม่ใช่การทำนาย — ค่า r วัดจ
+ ากวันเดียวกัน ไม่ได้วัดว
+ ่าพรุ่งนี้จะเป็นยังไง\n\nบ
+ ริบทมหภาค:\n  - ดอกเบี้ยนโยบ
+ ายสหรัฐ (EFFR): 3.63% (+0bp จากเมื่อวา
+ น\, สูงกว่า 35% ของ 2 ปีที่ผ่าน
+ มา)\n  - พันธบัตร 2 ปี: 4.63% (+7bp จากเ
+ มื่อวาน\, สูงกว่า 100% ของ 2 ปีท
+ ี่ผ่านมา)\n  - พันธบัตร 10 ปี: 4.96%
+  (+1bp จากเมื่อวาน\, สูงกว่า 100% 
+ ของ 2 ปีที่ผ่านมา)\n  - ส่วนต่
+ าง 2 ปี–10 ปี: 0.33% — ปกติ (-6bp จากเ
+ มื่อวาน)\n  - ผลตอบแทนแท้จริ
+ ง 10 ปี (TIPS): 2.60% (+5bp จากเมื่อวาน\, 
+ สูงกว่า 100% ของ 2 ปีที่ผ่านมา
+ )\n  - VIX (ดัชนีความกลัว): 15.84 (-2.00 จ
+ ากเมื่อวาน\, สูงกว่า 25% ของ 2 
+ ปีที่ผ่านมา)\n\nจับตา:\n  - เฟดป
+ ระกาศดอกเบี้ย อีก 2 วัน (14:00 New
+  York\, with projections) — จากสถิติ 44 ครั้
+ ง วันแบบนี้ขยับ 1.17x ของวันป
+ กติ แรงสุดถึง 1.62x ที่ควรดูค
+ ือ ดอลลาร์สหรัฐ · หุ้นจีน · 
+ หุ้นกู้ผลตอบแทนสูง · ทองค
+ ำ · หุ้นเทค Nasdaq 100\n\nระวัง:\n  - 1 จ
+ าก 24 ตลาดผันผวนเกินปกติขอ
+ งตัวเอง เช่น กลุ่มสุขภาพ —
+  สุดโต่งสุดคือ กลุ่มสุขภา
+ พ ที่ผันผวน 16% ต่อปี สูงกว่
+ า 83% ของประวัติตัวเอง\n\nไม่ต
+ ้องสนใจ:\n  - เฟดประกาศดอกเบ
+ ี้ยแทบไม่ขยับ กลุ่มสาธาร
+ ณูปโภค · บิตคอยน์ · กลุ่มพล
+ ังงาน · กลุ่มสุขภาพ — จากสถ
+ ิติ 44 ครั้งที่ผ่านมา วันแบ
+ บนี้ ขยับพวกนี้ต่ำสุดแค่ 0
+ .98x ของวันปกติ คือไม่ต่างจา
+ กวันธรรมดา วันนี้ไม่ต้อง
+ เอาข่าวนี้ไปคิดกับพวกนี้
+ \n  - 8 จาก 24 ตลาดเงียบกว่าปกติ
+ ของตัวเอง เช่น หุ้นเล็กสห
+ รัฐ · กลุ่มพลังงาน · อีเธอเ
+ รียม · หุ้นจีน ตลาดนิ่งคือ
+ สภาพที่แย่ที่สุดของอะไรก
+ ็ตามที่เสียค่าธรรมเนียมต
+ ่อครั้ง\n\nไม่มีอะไรเปลี่ย
+ นจากเมื่อวาน\n\nขยับมากสุด:\
+ n  หุ้นญี่ปุ่น: +2.20% วันนี้\, +0.8% 
+ ในเดือน\n  น้ำมัน: -2.20% วันนี้\,
+  +21.7% ในเดือน\n  อีเธอเรียม: -1.83% 
+ วันนี้\, +0.6% ในเดือน\n  กลุ่มเ
+ ทคโนโลยี: +1.32% วันนี้\, -0.6% ในเด
+ ือน\n  ตลาดเกิดใหม่: +1.25% วันน
+ ี้\, +2.1% ในเดือน\n\nยืดตัวผิดป
+ กติ:\n  น้ำมัน: +2.3 SD จากค่าเฉลี
+ ่ย 60 วัน (+21.7% ในเดือน)\n  ยืดตัว
+ คือข้อเท็จจริงเรื่องราคา
+  ไม่ใช่สัญญาณ — งานวิจัยพบ
+ ว่ากฎ mean-reversion แยกไม่ออกจากก
+ ารสุ่ม\n\nผลตอบแทน funding carry:\n  ตะ
+ กร้าให้ +3.2% ต่อปีสุทธิ = $2.63 ต
+ ่อเดือน บนทุน $1\,000.00 (จาก gate)\n  ต
+ ่ำกว่าเกณฑ์ 15% จึงยังไม่ทำ
+ อะไร\n\nดูฉบับเต็ม (แผนที่ + ห
+ ลักฐาน): https://ayfew.github.io/Print-Money/\n\nสถิ
+ ติความแม่นของบรีฟนี้:\n  ที
+ ่ผ่านมาบรีฟนี้ทายถูก 81% จา
+ ก 5179 ครั้ง (เหรียญได้ 50%) — ดูเ
+ องได้ด้วย `pm score`\n\nแหล่งข้อมู
+ ล:\n  [official] Federal Reserve — https://www.federalreserve.gov/mo
+ netarypolicy/fomccalendars.htm\n  [official] Federal Reserve Bank of New
+  York — https://www.newyorkfed.org/markets/reference-rates/effr\n  [of
+ ficial] US Treasury — https://home.treasury.gov/resource-center/data-c
+ hart-center/interest-rates/TextView?type=daily_treasury_yield_curve\n  [
+ primary] Cboe Global Markets — https://www.cboe.com/tradable_products/
+ vix/\n  [derived] printmoney 2s10s spread — https://github.com/ayfew/P
+ rint-Money#readme\n  [derived] printmoney event impact — https://githu
+ b.com/ayfew/Print-Money#readme\n  [derived] printmoney macro links — h
+ ttps://github.com/ayfew/Print-Money#readme\n  [derived] printmoney study
+  — https://github.com/ayfew/Print-Money#readme\n  [derived] printmoney
+  volatility percentile — https://github.com/ayfew/Print-Money#readme\n
+ \nส่วนใหญ่มันจะบอกว่าไม่ม
+ ีอะไร และส่วนใหญ่นั่นคือ
+ คำตอบที่ถูก — รัน `pm study` เพื่
+ อดูเลขคณิต 10 ปีที่อยู่เบื
+ ้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
