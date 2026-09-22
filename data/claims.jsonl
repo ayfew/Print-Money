@@ -297,3 +297,10 @@
 {"day": "2026-09-21", "symbol": "SPY", "call": "calm", "called_percentile": 0.1667, "recorded_at": "2026-09-21T00:40:21.460997+00:00"}
 {"day": "2026-09-21", "symbol": "UUP", "call": "calm", "called_percentile": 0.1458, "recorded_at": "2026-09-21T00:40:21.461000+00:00"}
 {"day": "2026-09-21", "symbol": "VNQ", "call": "calm", "called_percentile": 0.0417, "recorded_at": "2026-09-21T00:40:21.461003+00:00"}
+{"day": "2026-09-22", "symbol": "BTC-USD", "call": "elevated", "called_percentile": 0.7606, "recorded_at": "2026-09-22T00:38:48.803490+00:00"}
+{"day": "2026-09-22", "symbol": "EWJ", "call": "calm", "called_percentile": 0.125, "recorded_at": "2026-09-22T00:38:48.803501+00:00"}
+{"day": "2026-09-22", "symbol": "FXI", "call": "calm", "called_percentile": 0.0729, "recorded_at": "2026-09-22T00:38:48.803504+00:00"}
+{"day": "2026-09-22", "symbol": "IWM", "call": "calm", "called_percentile": 0.0208, "recorded_at": "2026-09-22T00:38:48.803507+00:00"}
+{"day": "2026-09-22", "symbol": "SPY", "call": "calm", "called_percentile": 0.1562, "recorded_at": "2026-09-22T00:38:48.803511+00:00"}
+{"day": "2026-09-22", "symbol": "UUP", "call": "calm", "called_percentile": 0.1354, "recorded_at": "2026-09-22T00:38:48.803514+00:00"}
+{"day": "2026-09-22", "symbol": "VNQ", "call": "calm", "called_percentile": 0.0312, "recorded_at": "2026-09-22T00:38:48.803517+00:00"}
