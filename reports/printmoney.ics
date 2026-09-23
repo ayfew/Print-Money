@@ -2792,4 +2792,96 @@ DESCRIPTION:อ่านประมาณ 97 วินาที\n\nว
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:3a155f68458d84c36f3d@printmoney
+DTSTAMP:20260923T003717Z
+DTSTART;VALUE=DATE:20260923
+DTEND;VALUE=DATE:20260924
+SUMMARY:ช้างขาว: วันนี้ไม่มีอะไ
+ ร
+DESCRIPTION:อ่านประมาณ 97 วินาที\n\nว
+ ันนี้ไม่มีอะไร — ทั้ง 24 ตลา
+ ดอยู่ในช่วงปกติของตัวเอง
+  และไม่มีเหตุการณ์สำคัญใ
+ นสัปดาห์นี้\n\nเปลี่ยนจากเ
+ มื่อวาน:\n  - 1 ตลาดความเสี่ยง
+ ขยับขึ้น (calm → normal): หุ้นสหรัฐ 
+ S&P 500\n  - 2 ตลาดความเสี่ยงลดลง (e
+ levated → normal): บิตคอยน์ · อีเธอเร
+ ียม\n\nทำไมถึงขยับ:\n  - น้ำมัน 
+ -3.68% วันนี้ — พันธบัตร 2 ปี ขย
+ ับ -5bp ทั้งสองเคยไปทางเดียว
+ กันที่ r = +0.30 จาก 663 วัน (ความสั
+ มพันธ์ปานกลาง)\n  นี่คือการ
+ อธิบายสิ่งที่เกิดไปแล้ว 
+ ไม่ใช่การทำนาย — ค่า r วัดจ
+ ากวันเดียวกัน ไม่ได้วัดว
+ ่าพรุ่งนี้จะเป็นยังไง\n\nบ
+ ริบทมหภาค:\n  - ดอกเบี้ยนโยบ
+ ายสหรัฐ (EFFR): 3.88% (+0bp จากเมื่อวา
+ น\, สูงกว่า 86% ของ 2 ปีที่ผ่าน
+ มา)\n  - พันธบัตร 2 ปี: 4.71% (-5bp จากเ
+ มื่อวาน\, สูงกว่า 99% ของ 2 ปีท
+ ี่ผ่านมา)\n  - พันธบัตร 10 ปี: 4.96%
+  (+0bp จากเมื่อวาน\, สูงกว่า 99% ข
+ อง 2 ปีที่ผ่านมา)\n  - ส่วนต่า
+ ง 2 ปี–10 ปี: 0.25% — ปกติ (+5bp จากเม
+ ื่อวาน)\n  - ผลตอบแทนแท้จริง 1
+ 0 ปี (TIPS): 2.63% (+1bp จากเมื่อวาน\, สู
+ งกว่า 100% ของ 2 ปีที่ผ่านมา)\n  -
+  VIX (ดัชนีความกลัว): 14.21 (-0.66 จาก
+ เมื่อวาน\, สูงกว่า 4% ของ 2 ปี
+ ที่ผ่านมา)\n\nไม่ต้องสนใจ:\n  - 
+ 6 จาก 24 ตลาดเงียบกว่าปกติขอ
+ งตัวเอง เช่น หุ้นเล็กสหรั
+ ฐ · อสังหาฯ สหรัฐ · หุ้นญี่ป
+ ุ่น · หุ้นจีน ตลาดนิ่งคือส
+ ภาพที่แย่ที่สุดของอะไรก็
+ ตามที่เสียค่าธรรมเนียมต่
+ อครั้ง\n\nขยับมากสุด:\n  น้ำมั
+ น: -3.68% วันนี้\, +10.1% ในเดือน\n  กล
+ ุ่มเทคโนโลยี: +2.89% วันนี้\, +6.5% 
+ ในเดือน\n  หุ้นเทค Nasdaq 100: +2.88% วั
+ นนี้\, +4.4% ในเดือน\n  ตลาดเกิด
+ ใหม่: +2.69% วันนี้\, +3.3% ในเดือน\n 
+  กลุ่มพลังงาน: -2.30% วันนี้\, -1.4%
+  ในเดือน\n\nยืดตัวผิดปกติ:\n  
+ กลุ่มเทคโนโลยี: +2.2 SD จากค่า
+ เฉลี่ย 60 วัน (+6.5% ในเดือน)\n  กล
+ ุ่มสาธารณูปโภค: -2.1 SD จากค่า
+ เฉลี่ย 60 วัน (-6.4% ในเดือน)\n  หุ
+ ้นเทค Nasdaq 100: +2.1 SD จากค่าเฉลี่ย
+  60 วัน (+4.4% ในเดือน)\n  กลุ่มสิน
+ ค้าจำเป็น: -2.0 SD จากค่าเฉลี่
+ ย 60 วัน (-3.4% ในเดือน)\n  ยืดตัวค
+ ือข้อเท็จจริงเรื่องราคา 
+ ไม่ใช่สัญญาณ — งานวิจัยพบ
+ ว่ากฎ mean-reversion แยกไม่ออกจากก
+ ารสุ่ม\n\nผลตอบแทน funding carry:\n  ตะ
+ กร้าให้ +4.7% ต่อปีสุทธิ = $3.95 ต
+ ่อเดือน บนทุน $1\,000.00 (จาก gate)\n  ต
+ ่ำกว่าเกณฑ์ 15% จึงยังไม่ทำ
+ อะไร\n\nดูฉบับเต็ม (แผนที่ + ห
+ ลักฐาน): https://ayfew.github.io/Print-Money/\n\nสถิ
+ ติความแม่นของบรีฟนี้:\n  ที
+ ่ผ่านมาบรีฟนี้ทายถูก 81% จา
+ ก 5179 ครั้ง (เหรียญได้ 50%) — ดูเ
+ องได้ด้วย `pm score`\n\nแหล่งข้อมู
+ ล:\n  [official] Federal Reserve Bank of New York — https://www.newy
+ orkfed.org/markets/reference-rates/effr\n  [official] US Treasury — ht
+ tps://home.treasury.gov/resource-center/data-chart-center/interest-rates
+ /TextView?type=daily_treasury_yield_curve\n  [primary] Cboe Global Marke
+ ts — https://www.cboe.com/tradable_products/vix/\n  [derived] printmon
+ ey 2s10s spread — https://github.com/ayfew/Print-Money#readme\n  [deri
+ ved] printmoney macro links — https://github.com/ayfew/Print-Money#rea
+ dme\n  [derived] printmoney study — https://github.com/ayfew/Print-Mon
+ ey#readme\n  [derived] printmoney volatility percentile — https://gith
+ ub.com/ayfew/Print-Money#readme\n\nส่วนใหญ่มันจ
+ ะบอกว่าไม่มีอะไร และส่วน
+ ใหญ่นั่นคือคำตอบที่ถูก — 
+ รัน `pm study` เพื่อดูเลขคณิต 10 ป
+ ีที่อยู่เบื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
