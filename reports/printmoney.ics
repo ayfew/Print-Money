@@ -3524,4 +3524,100 @@ DESCRIPTION:อ่านประมาณ 132 วินาที\n\nม
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:60c69ff46aec03d93ca8@printmoney
+DTSTAMP:20260930T053917Z
+DTSTART;VALUE=DATE:20260930
+DTEND;VALUE=DATE:20261001
+SUMMARY:ช้างขาว: วันนี้ไม่มีอะไ
+ ร
+DESCRIPTION:อ่านประมาณ 101 วินาที\n\nม
+ ี 1 เรื่องที่ผ่านเกณฑ์ต้นท
+ ุนวันนี้ นอกนั้นไม่ต้องส
+ นใจ\n\nบริบทมหภาค:\n  - ดอกเบี้
+ ยนโยบายสหรัฐ (EFFR): 3.88% (+0bp จากเม
+ ื่อวาน\, สูงกว่า 88% ของ 2 ปีที
+ ่ผ่านมา)\n  - พันธบัตร 2 ปี: 4.89% (-3
+ bp จากเมื่อวาน\, สูงกว่า 100% ขอ
+ ง 2 ปีที่ผ่านมา)\n  - พันธบัตร 1
+ 0 ปี: 5.26% (+2bp จากเมื่อวาน\, สูงก
+ ว่า 100% ของ 2 ปีที่ผ่านมา)\n  - ส
+ ่วนต่าง 2 ปี–10 ปี: 0.37% — ปกติ (+5bp
+  จากเมื่อวาน)\n  - ผลตอบแทนแท
+ ้จริง 10 ปี (TIPS): 2.91% (+1bp จากเมื่อ
+ วาน\, สูงกว่า 100% ของ 2 ปีที่ผ่
+ านมา)\n  - VIX (ดัชนีความกลัว): 16.04 
+ (-0.03 จากเมื่อวาน\, สูงกว่า 30% ข
+ อง 2 ปีที่ผ่านมา)\n\nจับตา:\n  - ต
+ ัวเลขการจ้างงานสหรัฐ อีก 2
+  วัน (08:30 New York) — จากสถิติ 98 ครั้
+ ง วันแบบนี้ขยับ 1.11x ของวันป
+ กติ แรงสุดถึง 1.40x ที่ควรดูค
+ ือ พันธบัตรสหรัฐระยะยาว · 
+ หุ้นญี่ปุ่น · หุ้นเทค Nasdaq 100 ·
+  หุ้นเล็กสหรัฐ · หุ้นสหรัฐ 
+ S&P 500\n\nไม่ต้องสนใจ:\n  - ตัวเลขก
+ ารจ้างงานสหรัฐแทบไม่ขยับ
+  อีเธอเรียม · บิตคอยน์ · กลุ
+ ่มสินค้าจำเป็น · อสังหาฯ ส
+ หรัฐ — จากสถิติ 98 ครั้งที่ผ
+ ่านมา วันแบบนี้ ขยับพวกนี
+ ้ต่ำสุดแค่ 0.91x ของวันปกติ ค
+ ือไม่ต่างจากวันธรรมดา วั
+ นนี้ไม่ต้องเอาข่าวนี้ไปค
+ ิดกับพวกนี้\n  - 5 จาก 24 ตลาดเง
+ ียบกว่าปกติของตัวเอง เช่
+ น หุ้นเล็กสหรัฐ · อสังหาฯ ส
+ หรัฐ · กลุ่มสินค้าจำเป็น · 
+ อีเธอเรียม ตลาดนิ่งคือสภ
+ าพที่แย่ที่สุดของอะไรก็ต
+ ามที่เสียค่าธรรมเนียมต่อ
+ ครั้ง\n\nไม่มีอะไรเปลี่ยนจ
+ ากเมื่อวาน\n\nขยับมากสุด:\n  น
+ ้ำมัน: -4.44% วันนี้\, +10.5% ในเดือ
+ น\n  ทองคำ: +1.32% วันนี้\, -6.4% ในเด
+ ือน\n  กลุ่มสาธารณูปโภค: +1.17% 
+ วันนี้\, -6.4% ในเดือน\n  เงิน: +0.96%
+  วันนี้\, -7.6% ในเดือน\n  หุ้นจี
+ น: -0.91% วันนี้\, -4.6% ในเดือน\n\nยื
+ ดตัวผิดปกติ:\n  หุ้นกู้ผลตอ
+ บแทนสูง: -3.3 SD จากค่าเฉลี่ย 60 
+ วัน (-2.5% ในเดือน)\n  พันธบัตรส
+ หรัฐระยะยาว: -3.1 SD จากค่าเฉล
+ ี่ย 60 วัน (-5.2% ในเดือน)\n  กลุ่ม
+ การเงิน: -2.4 SD จากค่าเฉลี่ย 60 
+ วัน (-6.7% ในเดือน)\n  หุ้นเล็กส
+ หรัฐ: -2.3 SD จากค่าเฉลี่ย 60 วัน 
+ (-5.4% ในเดือน)\n  ยืดตัวคือข้อเ
+ ท็จจริงเรื่องราคา ไม่ใช่
+ สัญญาณ — งานวิจัยพบว่ากฎ mea
+ n-reversion แยกไม่ออกจากการสุ่ม\n\
+ nผลตอบแทน funding carry:\n  ตะกร้าให้ 
+ +5.1% ต่อปีสุทธิ = $4.24 ต่อเดือน 
+ บนทุน $1\,000.00 (จาก binance)\n  ต่ำกว่า
+ เกณฑ์ 15% จึงยังไม่ทำอะไร\n\nด
+ ูฉบับเต็ม (แผนที่ + หลักฐาน)
+ : https://ayfew.github.io/Print-Money/\n\nสถิติความแ
+ ม่นของบรีฟนี้:\n  ที่ผ่านมา
+ บรีฟนี้ทายถูก 81% จาก 5179 ครั้
+ ง (เหรียญได้ 50%) — ดูเองได้ด้
+ วย `pm score`\n\nแหล่งข้อมูล:\n  [official] Fe
+ deral Reserve Bank of New York — https://www.newyorkfed.org/markets/re
+ ference-rates/effr\n  [official] US Bureau of Labor Statistics — https
+ ://www.bls.gov/schedule/news_release/empsit.htm\n  [official] US Treasur
+ y — https://home.treasury.gov/resource-center/data-chart-center/intere
+ st-rates/TextView?type=daily_treasury_yield_curve\n  [primary] Cboe Glob
+ al Markets — https://www.cboe.com/tradable_products/vix/\n  [derived] 
+ printmoney 2s10s spread — https://github.com/ayfew/Print-Money#readme\
+ n  [derived] printmoney event impact — https://github.com/ayfew/Print-
+ Money#readme\n  [derived] printmoney study — https://github.com/ayfew/
+ Print-Money#readme\n  [derived] printmoney volatility percentile — htt
+ ps://github.com/ayfew/Print-Money#readme\n\nส่วนใหญ่ม
+ ันจะบอกว่าไม่มีอะไร และส
+ ่วนใหญ่นั่นคือคำตอบที่ถู
+ ก — รัน `pm study` เพื่อดูเลขคณิต 
+ 10 ปีที่อยู่เบื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
