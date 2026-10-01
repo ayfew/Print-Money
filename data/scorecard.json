@@ -1,64 +1,73 @@
 {
-  "measured_at": "2026-09-01T01:39:47.130518+00:00",
+  "measured_at": "2026-10-01T01:43:28.664902+00:00",
   "span": "10y over 24 markets",
   "backtest": {
     "label": "backtest",
-    "n": 5179,
-    "hits": 4187,
-    "rate": 0.8085,
-    "stderr": 0.0055,
-    "lower_bound": 0.7973,
+    "n": 5219,
+    "hits": 4221,
+    "rate": 0.8088,
+    "stderr": 0.0054,
+    "lower_bound": 0.7977,
     "beats_coin": true,
     "by_call": {
       "calm": {
-        "n": 1540,
-        "rate": 0.7084
+        "n": 1503,
+        "rate": 0.7026
       },
       "elevated": {
-        "n": 2075,
-        "rate": 0.7855
+        "n": 2145,
+        "rate": 0.7916
       },
       "extreme": {
-        "n": 1564,
-        "rate": 0.9373
+        "n": 1571,
+        "rate": 0.9338
       }
     }
   },
   "live": {
     "label": "live",
-    "n": 0,
-    "hits": 0,
-    "rate": 0.0,
-    "stderr": 0.0,
-    "lower_bound": 0.0,
+    "n": 84,
+    "hits": 38,
+    "rate": 0.4524,
+    "stderr": 0.0543,
+    "lower_bound": 0.3484,
     "beats_coin": false,
-    "by_call": {}
+    "by_call": {
+      "calm": {
+        "n": 33,
+        "rate": 0.7879
+      },
+      "elevated": {
+        "n": 51,
+        "rate": 0.2353
+      }
+    }
   },
   "worst_markets": [
     {
+      "symbol": "ETH-USD",
+      "n": 297,
+      "rate": 0.7239
+    },
+    {
       "symbol": "XLF",
-      "n": 223,
-      "rate": 0.7085
+      "n": 224,
+      "rate": 0.7321
     },
     {
       "symbol": "USO",
       "n": 230,
-      "rate": 0.7261
+      "rate": 0.7435
     },
     {
       "symbol": "UUP",
-      "n": 253,
-      "rate": 0.7273
-    },
-    {
-      "symbol": "ETH-USD",
-      "n": 295,
-      "rate": 0.7288
+      "n": 258,
+      "rate": 0.7481
     },
     {
       "symbol": "EEM",
-      "n": 202,
-      "rate": 0.7723
+      "n": 214,
+      "rate": 0.7523
     }
   ]
 }
