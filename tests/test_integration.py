@@ -330,8 +330,13 @@ class TestPublishedEvidenceStaysConsistent:
         summary = sc.load_summary()
         assert summary is not None
         head = sc.headline(summary)
-        assert head and head["n"] >= 1000
-        assert 0.5 < head["rate"] < 1.0
+        # Live evidence is selected at 30 observations even when it loses.
+        # Generated summaries must agree with that selection, without a win-rate floor.
+        basis = "live" if (summary.get("live") or {}).get("n", 0) >= 30 else "backtest"
+        selected = summary[basis]
+        assert head == {**selected, "basis": basis}
+        assert head["n"] >= 30 and 0 <= head["hits"] <= head["n"]
+        assert abs(head["rate"] - head["hits"] / head["n"]) <= .00005
 
     def test_the_indicator_sweep_found_nothing_and_says_so(self):
         from printmoney.util import DATA_DIR

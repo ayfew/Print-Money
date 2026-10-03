@@ -1536,6 +1536,8 @@ def build_parser() -> argparse.ArgumentParser:
     common(sp, json_flag=False)
     sp.set_defaults(func=cmd_reset)
 
+    from .research.stockcli import register
+    register(sub)
     return p
 
 
