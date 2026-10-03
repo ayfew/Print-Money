@@ -3,13 +3,19 @@ from __future__ import annotations
 
 import math
 import re
+from copy import deepcopy
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Any
 from urllib.parse import urlsplit
 
-POLICY_VERSION = "annual-research-v1"
+POLICY_VERSION = "annual-research-v2"
+IMPLEMENTATION_VERSION = "stock-research-v2"
+EVALUATION_DEFINITION = {"version":"next-open-adjusted-v1", "horizon_sessions":{"days-weeks":21,"months-plus":63},
+                         "entry":"first exchange open strictly after original cutoff", "exit":"close counting entry session as one",
+                         "round_trip_cost_bps":[10,30], "benchmark":"SPY", "cash_interest":0,
+                         "adjustment":"verified endpoint adjusted prices; normalized raw entry open"}
 STARTER = {"AAPL": "technology", "MSFT": "technology", "GOOGL": "communication",
            "META": "communication", "PG": "consumer", "KO": "consumer",
            "CAT": "industrial", "HON": "industrial", "XOM": "energy", "CVX": "energy",
@@ -87,6 +93,33 @@ def _known_time(value, now):
         return False
 
 
+def _event_verified(event, sources, symbol, now):
+    if not isinstance(event,dict) or event.get("verification") != "verified" or event.get("symbol") != symbol:
+        return False
+    if not day(event.get("date")) or not _known_time(event.get("retrieved_at"),now):
+        return False
+    source = next((s for s in sources if s.get("id")==event.get("source_id")), None)
+    if not source or source.get("kind") not in ("official","issuer") or not safe_url(source.get("url")):
+        return False
+    if not _known_time(source.get("retrieved_at"),now):
+        return False
+    return "url" not in event or safe_url(event["url"]) == source["url"]
+
+
+def _annual_valid(facts, item, sources):
+    start, end, filed = day(facts.get("annual_start")), day(facts.get("annual_end")), day(facts.get("filed"))
+    cik = number(item.get("issuer_cik"))
+    accessions = facts.get("accessions")
+    if (not start or not end or not filed or not 320 <= (end-start).days <= 380 or filed < end
+            or facts.get("currency") != "USD" or facts.get("form") not in ("10-K","10-K/A")
+            or cik is None or cik<=0 or not cik.is_integer() or facts.get("cik") != cik
+            or not isinstance(accessions,list) or len(accessions)!=1
+            or not isinstance(accessions[0],str) or not re.fullmatch(r"\d{10}-\d{2}-\d{6}",accessions[0])):
+        return False
+    url=f"https://data.sec.gov/api/xbrl/companyfacts/CIK{int(cik):010d}.json"
+    return any(s.get("id")=="annual" and s.get("kind")=="official" and s.get("url")==url for s in sources)
+
+
 def risk_context(item: dict) -> dict:
     """An unusual tape and an uncorroborated claim cannot identify wrongdoing."""
     flags = []
@@ -98,7 +131,7 @@ def risk_context(item: dict) -> dict:
         flags.append({"code": "unusual_volume", "value": ratio,
                       "basis": "latest volume / prior twenty-session median >=3"})
     limitations = ["anomalies_do_not_establish_manipulation", "retrieval_is_not_original_publication",
-                   "first_seen_only_within_this_local_system", "upstream_price_origin_not_independently_verified"]
+                   "local_observation_is_not_earliest_sighting", "upstream_price_origin_not_independently_verified"]
     if item.get("recent_split"):
         limitations.append("corporate_action_limits")
     return {"assessment": "context_only", "flags": flags,
@@ -119,8 +152,10 @@ def _card(req: ResearchRequest, item: dict, now: datetime) -> dict:
         if not url:
             reasons.append("unsafe_source_url")
         source["url"] = url
-        source.setdefault("first_seen_at", source.get("retrieved_at"))
-        source["first_seen_scope"] = "local retrieval; not proof of original publication or author"
+        source.pop("first_seen_at",None)
+        source.pop("first_seen_scope",None)
+        source["observed_at"] = source.get("retrieved_at")
+        source["observation_scope"] = "local retrieval; not earliest sighting or proof of original publication or author"
         source.setdefault("lineage", [source.get("kind", "unknown"), "Print-Money derived research"])
         sources.append(source)
     if not {"price", "annual"}.issubset({s.get("id") for s in sources if s.get("url")}):
@@ -149,7 +184,10 @@ def _card(req: ResearchRequest, item: dict, now: datetime) -> dict:
         reasons.append("liquidity_unknown")
     elif turnover < 5_000_000:
         reasons.append("thin_liquidity")
-    if (number(item.get("zscore")) or 0) > 2 or (number(item.get("month_return")) or 0) > .20:
+    stretch, month_return = number(item.get("zscore")), number(item.get("month_return"))
+    if stretch is None or month_return is None or item.get("price_basis") != "adjusted":
+        reasons.append("price_stretch_unverified")
+    elif stretch > 2 or month_return > .20:
         reasons.append("price_runup")
     facts = dict(item.get("fundamentals") or {})
     filed, period = day(facts.get("filed")), day(facts.get("annual_end"))
@@ -162,6 +200,9 @@ def _card(req: ResearchRequest, item: dict, now: datetime) -> dict:
         facts = {}
     elif (now.date() - filed).days > 450 or (now.date() - period).days > 450:
         reasons.append("annual_facts_stale")
+        facts = {}
+    elif not _annual_valid(facts,item,sources):
+        reasons.append("annual_facts_invalid")
         facts = {}
     if period and any(day(d) and period < day(d) <= now.date() for d in item.get("split_dates", [])):
         reasons.append("per_share_basis_unverified")
@@ -178,18 +219,24 @@ def _card(req: ResearchRequest, item: dict, now: datetime) -> dict:
         reasons.append("valuation_unknown")
     elif pe > req.pe_cap:
         reasons.append("valuation_above_screen")
-    event = item.get("earnings") or {}
+    event = item.get("earnings") if isinstance(item.get("earnings"),dict) else {}
+    event = event or {}
     event_day = day(event.get("date"))
     if not event_day or event.get("verification") != "verified":
         reasons.append("earnings_unknown")
-    elif event_day < now.date() or event_day <= now.date() + timedelta(days=7):
+    elif not _event_verified(event,sources,item["symbol"],now):
+        reasons.append("earnings_evidence_unverified")
+    elif event_day <= now.date() + timedelta(days=7):
         reasons.append("earnings_blackout")
     if req.horizon is None:
         reasons.append("horizon_unspecified")
     elif req.horizon == "intraday":
         reasons.append("unsupported_horizon")
-    elif req.horizon == "days-weeks" and not item.get("verified_catalyst"):
-        reasons.append("short_horizon_condition_missing")
+    elif req.horizon == "days-weeks":
+        catalyst=item.get("verified_catalyst")
+        if (not _event_verified(catalyst,sources,item["symbol"],now)
+                or not now.date() < day(catalyst.get("date")) <= now.date()+timedelta(days=21)):
+            reasons.append("short_horizon_condition_missing")
     reasons = list(dict.fromkeys(reasons))
     if unsupported or "price_unavailable" in reasons or "future_price" in reasons:
         status = "excluded"
@@ -241,6 +288,7 @@ def screen(request: ResearchRequest, observations: list[dict], now: datetime) ->
     usable = any(c["status"] != "excluded" for c in cards)
     status = "unavailable" if not usable else "degraded" if any(c["reasons"] or c["warnings"] for c in cards) else "ok"
     result = {"schema_version": 1, "generated_at": now.isoformat(), "policy_version": POLICY_VERSION,
+              "implementation_version":IMPLEMENTATION_VERSION, "evaluation_definition":deepcopy(EVALUATION_DEFINITION),
               "policy_validation": "unvalidated", "mode": "profile_review" if not required else "general",
               "actionability": "conditional", "required_inputs": required,
               "scenario": {"horizon": request.horizon, "risk": request.risk, "budget_currency": request.currency},

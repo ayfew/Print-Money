@@ -18,11 +18,18 @@ def api():
 class Calendar:
     def last_completed(self, now):
         return "2026-10-02"
+    def is_session(self,stamp):
+        return datetime.fromisoformat(stamp).weekday()<5 and stamp!="2026-09-07"
 
 
 def chart(last_day="2026-10-02", kind="EQUITY"):
-    start = datetime.fromisoformat(last_day).replace(tzinfo=timezone.utc) - timedelta(days=21)
-    times = [int((start + timedelta(days=i)).timestamp()) for i in range(22)]
+    end=datetime.fromisoformat(last_day).replace(tzinfo=timezone.utc)
+    dates=[end]
+    while len(dates)<22:
+        end-=timedelta(days=1)
+        if Calendar().is_session(end.date().isoformat()):
+            dates.append(end)
+    times = [int(d.timestamp()) for d in reversed(dates)]
     return {"chart": {"result": [{"meta": {"symbol": "MSFT", "currency": "USD", "exchangeName": "NMS",
         "instrumentType": kind, "longName": "Microsoft", "exchangeTimezoneName": "America/New_York"},
         "timestamp": times, "indicators": {"quote": [{"open": [100]*22, "high": [101]*22,
@@ -77,6 +84,28 @@ def test_reported_annual_metrics_have_independent_arithmetic_and_filing_identity
     assert out["accessions"] == ["0000789019-26-000001"]
 
 
+def test_revenue_comparison_uses_the_current_filings_comparative_denominator():
+    from copy import deepcopy
+    payload=facts()
+    rows=payload["facts"]["us-gaap"]["RevenueFromContractWithCustomerExcludingAssessedTax"]["units"]["USD"]
+    rows[1]["val"]=4000
+    later=deepcopy(rows[1])
+    later.update(val=1000,filed="2026-09-01",accn="0000789019-26-000099")
+    rows.append(later)
+    out=api().annual_facts(payload,NOW)
+    assert out["revenue_growth"]==-.5
+    assert out["revenue_comparison"]["prior_value"]==4000
+    assert out["revenue_comparison"]["accession"]==out["accessions"][0]
+
+
+def test_missing_comparable_denominator_stays_unknown_instead_of_mixing_versions():
+    payload=facts()
+    rows=payload["facts"]["us-gaap"]["RevenueFromContractWithCustomerExcludingAssessedTax"]["units"]["USD"]
+    rows[1]["accn"]="0000789019-26-000099"
+    out=api().annual_facts(payload,NOW)
+    assert out["revenue_growth"] is None and out["revenue_comparison"] is None
+
+
 @pytest.mark.parametrize("change", [{"filed":"2026-10-04"}, {"filed":"2026-10-03"}, {"form":"10-Q"}, {"unit":"EUR"}])
 def test_future_interim_or_wrong_currency_facts_never_become_annual_earnings(change):
     out = api().annual_facts(facts(**change), NOW)
@@ -115,3 +144,49 @@ def test_null_adjusted_closes_never_claim_corporate_action_verification():
     data["indicators"]["adjclose"][0]["adjclose"] = [None]*len(data["timestamp"])
     r = parse_chart(payload, "MSFT", NOW, Calendar())
     assert r["price_basis"] == "raw_unverified_actions" and not r["anomalous_price"]
+    assert all(len(b)==8 and b[7] is False for b in r["bars"])
+
+
+def test_repeated_timestamp_is_one_session_not_a_year_of_history():
+    payload=chart()
+    data=payload["chart"]["result"][0]
+    data["timestamp"]=[data["timestamp"][-1]]*252
+    data["indicators"]["quote"]=[{k:[v[-1]]*252 for k,v in data["indicators"]["quote"][0].items()}]
+    data["indicators"]["adjclose"][0]["adjclose"]=[100]*252
+    out=api().parse_chart(payload,"MSFT",NOW,Calendar())
+    assert out["history_days"]==1 and out["dollar_turnover"] is None
+
+
+def test_conflicting_duplicate_session_is_an_explicit_quality_failure():
+    payload=chart()
+    data=payload["chart"]["result"][0]
+    data["timestamp"][-1]=data["timestamp"][-2]
+    with pytest.raises(ValueError,match="duplicate"):
+        api().parse_chart(payload,"MSFT",NOW,Calendar())
+
+
+def test_calendar_rejects_weekend_row_in_completed_history():
+    payload=chart()
+    data=payload["chart"]["result"][0]
+    data["timestamp"][0]=int(datetime(2026,9,5,tzinfo=timezone.utc).timestamp())
+    out=api().parse_chart(payload,"MSFT",NOW,Calendar())
+    assert out["history_days"]==21
+    assert "2026-09-05" not in [datetime.fromtimestamp(b[0],timezone.utc).date().isoformat() for b in out["bars"]]
+
+
+@pytest.mark.parametrize("kind", ["overflow_timestamp","list_root","bad_chart","bad_result","bad_quote"])
+def test_malformed_http_data_is_per_symbol_unavailable_not_an_exception(kind):
+    payload=chart()
+    if kind=="overflow_timestamp":
+        payload["chart"]["result"][0]["timestamp"]=[1e100]*22
+    elif kind=="list_root":
+        payload=[]
+    elif kind=="bad_chart":
+        payload={"chart":[]}
+    elif kind=="bad_result":
+        payload={"chart":{"result":[None]}}
+    elif kind=="bad_quote":
+        payload["chart"]["result"][0]["indicators"]["quote"]=[None]
+    with httpx.Client(transport=httpx.MockTransport(lambda r:httpx.Response(200,json=payload,request=r))) as client:
+        out=api().StockProvider(client=client,calendar=Calendar()).collect("MSFT",NOW)
+    assert out["symbol"]=="MSFT" and out.get("last") is None and out["warnings"]

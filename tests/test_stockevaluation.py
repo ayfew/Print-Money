@@ -32,7 +32,7 @@ def prices(span=63, stock_end=80, benchmark_end=110):
     sessions = cal.sessions_in_range("2026-10-05", "2027-02-01")[:span]
     def bars(end):
         return [[int(s.timestamp()), 100, max(100,end), min(100,end),
-                 end if i == span-1 else 100, 1_000_000, end if i == span-1 else 100]
+                 end if i == span-1 else 100, 1_000_000, end if i == span-1 else 100, True]
                 for i,s in enumerate(sessions)]
     return {"MSFT": bars(stock_end), "SPY": bars(benchmark_end)}, sessions
 
@@ -115,6 +115,17 @@ def test_adjusted_return_proxy_handles_raw_split_without_a_fake_loss(tmp_path):
     assert out["gross_return"] == pytest.approx(0)
 
 
+@pytest.mark.parametrize("symbol", ["MSFT","SPY"])
+def test_unverified_adjusted_endpoints_cannot_become_scored_split_losses(tmp_path,symbol):
+    h = api()
+    data,_ = prices(stock_end=50)
+    for bar in data[symbol]:
+        bar[7] = False
+    r = h.evaluate(evidence(tmp_path),data,as_of=MATURE)
+    assert r["outcomes"][0]["state"] == "unscorable" and r["summary"]["n"] == 0
+    assert "adjustment_unverified" in " ".join(r["outcomes"][0]["reasons"])
+
+
 def test_calendar_absence_and_modified_evidence_do_not_invent_scores(tmp_path):
     h = api()
     records = evidence(tmp_path)
@@ -134,3 +145,14 @@ def test_registered_score_cli_keeps_empty_records_explicit(tmp_path, monkeypatch
     assert main(["research-score", "--json"]) == 0
     r = json.loads(capsys.readouterr().out)
     assert r["summary"]["n"] == 0 and r["counts"]["records"] == 0
+
+
+def test_unknown_frozen_evaluation_definition_is_not_silently_reinterpreted(tmp_path):
+    h=api()
+    from printmoney.research.stocks import ResearchRequest,screen
+    r=screen(ResearchRequest(symbols=("MSFT",),horizon="months-plus"),[observation()],NOW)
+    r["evaluation_definition"]={"version":"some_future_model"}
+    h.record(r,tmp_path)
+    data,_=prices()
+    result=h.evaluate(h.load_records(tmp_path),data,as_of=MATURE)
+    assert result["outcomes"][0]["state"]=="unscorable" and result["summary"]["n"]==0

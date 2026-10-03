@@ -34,10 +34,10 @@ _PUBLIC_KEYS = {"schema_version", "generated_at", "policy_version", "policy_vali
                 "mode", "actionability", "required_inputs", "system_status", "coverage",
                 "evaluated", "highlights", "consider", "watch", "avoid", "excluded",
                 "abstention", "errors", "ranking"}
-_PUBLIC_KEYS.update({"scenario", "policy", "personalization"})
+_PUBLIC_KEYS.update({"scenario", "policy", "personalization", "implementation_version", "evaluation_definition"})
 _PRIVATE_KEYS = {"budget", "loss_limit", "profile", "holdings", "portfolio", "account",
                  "credentials", "position_size", "allocation"}
-_VOLATILE_KEYS = {"generated_at", "fetched_at", "retrieved_at", "first_seen_at", "report_id"}
+_VOLATILE_KEYS = {"generated_at", "fetched_at", "retrieved_at", "first_seen_at", "observed_at", "report_id"}
 
 
 def _without(value, keys):
@@ -126,12 +126,19 @@ def _forward(index, entry_day, exit_day):
     first, last = index.get(entry_day), index.get(exit_day)
     if not first or not last:
         return None
+    if _adjustment_unverified(index,entry_day,exit_day):
+        return None
     opening, adjusted_entry, raw_entry, adjusted_exit = (
         number(first[1]), number(first[4]), number(first[6]), number(last[4]))
     if any(x is None or x <= 0 for x in (opening, adjusted_entry, raw_entry, adjusted_exit)):
         return None
     # Convert the raw opening to the same split/dividend-adjusted basis as the endpoint.
     return adjusted_exit / (opening * adjusted_entry / raw_entry) - 1
+
+
+def _adjustment_unverified(index, entry_day, exit_day):
+    return any(bar and (len(bar)<8 or bar[7] is not True)
+               for bar in (index.get(entry_day),index.get(exit_day)))
 
 
 def _scenario(card, cutoff, price_series, calendar, as_of):
@@ -156,12 +163,16 @@ def _scenario(card, cutoff, price_series, calendar, as_of):
     index = _price_index(price_series.get(card["symbol"]))
     gross = _forward(index, result["entry_day"], result["exit_day"])
     if gross is None:
-        reason = "entry_price_missing" if result["entry_day"] not in index else "exit_price_missing_or_invalid"
+        reason = ("adjustment_unverified" if _adjustment_unverified(index,result["entry_day"],result["exit_day"])
+                  else "entry_price_missing" if result["entry_day"] not in index else "exit_price_missing_or_invalid")
         return {**result, "state": "unscorable", "reasons": [reason]}
     result.update(gross_return=gross, net_return_10bp=gross-.001, net_return_30bp=gross-.003, cash_return=0)
-    benchmark = _forward(_price_index(price_series.get("SPY")), result["entry_day"], result["exit_day"])
+    benchmark_index = _price_index(price_series.get("SPY"))
+    benchmark = _forward(benchmark_index, result["entry_day"], result["exit_day"])
     if benchmark is None:
-        return {**result, "state": "unscorable", "reasons": ["benchmark_price_missing"]}
+        reason = ("benchmark_adjustment_unverified" if _adjustment_unverified(benchmark_index,result["entry_day"],result["exit_day"])
+                  else "benchmark_price_missing")
+        return {**result, "state": "unscorable", "reasons": [reason]}
     result.update(benchmark_return=benchmark, benchmark_net_return_10bp=benchmark-.001,
                   benchmark_net_return_30bp=benchmark-.003, excess_return=gross-benchmark)
     return {**result, "state": "matured"}
@@ -170,6 +181,7 @@ def _scenario(card, cutoff, price_series, calendar, as_of):
 def evaluate(records, price_series, calendar=None, as_of=None) -> dict:
     """Conditional next-open scenarios, never real fills or the volatility scorecard."""
     import statistics
+    from .stocks import EVALUATION_DEFINITION
     as_of = as_of or datetime.now(timezone.utc)
     if as_of.tzinfo is None:
         raise ValueError("Evaluation clock must include a timezone.")
@@ -193,6 +205,8 @@ def evaluate(records, price_series, calendar=None, as_of=None) -> dict:
             entered = (card.get("status") == "consider" and condition.get("type") == "research_gates"
                        and condition.get("state") == "met" and card.get("horizon") in ("days-weeks", "months-plus"))
             case = _scenario(card, cutoff, price_series, calendar, as_of)
+            if payload.get("evaluation_definition") != EVALUATION_DEFINITION:
+                case={"state":"unscorable","reasons":["evaluation_definition_unverified"]}
             out = {"report_id": envelope["id"], "policy_version": payload.get("policy_version"),
                    "symbol": card["symbol"], "original_status": card["status"], "report_cutoff": cutoff.isoformat()}
             if entered:
@@ -208,7 +222,8 @@ def evaluate(records, price_series, calendar=None, as_of=None) -> dict:
         return statistics.fmean(o[key] for o in mature) if mature else None
     return {"schema_version": 1, "as_of": as_of.isoformat(), "policy_validation": "unvalidated",
             "counts": counts, "outcomes": outcomes,
-            "summary": {"n": len(mature), "negative_gross_outcomes": sum(o["gross_return"] < 0 for o in mature),
+            "summary": {"n": len(mature), "interpretation":"pooled diagnostics across policies/horizons; not a validated strategy estimate",
+                        "negative_gross_outcomes": sum(o["gross_return"] < 0 for o in mature),
                         "mean_gross_return": average("gross_return"), "mean_net_return_10bp": average("net_return_10bp"),
                         "mean_net_return_30bp": average("net_return_30bp"), "mean_excess_return": average("excess_return")},
             "assumptions": {"entry": "first exchange session opening strictly after original report cutoff; research gates met",

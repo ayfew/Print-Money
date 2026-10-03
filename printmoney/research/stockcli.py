@@ -57,7 +57,7 @@ def render_html(report: dict, lang="th") -> str:
     return "\n".join(pieces)
 
 
-def _error(exc):
+def error_report(exc):
     return {"schema_version": 1, "system_status": "unavailable", "actionability": "conditional",
             "coverage": {"thai_equities": "not_connected", "social": "not_connected"},
             "evaluated": [], "highlights": [], "consider": [], "watch": [], "avoid": [], "excluded": [],
@@ -81,7 +81,7 @@ def cmd_research(args) -> int:
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_text(render_html(result, args.lang), encoding="utf-8")
     except (ValueError, OSError, TypeError, KeyError) as exc:
-        result = _error(exc)
+        result = error_report(exc)
     finally:
         if provider is not None and hasattr(provider, "close"):
             provider.close()
@@ -136,7 +136,7 @@ def cmd_research_score(args) -> int:
         result = evaluate(records, data)
         result["provider_warnings"] = warnings
     except (ValueError, OSError, TypeError, KeyError) as exc:
-        result = _error(exc)
+        result = error_report(exc)
     finally:
         if provider is not None:
             provider.close()

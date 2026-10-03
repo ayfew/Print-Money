@@ -29,6 +29,8 @@ class USCalendar:
         if now < self.calendar.session_close(session).to_pydatetime():
             session = self.calendar.previous_session(session)
         return session.date().isoformat()
+    def is_session(self, stamp: str) -> bool:
+        return bool(self.calendar.is_session(stamp))
 
 
 def _source(source_id, url, kind, payload, now):
@@ -39,12 +41,35 @@ def _source(source_id, url, kind, payload, now):
             "lineage": [url, "provider JSON extraction", "Print-Money derived metrics"]}
 
 
+def _object(value):
+    if not isinstance(value,dict):
+        raise ValueError("Provider JSON object required.")
+    return value
+
+
+def _array(value):
+    if value is None:
+        return []
+    if not isinstance(value,list):
+        raise ValueError("Provider JSON array required.")
+    return value
+
+
+def _timestamp(value):
+    if number(value) is None:
+        return None
+    try:
+        return datetime.fromtimestamp(value,timezone.utc)
+    except (ValueError,OSError,OverflowError):
+        return None
+
+
 def parse_chart(payload: dict, symbol: str, now: datetime, calendar=None) -> dict:
-    result = (payload.get("chart") or {}).get("result") or []
+    result = _array(_object(_object(payload).get("chart")).get("result"))
     if not result:
         raise ValueError("No daily chart result.")
-    data = result[0]
-    meta = data.get("meta") or {}
+    data = _object(result[0])
+    meta = _object(data.get("meta",{}))
     if str(meta.get("symbol", "")).upper() != symbol:
         raise ValueError("Provider symbol identity mismatch.")
     warnings = []
@@ -54,24 +79,44 @@ def parse_chart(payload: dict, symbol: str, now: datetime, calendar=None) -> dic
         completed = None
     if not completed:
         warnings.append("US session calendar unavailable; new-entry consideration is blocked.")
-    ind = data.get("indicators") or {}
-    quote = (ind.get("quote") or [{}])[0]
-    adjusted = (ind.get("adjclose") or [{}])[0].get("adjclose") or []
-    bars = []
-    for i, ts in enumerate(data.get("timestamp") or []):
-        if not isinstance(ts, (int, float)):
+    ind = _object(data.get("indicators",{}))
+    quote = _object((_array(ind.get("quote")) or [{}])[0])
+    adjusted = _array(_object((_array(ind.get("adjclose")) or [{}])[0]).get("adjclose"))
+    bars, adjustment_valid, sessions = [], {}, {}
+    timestamps=_array(data.get("timestamp"))
+    for i, ts in enumerate(timestamps):
+        stamp_time=_timestamp(ts)
+        if stamp_time is None:
+            warnings.append("Malformed daily timestamp omitted.")
             continue
-        stamp = datetime.fromtimestamp(ts, timezone.utc).date().isoformat()
+        stamp = stamp_time.date().isoformat()
         if stamp > (completed or now.date().isoformat()):
             continue
+        if calendar and hasattr(calendar,"is_session"):
+            try:
+                if not calendar.is_session(stamp):
+                    continue
+            except (ValueError,KeyError):
+                continue
         def at(key):
-            values = quote.get(key) or []
+            values = _array(quote.get(key))
             return number(values[i]) if i < len(values) else None
         o, h, l, c, v = (at(k) for k in ("open", "high", "low", "close", "volume"))
         if any(x is None or x <= 0 for x in (o, h, l, c)) or v is None or v < 0:
             continue
         adj = number(adjusted[i]) if i < len(adjusted) else None
-        bars.append(Bar(int(ts), o, h, l, adj if adj and adj > 0 else c, v, c))
+        bar=Bar(int(ts), o, h, l, adj if adj and adj > 0 else c, v, c)
+        verified=adj is not None and adj>0
+        if stamp in sessions:
+            old=sessions[stamp]
+            if ((old.open,old.high,old.low,old.close,old.volume,old.raw_close)!=(o,h,l,bar.close,v,c)
+                    or adjustment_valid[old.ts]!=verified):
+                raise ValueError("Conflicting duplicate exchange-session rows.")
+            warnings.append("Duplicate daily row removed; it is not another exchange session.")
+            continue
+        sessions[stamp]=bar
+        bars.append(bar)
+        adjustment_valid[int(ts)] = verified
     bars.sort(key=lambda b: b.ts)
     if not bars:
         raise ValueError("No completed valid daily prices.")
@@ -81,8 +126,8 @@ def parse_chart(payload: dict, symbol: str, now: datetime, calendar=None) -> dic
     window = prices[-60:]
     sd = st.stdev(window) if len(window) > 2 else 0
     z = (window[-1] - st.fmean(window)) / sd if sd else 0
-    splits = (data.get("events") or {}).get("splits") or {}
-    split_stamps = [s["date"] for s in splits.values() if isinstance(s,dict) and number(s.get("date")) is not None
+    splits = _object(_object(data.get("events",{})).get("splits",{}))
+    split_stamps = [s["date"] for s in splits.values() if isinstance(s,dict) and _timestamp(s.get("date")) is not None
                     and s["date"] <= now.timestamp()]
     recent_split = any(ts >= bars[max(0,len(bars)-21)].ts for ts in split_stamps)
     volumes = [b.volume for b in bars[-21:-1]]
@@ -91,7 +136,7 @@ def parse_chart(payload: dict, symbol: str, now: datetime, calendar=None) -> dic
     daily = returns[-1] if returns else None
     trailing = returns[-61:-1]
     return_sd = st.stdev(trailing) if len(trailing) >= 20 else None
-    adjusted_basis = (len(adjusted) >= len(data.get("timestamp") or [])
+    adjusted_basis = (len(adjusted) >= len(timestamps)
                       and all(number(x) is not None and x > 0 for x in adjusted))
     if not adjusted_basis:
         warnings.append("Adjusted-return basis unavailable; corporate-action-sensitive price anomalies suppressed.")
@@ -107,13 +152,13 @@ def parse_chart(payload: dict, symbol: str, now: datetime, calendar=None) -> dic
             "split_dates": [datetime.fromtimestamp(ts,timezone.utc).date().isoformat() for ts in split_stamps],
             "price_basis": "adjusted" if adjusted_basis else "raw_unverified_actions",
             "anomalous_price": bool(adjusted_basis and daily is not None and return_sd is not None and abs(daily)>=.10 and abs(daily)>=3*return_sd),
-            "warnings": warnings, "sources": [_source("price", f"{YAHOO}/{symbol}", "aggregator", payload, now)],
-            "bars": [[b.ts,b.open,b.high,b.low,b.close,b.volume,b.raw_close] for b in bars], "earnings": None}
+            "warnings": list(dict.fromkeys(warnings)), "sources": [_source("price", f"{YAHOO}/{symbol}", "aggregator", payload, now)],
+            "bars": [[b.ts,b.open,b.high,b.low,b.close,b.volume,b.raw_close,adjustment_valid[b.ts]] for b in bars], "earnings": None}
 
 
 def annual_facts(payload: dict, cutoff: datetime) -> dict:
     """Only compatible full-year US-GAAP duration facts, known before cutoff day."""
-    gaap = (payload.get("facts") or {}).get("us-gaap") or {}
+    gaap = _object(_object(_object(payload).get("facts",{})).get("us-gaap",{}))
     tags = {"net_income": ("NetIncomeLoss",),
             "operating_cashflow": ("NetCashProvidedByUsedInOperatingActivities",),
             "diluted_eps": ("EarningsPerShareDiluted",),
@@ -123,10 +168,11 @@ def annual_facts(payload: dict, cutoff: datetime) -> dict:
         unit = "USD/shares" if key == "diluted_eps" else "USD"
         eligible = []
         for tag in alternatives:
-            for r in ((gaap.get(tag) or {}).get("units") or {}).get(unit, []):
+            for r in _array(_object(_object(gaap.get(tag,{})).get("units",{})).get(unit)):
+                r=_object(r)
                 start, end, filed = day(r.get("start")), day(r.get("end")), day(r.get("filed"))
                 if (start and end and filed and r.get("form") in ("10-K", "10-K/A")
-                    and 320 <= (end-start).days <= 380 and end <= cutoff.date() and filed < cutoff.date()
+                    and 320 <= (end-start).days <= 380 and end <= filed < cutoff.date()
                     and number(r.get("val")) is not None):
                     eligible.append(dict(r, tag=tag))
             if eligible:
@@ -145,8 +191,9 @@ def annual_facts(payload: dict, cutoff: datetime) -> dict:
     accessions = {r.get("accn") for r in selected.values()}
     if len(accessions) != 1 or None in accessions:
         return {}
-    previous = [r for r in rows["revenue"] if day(r["end"]) and (day(anchor["start"])-day(r["end"])).days == 1]
-    old = max(previous, key=lambda r:r["filed"]) if previous else None
+    previous = [r for r in rows["revenue"] if day(r["end"]) and (day(anchor["start"])-day(r["end"])).days == 1
+                and r.get("accn")==anchor.get("accn") and r.get("tag")==selected.get("revenue",{}).get("tag")]
+    old = max(previous, key=lambda r:r["filed"]) if previous and len({r["val"] for r in previous})==1 else None
     revenue = number(selected.get("revenue",{}).get("val"))
     prior = number(old.get("val")) if old else None
     return {"annual_end": anchor["end"], "annual_start": anchor["start"],
@@ -156,6 +203,8 @@ def annual_facts(payload: dict, cutoff: datetime) -> dict:
             "operating_cashflow": number(selected.get("operating_cashflow",{}).get("val")),
             "diluted_eps": number(selected.get("diluted_eps",{}).get("val")),
             "revenue": revenue, "revenue_growth": revenue/prior-1 if revenue is not None and prior and prior>0 else None,
+            "revenue_comparison": {"prior_value":prior,"start":old["start"],"end":old["end"],
+                                   "filed":old["filed"],"accession":old["accn"]} if old else None,
             "metric_basis": "reported annual filing; no synthetic TTM", "extracted_tags": {k:r["tag"] for k,r in selected.items()}}
 
 
@@ -183,13 +232,13 @@ class StockProvider:
                 blob = json.loads(path.read_text(encoding="utf-8"))
                 fetched = datetime.fromisoformat(blob["retrieved_at"])
                 if 0 <= (now-fetched).total_seconds() < 21600:
-                    return blob["payload"], fetched
-            except (ValueError, KeyError):
+                    return _object(blob["payload"]), fetched
+            except (ValueError, KeyError, TypeError):
                 pass
         headers = {"User-Agent": os.environ.get("PRINTMONEY_SEC_USER_AGENT", UA)} if "sec.gov" in url else {"User-Agent": UA}
         response = self.client.get(url, headers=headers)
         response.raise_for_status()
-        payload = response.json()
+        payload = _object(response.json())
         if path:
             path.parent.mkdir(parents=True,exist_ok=True)
             temp = path.with_suffix(".tmp")
@@ -208,12 +257,13 @@ class StockProvider:
         try:
             if self.tickers is None:
                 mapping, _ = self._json(TICKERS,"tickers",now,True)
-                self.tickers = {str(v["ticker"]).upper():v for v in mapping.values()}
+                self.tickers = {str(_object(v)["ticker"]).upper():v for v in mapping.values()}
             identity = self.tickers.get(symbol)
             if not identity:
                 item["warnings"].append("No SEC issuer identity; unsupported issuer evidence.")
                 return item
             cik = int(identity["cik_str"])
+            item["issuer_cik"] = cik
             submissions_url = f"https://data.sec.gov/submissions/CIK{cik:010d}.json"
             submissions, _ = self._json(submissions_url,f"issuer-{cik}",now,True)
             if 6000 <= int(submissions.get("sic") or 0) <= 6799:

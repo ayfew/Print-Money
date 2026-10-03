@@ -18,22 +18,30 @@ def api():
 def observation(symbol="MSFT", **changes):
     item = {
         "symbol": symbol, "name": "Example operating company", "sector": "technology",
-        "instrument_type": "EQUITY", "currency": "USD", "exchange": "NMS",
+        "instrument_type": "EQUITY", "currency": "USD", "exchange": "NMS", "issuer_cik":789019,
         "quote_day": "2026-10-02", "last_completed_session": "2026-10-02",
         "fetched_at": "2026-10-03T12:00:00+00:00", "last": 100.0,
         "history_days": 400, "day_return": .01, "month_return": .03,
         "zscore": .5, "dollar_turnover": 80_000_000, "volume_ratio": 1.0,
         "price_basis": "adjusted", "anomalous_price": False,
-        "fundamentals": {"annual_end": "2026-06-30", "filed": "2026-08-01",
+        "fundamentals": {"annual_end": "2026-06-30", "annual_start":"2025-07-01", "filed": "2026-08-01",
+                         "currency":"USD", "form":"10-K", "cik":789019,
+                         "accessions":["0000789019-26-000001"],
                          "net_income": 1000, "operating_cashflow": 1200,
                          "diluted_eps": 5, "revenue_growth": .10},
-        "earnings": {"date": "2026-10-28", "verification": "verified"},
+        "earnings": {"date": "2026-10-28", "verification": "verified", "symbol":symbol,
+                     "retrieved_at":"2026-10-03T12:00:00+00:00", "source_id":"earnings"},
         "sources": [{"id": "price", "url": "https://query1.finance.yahoo.com/v8/finance/chart/MSFT",
                      "kind": "aggregator", "retrieved_at": "2026-10-03T12:00:00+00:00"},
                     {"id": "annual", "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000789019.json",
-                     "kind": "official", "retrieved_at": "2026-10-03T12:00:00+00:00"}],
+                     "kind": "official", "retrieved_at": "2026-10-03T12:00:00+00:00"},
+                    {"id":"earnings","url":"https://www.microsoft.com/en-us/Investor/earnings",
+                     "kind":"official","retrieved_at":"2026-10-03T12:00:00+00:00"}],
     }
     item.update(changes)
+    if item.get("verified_catalyst") is True:
+        item["verified_catalyst"]={"date":"2026-10-20","verification":"verified","symbol":symbol,
+                                  "source_id":"earnings","retrieved_at":"2026-10-03T12:00:00+00:00"}
     return item
 
 
@@ -87,10 +95,49 @@ def test_supplied_profile_does_not_claim_an_allocation_or_guaranteed_risk_model(
     assert r["abstention"]["active"] and r["abstention"]["reason"] == "personal_allocation_unavailable"
 
 
+@pytest.mark.parametrize("changes", [
+    {"zscore":None,"month_return":None},
+    {"zscore":float("nan"),"month_return":"bad"},
+    {"price_basis":"raw_unverified_actions"},
+])
+def test_missing_stretch_metrics_or_adjustment_basis_never_pass_a_gate(changes):
+    card=report(observation(**changes))["evaluated"][0]
+    assert card["status"]=="watch" and "price_stretch_unverified" in card["reasons"]
+
+
+@pytest.mark.parametrize("change", [
+    {"currency":"EUR"}, {"filed":"2026-06-01"}, {"cik":42}, {"accessions":[]}, {"form":"10-Q"},
+])
+def test_imported_annual_evidence_must_have_compatible_identity_period_currency_and_accession(change):
+    item=observation()
+    item["fundamentals"].update(change)
+    card=report(item)["evaluated"][0]
+    assert card["status"]=="watch" and "annual_facts_invalid" in card["reasons"]
+
+
+@pytest.mark.parametrize("change", [
+    {"retrieved_at":"2026-10-04T00:00:00+00:00"}, {"source_id":"missing"},
+    {"url":"javascript:buy()"}, {"symbol":"AAPL"},
+])
+def test_verified_word_does_not_replace_earnings_provenance_and_cutoff(change):
+    item=observation()
+    item["earnings"].update(change)
+    card=report(item)["evaluated"][0]
+    assert card["status"]=="watch" and "earnings_evidence_unverified" in card["reasons"]
+
+
+def test_truthy_catalyst_text_does_not_qualify_a_short_horizon():
+    s=api()
+    r=s.screen(s.ResearchRequest(symbols=("MSFT",),horizon="days-weeks"),
+               [observation(verified_catalyst="not_verified")],NOW)
+    assert r["watch"] and "short_horizon_condition_missing" in r["watch"][0]["reasons"]
+
+
 @pytest.mark.parametrize("changes,reason", [
     ({"quote_day": "2026-09-30"}, "stale_price"),
     ({"earnings": None}, "earnings_unknown"),
-    ({"earnings": {"date": "2026-10-08", "verification": "verified"}}, "earnings_blackout"),
+    ({"earnings": {"date": "2026-10-08", "verification": "verified", "symbol":"MSFT",
+                   "source_id":"earnings","retrieved_at":"2026-10-03T12:00:00+00:00"}}, "earnings_blackout"),
     ({"history_days": 50}, "insufficient_history"),
     ({"zscore": 2.5}, "price_runup"),
     ({"last_completed_session": None}, "calendar_unavailable"),

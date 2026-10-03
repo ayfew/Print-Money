@@ -88,3 +88,34 @@ def test_private_export_uses_same_report_without_touching_public_files(tmp_path,
     r = json.loads(capsys.readouterr().out)
     assert dest.exists() and r["evaluated"][0]["symbol"] in dest.read_text(encoding="utf-8")
     assert not (tmp_path/"reports").exists()
+
+
+def test_malformed_symbol_does_not_terminate_other_json_research(monkeypatch,capsys):
+    import httpx
+    from test_stockdata import chart, Calendar
+    c=api()
+    def response(request):
+        if "/MSFT?" in str(request.url):
+            payload=chart()
+            payload["chart"]["result"][0]["timestamp"]=[1e100]*22
+        elif "/AAPL?" in str(request.url):
+            payload=chart()
+            payload["chart"]["result"][0]["meta"]["symbol"]="AAPL"
+        else:
+            return httpx.Response(403,request=request)
+        return httpx.Response(200,json=payload,request=request)
+    from printmoney.research.stockdata import StockProvider
+    with httpx.Client(transport=httpx.MockTransport(response)) as client:
+        monkeypatch.setattr(c,"StockProvider",lambda:StockProvider(client=client,calendar=Calendar()))
+        from printmoney.cli import main
+        assert main(["research","--symbols","MSFT,AAPL","--json","--no-record"])==0
+    result=json.loads(capsys.readouterr().out)
+    assert result["excluded"][0]["symbol"]=="MSFT" and result["watch"][0]["symbol"]=="AAPL"
+
+
+@pytest.mark.parametrize("extra", [["--pe-cap","invalid"],["--lang","invalid"],["--symbols"],["--unknown"]])
+def test_research_parser_errors_have_one_json_document(extra,capsys):
+    from printmoney.cli import main
+    assert main(["research","--json","--no-record",*extra])==2
+    r=json.loads(capsys.readouterr().out)
+    assert r["system_status"]=="unavailable" and r["errors"]

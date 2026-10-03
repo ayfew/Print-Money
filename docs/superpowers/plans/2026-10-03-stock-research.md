@@ -69,7 +69,7 @@
 - [x] Independently demonstrate headline selects live at n>=30 and backtest otherwise. Correct baseline integration assertions to match selected committed evidence, including losses; do not change published numbers or force historical selection.
 - [x] Document installation, actual commands, default universe, annual metric/earnings/data limitations, source-lineage limits, social/Thai feeds absent and private output behavior.
 - [x] Run full `python -B -m pytest -q -p no:cacheprovider`, compile checks, actual CLI JSON and private HTML smoke. Expect green suite and parseable output.
-- [ ] Commit only the isolated feature branch locally; dispatch one fresh code reviewer, fix Important/Critical findings via RED/GREEN, verify final suite; leave branch/worktree available without merge/push/deploy.
+- [x] Commit only the isolated feature branch locally; dispatch one fresh code reviewer, fix Important/Critical findings via RED/GREEN, verify final suite; leave branch/worktree available without merge/push/deploy.
 
 ## Execution decisions
 

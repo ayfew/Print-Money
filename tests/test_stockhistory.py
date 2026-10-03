@@ -30,7 +30,7 @@ def test_same_evidence_with_new_retrieval_time_is_not_a_second_decision(tmp_path
         card["fetched_at"] = b["generated_at"]
         for source in card["sources"]:
             source["retrieved_at"] = b["generated_at"]
-            source["first_seen_at"] = b["generated_at"]
+            source["observed_at"] = b["generated_at"]
     assert h.record(b,tmp_path) == first
     assert len(list(tmp_path.glob("*.json"))) == 1
     assert h.load_records(tmp_path)[0]["payload"]["generated_at"] == a["generated_at"]
@@ -43,6 +43,16 @@ def test_record_does_not_copy_private_amounts_or_profile_into_evidence(tmp_path)
     h.record(r,tmp_path)
     text = next(tmp_path.glob("*.json")).read_text(encoding="utf-8")
     assert "1234.56" not in text and "87.65" not in text and "private_company" not in text
+
+
+def test_record_freezes_implementation_and_evaluation_definition_without_claiming_first_sighting(tmp_path):
+    h=api()
+    r=report()
+    rid=h.record(r,tmp_path)
+    saved=h.load_records(tmp_path)[0]["payload"]
+    assert saved["implementation_version"] and saved["evaluation_definition"]["round_trip_cost_bps"]==[10,30]
+    source=saved["evaluated"][0]["sources"][0]
+    assert "first_seen_at" not in source and source["observed_at"]==source["retrieved_at"]
 
 
 def test_altered_record_is_detected_instead_of_quietly_scored(tmp_path):

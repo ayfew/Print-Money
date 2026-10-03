@@ -34,4 +34,12 @@ Commands use the isolated worktree venv, python -B -m pytest ... -q -p no:cachep
 - Actual pm.py research-score --json: exit 0, n=0, one not_entered case, no invented performance.
 - Actual Windows junction escaping the private root was created in ignored test state and rejected by private_path, supplementing the skipped symlink fixture.
 
-Fresh review and final verification pending. No merge, push, PR, deployment, publication, account change or transaction performed.
+## Review and final verification
+
+- One fresh independent reviewer inspected local commit db842fa against a1680f1. Independent suite: 505 passed, one skip, 13.91s. No Critical findings; seven Important findings reproduced and fixed via focused RED/GREEN. See docs/superpowers/reviews/2026-10-03-stock-research.md for every finding and all deferred-scope rulings.
+- All new policy/provider/CLI/history/evaluation tests after the seven fixes: 95 passed, one skip, 2.63s.
+- Record provenance/version corrections: two RED failures, then 18 passed, one skip, 1.73s. Source observed_at is this retrieval, not an earliest-sighting claim. Implementation/evaluation definitions are frozen; unknown definitions remain unscorable.
+- Final full suite: **537 passed, 1 skipped, 8.99s**. Policy annual-research-v2, implementation stock-research-v2. No second review was dispatched; this is fresh local verification of the independent findings' fixes.
+- Pooled summaries explicitly identify their diagnostic scope. Grouped performance, revision-link/report comparison, excursions/turnover, editable starter configuration and fuller Thai localization remain deferred; documentation states these limits.
+
+Branch/worktree are preserved for local handoff. No merge, push, PR, deployment, publication, account change or transaction performed. SEC HTTP403 and missing earnings/catalyst/social/Thai feeds are exposed capability limits, not hidden success claims.
