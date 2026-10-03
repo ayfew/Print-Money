@@ -67,6 +67,19 @@ def test_html_source_content_is_literal_and_quality_limits_are_visible():
     assert "Sol" in c.render_html(r, "th")
 
 
+def test_html_retains_qualifying_catalyst_evidence_as_literal_text():
+    c = api()
+    from printmoney.research.stocks import ResearchRequest, screen
+    item = observation(verified_catalyst=True)
+    item["verified_catalyst"]["description"] = '<script>alert("buy")</script>'
+    r = screen(ResearchRequest(symbols=("MSFT",), horizon="days-weeks"), [item], NOW)
+    html = c.render_html(r, "en")
+    assert [card["symbol"] for card in r["consider"]] == ["MSFT"]
+    assert "<dt>catalyst</dt>" in html and "2026-10-20" in html
+    assert "source_id" in html and "verification" in html
+    assert "<script>" not in html and "&lt;script&gt;" in html
+
+
 def test_public_html_destination_is_rejected_before_writing(tmp_path, monkeypatch, capsys):
     c = api()
     root = tmp_path / "state" / "research"

@@ -39,7 +39,17 @@ Commands use the isolated worktree venv, python -B -m pytest ... -q -p no:cachep
 - One fresh independent reviewer inspected local commit db842fa against a1680f1. Independent suite: 505 passed, one skip, 13.91s. No Critical findings; seven Important findings reproduced and fixed via focused RED/GREEN. See docs/superpowers/reviews/2026-10-03-stock-research.md for every finding and all deferred-scope rulings.
 - All new policy/provider/CLI/history/evaluation tests after the seven fixes: 95 passed, one skip, 2.63s.
 - Record provenance/version corrections: two RED failures, then 18 passed, one skip, 1.73s. Source observed_at is this retrieval, not an earliest-sighting claim. Implementation/evaluation definitions are frozen; unknown definitions remain unscorable.
-- Final full suite: **537 passed, 1 skipped, 8.99s**. Policy annual-research-v2, implementation stock-research-v2. No second review was dispatched; this is fresh local verification of the independent findings' fixes.
+- Full suite after the initial review fixes: **537 passed, 1 skipped, 8.99s**. Policy annual-research-v2, implementation stock-research-v2. At this checkpoint, verification was local and only the initial independent review had occurred.
 - Pooled summaries explicitly identify their diagnostic scope. Grouped performance, revision-link/report comparison, excursions/turnover, editable starter configuration and fuller Thai localization remain deferred; documentation states these limits.
+
+## User-requested independent final gate
+
+- A fresh reviewer inspected `ac3ab65b852dd39064a302dfc72f21c7e3671b47` after the initial seven corrections. Independent full suite: 537 passed, one skip, 14.37s. No Critical findings; one Important finding: qualifying catalyst evidence disappeared from JSON/HTML and record identity.
+- Four corrected regression tests failed before implementation: missing card catalyst, missing HTML catalyst, unchanged record identity after a catalyst-date change, and missing saved catalyst evidence. RED: four failures, 0.85s.
+- Minimal correction preserves a deep copy of supplied catalyst evidence in the card and renders it through existing HTML escaping. Existing record canonicalization now freezes that evidence and includes substantive changes in identity. Screening policy stays annual-research-v2; implementation becomes stock-research-v3.
+- Affected suite after correction: 72 passed, one skip, 2.12s. Final full suite: **541 passed, 1 skipped, 8.15s**, using `.venv/Scripts/python.exe -B -m pytest -q --tb=short -p no:cacheprovider`.
+- The reviewer independently verified the correction with the affected suite (72 passed, one skip, 1.85s) and a separate temporary-directory reproduction, then explicitly signed off the corrected worktree for local handoff. The full-suite result above is the implementer's fresh execution, not an independently repeated full run after the catalyst fix.
+- All five research/CLI modules compile from source; diff whitespace checks pass. Original D:/Print-Money remains clean at ad423a130177aadaa74eec1e0061beb3e2478118. No additional network calls or SEC identity changes occurred during this final gate.
+- Complete finding, resolution, evidence and deferred-scope context: `docs/superpowers/reviews/2026-10-03-stock-research-final.md`.
 
 Branch/worktree are preserved for local handoff. No merge, push, PR, deployment, publication, account change or transaction performed. SEC HTTP403 and missing earnings/catalyst/social/Thai feeds are exposed capability limits, not hidden success claims.

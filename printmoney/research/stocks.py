@@ -11,7 +11,7 @@ from typing import Any
 from urllib.parse import urlsplit
 
 POLICY_VERSION = "annual-research-v2"
-IMPLEMENTATION_VERSION = "stock-research-v2"
+IMPLEMENTATION_VERSION = "stock-research-v3"
 EVALUATION_DEFINITION = {"version":"next-open-adjusted-v1", "horizon_sessions":{"days-weeks":21,"months-plus":63},
                          "entry":"first exchange open strictly after original cutoff", "exit":"close counting entry session as one",
                          "round_trip_cost_bps":[10,30], "benchmark":"SPY", "cash_interest":0,
@@ -256,6 +256,7 @@ def _card(req: ResearchRequest, item: dict, now: datetime) -> dict:
             "valuation_basis": "raw close / reported annual diluted EPS; not TTM or forward earnings",
             "day_return": number(item.get("day_return")), "month_return": number(item.get("month_return")),
             "dollar_turnover": turnover, "earnings": event or None,
+            "catalyst": deepcopy(item.get("verified_catalyst")),
             "horizon": req.horizon, "sources": sources, "external_text_trust": "untrusted_literal",
             "manipulation_risk": risk_context(item),
             "entry_condition": {"type": "research_gates", "state": "met" if status == "consider" else "unmet"},

@@ -39,7 +39,7 @@ def render_html(report: dict, lang="th") -> str:
                       f'<p>{literal(card.get("name"))}</p><dl>')
         for key in ("last", "currency", "quote_day", "price_basis", "fetched_at", "annual_facts",
                     "annual_earnings_pe", "valuation_basis", "day_return", "month_return", "dollar_turnover",
-                    "earnings", "reasons", "warnings", "entry_condition", "review_conditions", "invalidation",
+                    "earnings", "catalyst", "reasons", "warnings", "entry_condition", "review_conditions", "invalidation",
                     "manipulation_risk", "uncertainty"):
             value = card.get(key)
             if isinstance(value, (list, dict)):

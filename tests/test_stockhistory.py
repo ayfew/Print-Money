@@ -1,5 +1,6 @@
 """Private prospective records must preserve original decisions and integrity."""
 from copy import deepcopy
+from datetime import timedelta
 import json
 
 import pytest
@@ -34,6 +35,47 @@ def test_same_evidence_with_new_retrieval_time_is_not_a_second_decision(tmp_path
     assert h.record(b,tmp_path) == first
     assert len(list(tmp_path.glob("*.json"))) == 1
     assert h.load_records(tmp_path)[0]["payload"]["generated_at"] == a["generated_at"]
+
+
+def test_changed_qualifying_catalyst_creates_distinct_immutable_decisions(tmp_path):
+    h = api()
+    from printmoney.research.stocks import ResearchRequest, screen
+    request = ResearchRequest(symbols=("MSFT",), horizon="days-weeks")
+    item = observation(verified_catalyst=True)
+    a = screen(request, [item], NOW)
+    first = h.record(a, tmp_path)
+    item["verified_catalyst"]["date"] = "2026-10-21"
+    b = screen(request, [item], NOW)
+    second = h.record(b, tmp_path)
+    assert [card["symbol"] for card in a["consider"]] == ["MSFT"]
+    assert [card["symbol"] for card in b["consider"]] == ["MSFT"]
+    assert second != first
+    saved = {r["id"]: r["payload"] for r in h.load_records(tmp_path)}
+    assert len(saved) == 2
+    assert saved[first]["evaluated"][0]["catalyst"]["date"] == "2026-10-20"
+    assert saved[second]["evaluated"][0]["catalyst"]["date"] == "2026-10-21"
+
+
+def test_catalyst_retrieval_only_change_keeps_original_evidence_and_cutoff(tmp_path):
+    h = api()
+    from printmoney.research.stocks import ResearchRequest, screen
+    request = ResearchRequest(symbols=("MSFT",), horizon="days-weeks")
+    item = observation(verified_catalyst=True)
+    a = screen(request, [item], NOW)
+    first = h.record(a, tmp_path)
+    later = NOW + timedelta(hours=1)
+    item["fetched_at"] = later.isoformat()
+    for source in item["sources"]:
+        source["retrieved_at"] = later.isoformat()
+    for key in ("earnings", "verified_catalyst"):
+        item[key]["retrieved_at"] = later.isoformat()
+    b = screen(request, [item], later)
+    assert [card["symbol"] for card in a["consider"]] == ["MSFT"]
+    assert [card["symbol"] for card in b["consider"]] == ["MSFT"]
+    assert h.record(b, tmp_path) == first
+    saved = h.load_records(tmp_path)
+    assert len(saved) == 1 and saved[0]["payload"]["generated_at"] == a["generated_at"]
+    assert saved[0]["payload"]["evaluated"][0]["catalyst"] == a["evaluated"][0]["catalyst"]
 
 
 def test_record_does_not_copy_private_amounts_or_profile_into_evidence(tmp_path):

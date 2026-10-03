@@ -1,6 +1,6 @@
 # Fresh review and local resolution
 
-One independent read-only reviewer inspected `db842fa4e9a04afd27815740a4f1469a80b27462` against `a1680f12a1ea6b9f2c89b27f445dba3622ccc82b`. No second reviewer was dispatched. Reviewer independently ran the full suite: 505 passed, one Windows symlink-privilege skip, 13.91s. Initial assessment requested changes, with no Critical and seven Important findings.
+The initial independent read-only reviewer inspected `db842fa4e9a04afd27815740a4f1469a80b27462` against `a1680f12a1ea6b9f2c89b27f445dba3622ccc82b`. Reviewer independently ran the full suite: 505 passed, one Windows symlink-privilege skip, 13.91s. Initial assessment requested changes, with no Critical and seven Important findings. The later user-requested independent final gate and catalyst correction are recorded in [the final review](2026-10-03-stock-research-final.md).
 
 ## Important findings and resolution
 
@@ -14,9 +14,9 @@ One independent read-only reviewer inspected `db842fa4e9a04afd27815740a4f1469a80
 | Malformed payload escaped isolation/JSON | Five failures, one existing passing malformed case | Validate JSON container types and representable finite timestamps; retain per-symbol unavailable results while other symbols continue. Provider/CLI suite: 34 passed. |
 | Parser-level errors produced no JSON | Four failures | Research parse errors now preserve normal stderr diagnostics and return exactly one structured JSON document on stdout. Other CLI paths retain their parsing behavior. CLI suite: 12 passed. |
 
-Additional record-version/provenance tests first failed twice, then passed in the affected suite (18 passed, one skip). Records freeze implementation and evaluation definitions; unknown definitions are unscorable. Current policy/implementation versions are `annual-research-v2` / `stock-research-v2`.
+Additional record-version/provenance tests first failed twice, then passed in the affected suite (18 passed, one skip). Records freeze implementation and evaluation definitions; unknown definitions are unscorable. At this checkpoint, policy/implementation versions were `annual-research-v2` / `stock-research-v2`.
 
-Final full suite after corrections: **537 passed, 1 skipped, 8.99s**. This is fresh local verification of the fixes, not a second independent approval. Changed modules compile and diff whitespace checks pass. The preserved original checkout remains clean at `ad423a1`.
+Full suite after these corrections: **537 passed, 1 skipped, 8.99s**. This checkpoint was fresh local verification of the fixes, before the later user-requested independent final gate. Changed modules compile and diff whitespace checks pass. The preserved original checkout remains clean at `ad423a1`.
 
 ## Minor rulings and cost if wrong
 

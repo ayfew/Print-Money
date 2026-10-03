@@ -133,6 +133,18 @@ def test_truthy_catalyst_text_does_not_qualify_a_short_horizon():
     assert r["watch"] and "short_horizon_condition_missing" in r["watch"][0]["reasons"]
 
 
+def test_short_horizon_report_retains_the_exact_qualifying_catalyst():
+    s = api()
+    item = observation(verified_catalyst=True)
+    evidence = deepcopy(item["verified_catalyst"])
+    r = s.screen(s.ResearchRequest(symbols=("MSFT",), horizon="days-weeks"), [item], NOW)
+    card = r["evaluated"][0]
+    assert card["status"] == "consider"
+    assert card["catalyst"] == evidence
+    item["verified_catalyst"]["date"] = "2026-10-21"
+    assert card["catalyst"] == evidence
+
+
 @pytest.mark.parametrize("changes,reason", [
     ({"quote_day": "2026-09-30"}, "stale_price"),
     ({"earnings": None}, "earnings_unknown"),

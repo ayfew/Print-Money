@@ -76,3 +76,4 @@
 - Few delegated setup and execution; parent approved this revised design and inline method. No further internal design approval gate.
 - Baseline before feature: 439 passed, one failing stale headline expectation (requires n>=1000 and rate>0.5 despite live n=84/rate=0.4524). Treat it as a test-contract defect only after independent verification.
 - Native PowerShell ledger replaces the skill's bash helper scripts in this Windows environment. Record RED/GREEN commands, deviations and final review here; preserve the ledger for handoff.
+- After the initial seven review fixes, the user explicitly requested an additional independent final gate. That request supersedes the earlier one-review limit. The final catalyst-provenance correction and targeted sign-off are recorded in `docs/superpowers/reviews/2026-10-03-stock-research-final.md`.
