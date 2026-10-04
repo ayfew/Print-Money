@@ -35,9 +35,11 @@ _PUBLIC_KEYS = {"schema_version", "generated_at", "policy_version", "policy_vali
                 "evaluated", "highlights", "consider", "watch", "avoid", "excluded",
                 "abstention", "errors", "ranking"}
 _PUBLIC_KEYS.update({"scenario", "policy", "personalization", "implementation_version", "evaluation_definition"})
+_PUBLIC_KEYS.update({"membership", "membership_context", "collection", "coverage_metrics"})
 _PRIVATE_KEYS = {"budget", "loss_limit", "profile", "holdings", "portfolio", "account",
                  "credentials", "position_size", "allocation"}
-_VOLATILE_KEYS = {"generated_at", "fetched_at", "retrieved_at", "first_seen_at", "observed_at", "report_id"}
+_VOLATILE_KEYS = {"generated_at", "fetched_at", "retrieved_at", "captured_at", "first_seen_at", "observed_at", "report_id",
+                  "evaluated_at", "snapshot_age_seconds"}
 
 
 def _without(value, keys):
@@ -53,7 +55,9 @@ def _public(report):
 
 
 def _identity(payload):
-    return _digest(_without(payload, _VOLATILE_KEYS))[:32]
+    evidence = dict(payload)
+    evidence.pop("collection", None)
+    return _digest(_without(evidence, _VOLATILE_KEYS))[:32]
 
 
 def _checked(path: Path) -> dict:

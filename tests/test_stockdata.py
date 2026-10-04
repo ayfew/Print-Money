@@ -190,3 +190,83 @@ def test_malformed_http_data_is_per_symbol_unavailable_not_an_exception(kind):
     with httpx.Client(transport=httpx.MockTransport(lambda r:httpx.Response(200,json=payload,request=r))) as client:
         out=api().StockProvider(client=client,calendar=Calendar()).collect("MSFT",NOW)
     assert out["symbol"]=="MSFT" and out.get("last") is None and out["warnings"]
+
+
+@pytest.mark.parametrize("symbol,alias", [("BRK.B", "BRK-B"), ("BF.B", "BF-B")])
+def test_class_alias_keeps_canonical_identity_and_actual_receipt_clock(symbol, alias):
+    from printmoney.research.stockbatch import RequestGate
+    receipt = NOW+timedelta(seconds=5)
+    calls = []
+    def response(request):
+        calls.append(str(request.url))
+        payload = chart()
+        payload["chart"]["result"][0]["meta"]["symbol"] = alias
+        return httpx.Response(200, json=payload, request=request)
+    with httpx.Client(transport=httpx.MockTransport(response)) as client:
+        out = api().StockProvider(client=client, calendar=Calendar(), request_gate=RequestGate(interval=0), sec_enabled=False, clock=lambda: receipt).collect(symbol, NOW)
+    assert out["symbol"] == symbol and out["provider_symbol"] == alias
+    assert alias in calls[0] and len(calls) == 1
+    assert out["fetched_at"] == receipt.isoformat()
+    assert out["sources"][0]["retrieved_at"] == receipt.isoformat()
+    assert out["sources"][0]["url"].endswith(alias)
+    assert out["provider_status"] == {"price": "available", "annual": "blocked"}
+
+
+@pytest.mark.parametrize("status", [401, 403, 429])
+def test_shared_provider_denial_circuit_prevents_more_actual_gets(status):
+    from printmoney.research.stockbatch import RequestGate
+    calls = []
+    def response(request):
+        calls.append(str(request.url))
+        return httpx.Response(status, request=request)
+    gate = RequestGate(interval=0)
+    with httpx.Client(transport=httpx.MockTransport(response)) as client:
+        first = api().StockProvider(client=client, calendar=Calendar(), request_gate=gate).collect("MSFT", NOW)
+        second = api().StockProvider(client=client, calendar=Calendar(), request_gate=gate).collect("AAPL", NOW)
+    assert len(calls) == 1
+    assert first["provider_status"]["price"] == second["provider_status"]["price"] == "blocked"
+    assert first.get("last") is None and second.get("last") is None
+
+
+def test_every_get_is_gated_and_sec_denial_does_not_block_price_host():
+    from printmoney.research.stockbatch import RequestGate
+    calls, gated = [], []
+    class Gate(RequestGate):
+        def acquire(self, url=None):
+            super().acquire(url)
+            gated.append(url)
+    def response(request):
+        calls.append(str(request.url))
+        if "sec.gov" in str(request.url):
+            return httpx.Response(403, request=request)
+        payload = chart()
+        payload["chart"]["result"][0]["meta"]["symbol"] = request.url.path.rsplit("/", 1)[-1]
+        return httpx.Response(200, json=payload, request=request)
+    with httpx.Client(transport=httpx.MockTransport(response)) as client:
+        provider = api().StockProvider(client=client, calendar=Calendar(), request_gate=Gate(interval=0))
+        first = provider.collect("MSFT", NOW)
+        second = provider.collect("AAPL", NOW)
+    assert len(calls) == len(gated) == 3
+    assert first["provider_status"]["annual"] == second["provider_status"]["annual"] == "blocked"
+    assert second["provider_status"]["price"] == "available"
+
+
+def test_borrowed_redirect_enabled_client_cannot_bypass_request_gate():
+    from printmoney.research.stockbatch import RequestGate
+    calls, gated = [], []
+    start, final = 'https://example.com/start', 'https://example.com/final'
+    class Gate(RequestGate):
+        def acquire(self, url=None):
+            super().acquire(url)
+            gated.append(url)
+    def response(request):
+        calls.append(str(request.url))
+        if str(request.url) == start:
+            return httpx.Response(302, headers={'Location': final}, request=request)
+        return httpx.Response(200, json={'ok': 1}, request=request)
+    with httpx.Client(transport=httpx.MockTransport(response), follow_redirects=True) as client:
+        provider = api().StockProvider(client=client, calendar=Calendar(), request_gate=Gate(interval=0), sec_enabled=False)
+        with pytest.raises(httpx.HTTPStatusError) as error:
+            provider._json(start, '', NOW)
+    assert error.value.response.status_code == 302
+    assert calls == gated == [start]

@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import statistics as st
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -13,10 +14,12 @@ import httpx
 from ..util import STATE_DIR
 from .data import Bar, Series
 from .stocks import STARTER, day, number
+from .stockbatch import RequestGate
 
 YAHOO = "https://query1.finance.yahoo.com/v8/finance/chart"
 TICKERS = "https://www.sec.gov/files/company_tickers.json"
 UA = "Print-Money research/1.0 (public project https://github.com/ayfew/Print-Money)"
+CHART_ALIASES = {"BRK.B": "BRK-B", "BF.B": "BF-B"}
 
 
 class USCalendar:
@@ -70,7 +73,8 @@ def parse_chart(payload: dict, symbol: str, now: datetime, calendar=None) -> dic
         raise ValueError("No daily chart result.")
     data = _object(result[0])
     meta = _object(data.get("meta",{}))
-    if str(meta.get("symbol", "")).upper() != symbol:
+    provider_symbol = CHART_ALIASES.get(symbol, symbol)
+    if str(meta.get("symbol", "")).upper() != provider_symbol:
         raise ValueError("Provider symbol identity mismatch.")
     warnings = []
     try:
@@ -140,7 +144,7 @@ def parse_chart(payload: dict, symbol: str, now: datetime, calendar=None) -> dic
                       and all(number(x) is not None and x > 0 for x in adjusted))
     if not adjusted_basis:
         warnings.append("Adjusted-return basis unavailable; corporate-action-sensitive price anomalies suppressed.")
-    return {"symbol": symbol, "name": series.name, "sector": STARTER.get(symbol, "unclassified"),
+    return {"symbol": symbol, "provider_symbol": provider_symbol, "name": series.name, "sector": STARTER.get(symbol, "unclassified"),
             "instrument_type": meta.get("instrumentType"), "exchange": meta.get("exchangeName"),
             "currency": meta.get("currency"), "exchange_timezone": meta.get("exchangeTimezoneName"),
             "quote_day": bars[-1].date.date().isoformat(), "last_completed_session": completed,
@@ -152,7 +156,7 @@ def parse_chart(payload: dict, symbol: str, now: datetime, calendar=None) -> dic
             "split_dates": [datetime.fromtimestamp(ts,timezone.utc).date().isoformat() for ts in split_stamps],
             "price_basis": "adjusted" if adjusted_basis else "raw_unverified_actions",
             "anomalous_price": bool(adjusted_basis and daily is not None and return_sd is not None and abs(daily)>=.10 and abs(daily)>=3*return_sd),
-            "warnings": list(dict.fromkeys(warnings)), "sources": [_source("price", f"{YAHOO}/{symbol}", "aggregator", payload, now)],
+            "warnings": list(dict.fromkeys(warnings)), "sources": [_source("price", f"{YAHOO}/{provider_symbol}", "aggregator", payload, now)],
             "bars": [[b.ts,b.open,b.high,b.low,b.close,b.volume,b.raw_close,adjustment_valid[b.ts]] for b in bars], "earnings": None}
 
 
@@ -209,7 +213,7 @@ def annual_facts(payload: dict, cutoff: datetime) -> dict:
 
 
 class StockProvider:
-    def __init__(self, client=None, calendar=None, cache_dir=None):
+    def __init__(self, client=None, calendar=None, cache_dir=None, request_gate=None, sec_enabled=True, clock=None):
         self.own_client = client is None
         self.client = client or httpx.Client(timeout=8, headers={"User-Agent": UA})
         self.cache_dir = Path(cache_dir) if cache_dir else STATE_DIR/"research"/"cache" if self.own_client else None
@@ -220,6 +224,19 @@ class StockProvider:
             except (ImportError, ValueError):
                 self.calendar = None
         self.tickers = None
+        self.request_gate = request_gate if request_gate is not None else RequestGate()
+        self.sec_enabled = sec_enabled
+        self.clock = clock
+
+    def _receipt(self, now):
+        stamp = self.clock() if self.clock is not None else datetime.now(timezone.utc) if self.own_client else now
+        if not isinstance(stamp, datetime) or stamp.tzinfo is None or stamp.utcoffset() is None:
+            raise ValueError("Provider receipt clock must be timezone aware.")
+        return stamp
+
+    def _status(self, url, exc):
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+        return "blocked" if status in (401, 403, 429) or self.request_gate.is_blocked(url) else "missing"
 
     def close(self):
         if self.own_client:
@@ -233,52 +250,82 @@ class StockProvider:
                 fetched = datetime.fromisoformat(blob["retrieved_at"])
                 if 0 <= (now-fetched).total_seconds() < 21600:
                     return _object(blob["payload"]), fetched
-            except (ValueError, KeyError, TypeError):
+            except (OSError, ValueError, KeyError, TypeError):
                 pass
         headers = {"User-Agent": os.environ.get("PRINTMONEY_SEC_USER_AGENT", UA)} if "sec.gov" in url else {"User-Agent": UA}
-        response = self.client.get(url, headers=headers)
+        self.request_gate.acquire(url)
+        response = self.client.get(url, headers=headers, follow_redirects=False)
+        fetched = self._receipt(now)
+        self.request_gate.block(url, response.status_code)
         response.raise_for_status()
         payload = _object(response.json())
         if path:
             path.parent.mkdir(parents=True,exist_ok=True)
-            temp = path.with_suffix(".tmp")
-            temp.write_text(json.dumps({"retrieved_at":now.isoformat(),"payload":payload}),encoding="utf-8")
-            temp.replace(path)
-        return payload, now
+            temp = None
+            try:
+                with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, suffix=".tmp", delete=False) as handle:
+                    temp = Path(handle.name)
+                    json.dump({"retrieved_at":fetched.isoformat(),"payload":payload}, handle, allow_nan=False)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(temp, path)
+            except OSError:
+                pass
+            finally:
+                if temp:
+                    temp.unlink(missing_ok=True)
+        return payload, fetched
 
     def collect(self, symbol, now):
+        provider_symbol = CHART_ALIASES.get(symbol, symbol)
+        price_url = f"{YAHOO}/{provider_symbol}?range=2y&interval=1d&events=div,splits"
         try:
-            payload, fetched = self._json(f"{YAHOO}/{symbol}?range=2y&interval=1d&events=div,splits", "", now)
+            payload, fetched = self._json(price_url, "", now)
             item = parse_chart(payload,symbol,fetched,self.calendar)
         except (httpx.HTTPError, ValueError, TypeError, KeyError) as exc:
-            return {"symbol":symbol,"warnings":[f"Daily price provider unavailable: {type(exc).__name__}"]}
+            return {"symbol":symbol,"provider_symbol":provider_symbol,"warnings":[f"Daily price provider unavailable: {type(exc).__name__}"],
+                    "provider_status":{"price":self._status(price_url,exc),"annual":"blocked" if not self.sec_enabled else "missing"}}
+        item["provider_status"] = {"price":"available","annual":"missing"}
         if item["instrument_type"] != "EQUITY" or item["currency"] != "USD":
+            item["provider_status"]["annual"] = "unsupported"
             return item
+        if not self.sec_enabled:
+            item["provider_status"]["annual"] = "blocked"
+            item["warnings"].append("Broad SEC collection disabled; reported annual evidence unavailable.")
+            return item
+        sec_url = TICKERS
         try:
             if self.tickers is None:
                 mapping, _ = self._json(TICKERS,"tickers",now,True)
                 self.tickers = {str(_object(v)["ticker"]).upper():v for v in mapping.values()}
             identity = self.tickers.get(symbol)
             if not identity:
+                item["provider_status"]["annual"] = "unsupported"
                 item["warnings"].append("No SEC issuer identity; unsupported issuer evidence.")
                 return item
             cik = int(identity["cik_str"])
             item["issuer_cik"] = cik
             submissions_url = f"https://data.sec.gov/submissions/CIK{cik:010d}.json"
+            sec_url = submissions_url
             submissions, _ = self._json(submissions_url,f"issuer-{cik}",now,True)
             if 6000 <= int(submissions.get("sic") or 0) <= 6799:
                 item["instrument_type"] = "UNSUPPORTED_FINANCIAL"
+                item["provider_status"]["annual"] = "unsupported"
                 item["warnings"].append("Financial issuers require a different accounting policy.")
                 return item
             if len(submissions.get("tickers") or []) > 1:
+                item["provider_status"]["annual"] = "unsupported"
                 item["warnings"].append("Multiple securities/share classes; annual per-share comparability not verified.")
                 return item
             url = f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:010d}.json"
+            sec_url = url
             payload, fetched = self._json(url,f"facts-{cik}",now,True)
             if int(payload.get("cik") or 0) != cik:
                 raise ValueError("Issuer identity mismatch.")
             item["fundamentals"] = annual_facts(payload,now)
+            item["provider_status"]["annual"] = "available" if item["fundamentals"] else "missing"
             item["sources"].append(_source("annual",url,"official",payload,fetched))
         except (httpx.HTTPError, ValueError, TypeError, KeyError) as exc:
+            item["provider_status"]["annual"] = self._status(sec_url,exc)
             item["warnings"].append(f"SEC annual evidence unavailable: {type(exc).__name__}; no earnings calendar is connected.")
         return item

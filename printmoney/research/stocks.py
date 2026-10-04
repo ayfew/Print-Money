@@ -10,8 +10,8 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 from urllib.parse import urlsplit
 
-POLICY_VERSION = "annual-research-v2"
-IMPLEMENTATION_VERSION = "stock-research-v3"
+POLICY_VERSION = "annual-research-v3"
+IMPLEMENTATION_VERSION = "stock-research-v4"
 EVALUATION_DEFINITION = {"version":"next-open-adjusted-v1", "horizon_sessions":{"days-weeks":21,"months-plus":63},
                          "entry":"first exchange open strictly after original cutoff", "exit":"close counting entry session as one",
                          "round_trip_cost_bps":[10,30], "benchmark":"SPY", "cash_interest":0,
@@ -32,12 +32,22 @@ class ResearchRequest:
     currency: str | None = None
     loss_limit: Decimal | str | None = None
     pe_cap: float = 25
+    universe: str | None = None
 
     def __post_init__(self):
-        self.default_universe = not bool(self.symbols)
-        self.symbols = tuple(dict.fromkeys(s.strip().upper() for s in (self.symbols or STARTER)))
-        if len(self.symbols) > 50 or any(not re.fullmatch(r"[A-Z][A-Z0-9.-]{0,14}", s) for s in self.symbols):
-            raise ValueError("Use at most 50 plain ticker symbols.")
+        self.universe = self.universe or ("custom" if self.symbols else "starter")
+        if self.universe not in ("custom", "starter", "sp500", "nasdaq100", "sp500-nasdaq100"):
+            raise ValueError("Unsupported research universe.")
+        named = self.universe in ("sp500", "nasdaq100", "sp500-nasdaq100")
+        if named and not self.symbols:
+            raise ValueError("Named index universe requires resolved membership symbols.")
+        self.default_universe = self.universe != "custom"
+        aliases = {"BRK-B": "BRK.B", "BF-B": "BF.B"}
+        symbols = (s.strip().upper() for s in (self.symbols or STARTER))
+        self.symbols = tuple(dict.fromkeys(aliases.get(s, s) for s in symbols))
+        maximum = 1000 if named else 50
+        if len(self.symbols) > maximum or any(not re.fullmatch(r"[A-Z][A-Z0-9.-]{0,14}", s) for s in self.symbols):
+            raise ValueError(f"Use at most {maximum} plain ticker symbols for this universe.")
         if self.horizon not in (None, "intraday", "days-weeks", "months-plus"):
             raise ValueError("Unsupported holding horizon.")
         if self.risk not in (None, "low", "moderate", "high"):
@@ -91,6 +101,33 @@ def _known_time(value, now):
         return stamp.tzinfo is not None and stamp <= now
     except (TypeError, ValueError):
         return False
+
+
+def _actuals_observed(ends, sources, now, filed=None):
+    """Actual periods must exist by source observation/publication, retaining day precision."""
+    if not ends or not all(ends) or not sources:
+        return False
+    for source in sources:
+        if not isinstance(source, dict) or not _known_time(source.get("retrieved_at"), now):
+            return False
+        receipt = datetime.fromisoformat(source["retrieved_at"]).astimezone(timezone.utc)
+        # A filing date alone supplies no intraday acceptance time.
+        if any(end > receipt.date() for end in ends) or (filed and filed >= receipt.date()):
+            return False
+        publication_days = []
+        if source.get("published_at") is not None:
+            if not _known_time(source["published_at"], receipt):
+                return False
+            publication_days.append(datetime.fromisoformat(source["published_at"]).astimezone(timezone.utc).date())
+        if source.get("published_day") is not None:
+            published = day(source["published_day"])
+            if not published or published > receipt.date():
+                return False
+            publication_days.append(published)
+        if any(any(end > published for end in ends) or (filed and filed > published)
+               for published in publication_days):
+            return False
+    return True
 
 
 def _event_verified(event, sources, symbol, now):
@@ -177,6 +214,12 @@ def _card(req: ResearchRequest, item: dict, now: datetime) -> dict:
         reasons.append("calendar_unavailable")
     elif quote_day and quote_day != expected:
         reasons.append("stale_price" if quote_day < expected else "uncompleted_session")
+    if "observed_completed_session" in item:
+        observed_completed = day(item.get("observed_completed_session"))
+        if observed_completed is None:
+            reasons.append("price_session_unverified")
+        elif quote_day and quote_day > observed_completed:
+            reasons.append("uncompleted_session")
     if (number(item.get("history_days")) or 0) < 252:
         reasons.append("insufficient_history")
     turnover = number(item.get("dollar_turnover"))
@@ -204,11 +247,24 @@ def _card(req: ResearchRequest, item: dict, now: datetime) -> dict:
     elif not _annual_valid(facts,item,sources):
         reasons.append("annual_facts_invalid")
         facts = {}
+    if item.get("identity_conflict"):
+        reasons.append("issuer_identity_conflict")
+        facts = {}
+    annual_sources = [s for s in sources if s.get("id") == "annual"]
+    if annual_sources and (any(not _known_time(s.get("retrieved_at"), now) for s in annual_sources)
+                           or (filed and period and not _actuals_observed([period], annual_sources, now, filed=filed))):
+        reasons.append("annual_source_time_unverified")
+        facts = {}
     if period and any(day(d) and period < day(d) <= now.date() for d in item.get("split_dates", [])):
         reasons.append("per_share_basis_unverified")
     income, cash = number(facts.get("net_income")), number(facts.get("operating_cashflow"))
     growth, eps = number(facts.get("revenue_growth")), number(facts.get("diluted_eps"))
-    pe = last / eps if last and eps is not None and eps > 0 else None
+    pe = (last / eps if last and eps is not None and eps > 0
+          and "per_share_basis_unverified" not in reasons else None)
+    accounting = str(item.get("accounting_policy") or "annual_operating_policy")
+    if accounting.startswith("unsupported"):
+        reasons.append("unsupported_accounting_policy")
+        pe = None
     if not facts or any(v is None for v in (income, cash, growth, eps)):
         reasons.append("operating_evidence_incomplete")
     elif income <= 0 and cash <= 0:
@@ -241,22 +297,30 @@ def _card(req: ResearchRequest, item: dict, now: datetime) -> dict:
     if unsupported or "price_unavailable" in reasons or "future_price" in reasons:
         status = "excluded"
     elif any(x in reasons for x in ("stale_price", "calendar_unavailable", "uncompleted_session", "unsafe_source_url",
-                                   "source_evidence_missing", "retrieval_time_unverified", "per_share_basis_unverified")):
+                                   "source_evidence_missing", "retrieval_time_unverified", "per_share_basis_unverified", "unsupported_accounting_policy",
+                                   "issuer_identity_conflict", "annual_source_time_unverified", "price_session_unverified")):
         status = "watch"
     elif any(x in reasons for x in ("thin_liquidity", "negative_operating_evidence")):
         status = "avoid"
     else:
         status = "watch" if reasons else "consider"
     return {"symbol": item["symbol"], "name": str(item.get("name") or item["symbol"]),
-            "sector": item.get("sector") or STARTER.get(item["symbol"], "unclassified"),
+            "sector": str(item.get("sector") or STARTER.get(item["symbol"], "unclassified")),
+            "industry": item.get("industry"), "indices": deepcopy(item.get("indices") or []),
+            "provider_symbol": item.get("provider_symbol") or item["symbol"], "accounting_policy": accounting,
             "status": status, "reasons": reasons, "warnings": warnings,
             "last": last, "currency": item.get("currency"), "quote_day": item.get("quote_day"),
             "price_basis": "raw close", "fetched_at": item.get("fetched_at"),
+            "last_completed_session": item.get("last_completed_session"),
+            "observed_completed_session": item.get("observed_completed_session"),
+            "membership_cik": item.get("membership_cik"), "identity_conflict": deepcopy(item.get("identity_conflict")),
             "annual_facts": facts, "annual_earnings_pe": pe,
             "valuation_basis": "raw close / reported annual diluted EPS; not TTM or forward earnings",
             "day_return": number(item.get("day_return")), "month_return": number(item.get("month_return")),
             "dollar_turnover": turnover, "earnings": event or None,
             "catalyst": deepcopy(item.get("verified_catalyst")),
+            "return_basis": item.get("price_basis"), "provider_status": deepcopy(item.get("provider_status") or {}),
+            "reported_financials": deepcopy(item.get("reported_financials")), "news": deepcopy(item.get("news")),
             "horizon": req.horizon, "sources": sources, "external_text_trust": "untrusted_literal",
             "manipulation_risk": risk_context(item),
             "entry_condition": {"type": "research_gates", "state": "met" if status == "consider" else "unmet"},
@@ -270,7 +334,28 @@ def screen(request: ResearchRequest, observations: list[dict], now: datetime) ->
         raise ValueError("Research clock must include a timezone.")
     now = now.astimezone(timezone.utc)
     by_symbol = {o["symbol"]: o for o in observations}
-    cards = [_card(request, by_symbol.get(s, {"symbol": s}), now) for s in request.symbols]
+    calendar, current_completed = None, None
+    if any(day(o.get("last_completed_session")) for o in observations):
+        try:
+            from .stockdata import USCalendar
+            calendar = USCalendar()
+            current_completed = calendar.last_completed(now)
+        except Exception:
+            calendar = None
+    cards = []
+    for symbol in request.symbols:
+        item = dict(by_symbol.get(symbol, {"symbol": symbol}))
+        if day(item.get("last_completed_session")):
+            # Source receipts are immutable; expected market state is evaluated now.
+            item["last_completed_session"] = current_completed
+            receipts = [s.get("retrieved_at") for s in item.get("sources", []) if s.get("id") == "price"]
+            item["observed_completed_session"] = None
+            if calendar and receipts and all(_known_time(r, now) for r in receipts):
+                try:
+                    item["observed_completed_session"] = calendar.last_completed(min(datetime.fromisoformat(r) for r in receipts))
+                except Exception:
+                    pass
+        cards.append(_card(request, item, now))
     order = {"consider": 0, "watch": 1, "avoid": 2, "excluded": 3}
     cards.sort(key=lambda c: (order[c["status"]], len(c["reasons"]), -(c["dollar_turnover"] or 0), c["symbol"]))
     highlights, sectors = [], {}
@@ -300,7 +385,8 @@ def screen(request: ResearchRequest, observations: list[dict], now: datetime) ->
                          "earnings_blackout_days": 7},
               "system_status": status, "coverage": {"market": "US-listed operating companies",
                   "requested_market": request.market, "default_universe": request.default_universe,
-                  "universe": list(request.symbols), "starter_selection": "two established issuers per broad sector; liquidity checked at query time",
+                  "universe": list(request.symbols), "universe_name": request.universe,
+                  "starter_selection": "explicit legacy option; two issuers per broad sector" if request.universe == "starter" else None,
                   "social": "not_connected", "thai_equities": "not_connected"},
               "evaluated": cards, "highlights": highlights,
               "abstention": {"active": True,
@@ -309,11 +395,13 @@ def screen(request: ResearchRequest, observations: list[dict], now: datetime) ->
               "ranking": "evidence gates, observed liquidity, stable ticker; at most two highlights per sector; not expected returns"}
     for key in order:
         result[key] = [c for c in cards if c["status"] == key]
-    return result
+    from .stockevidence import add_coverage
+    return add_coverage(result, now)
 
 
 def run_stock_research(request: ResearchRequest, provider=None, now=None, record_dir=None) -> dict:
     """Collect and screen once, with isolated provider failures and no trading side effects."""
+    explicit_clock = now is not None
     now = now or datetime.now(timezone.utc)
     owned = provider is None
     if owned:
@@ -332,6 +420,8 @@ def run_stock_research(request: ResearchRequest, provider=None, now=None, record
     finally:
         if owned and hasattr(provider, "close"):
             provider.close()
+    if not explicit_clock:
+        now = datetime.now(timezone.utc)
     result = screen(request, observations, now)
     if record_dir is not None:
         from ..util import STATE_DIR

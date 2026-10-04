@@ -16,8 +16,27 @@ def api():
 
 
 class Provider:
+    def __init__(self, **kwargs):
+        pass
+
     def collect(self, symbol, now):
         return observation(symbol, earnings=None)
+
+
+class ContextProvider:
+    def __init__(self, **kwargs):
+        pass
+
+    def collect(self, symbol, now):
+        return {"status": "unsupported", "sources": [], "warnings": []}
+
+
+@pytest.fixture(autouse=True)
+def isolated_context(monkeypatch, tmp_path):
+    c = api()
+    monkeypatch.setattr(c, "NewsProvider", ContextProvider)
+    monkeypatch.setattr(c, "FinancialReleaseProvider", ContextProvider)
+    monkeypatch.setattr(c, "PRIVATE_ROOT", tmp_path / "state" / "research")
 
 
 def test_real_orchestration_produces_useful_default_watch_research():
@@ -119,7 +138,8 @@ def test_malformed_symbol_does_not_terminate_other_json_research(monkeypatch,cap
         return httpx.Response(200,json=payload,request=request)
     from printmoney.research.stockdata import StockProvider
     with httpx.Client(transport=httpx.MockTransport(response)) as client:
-        monkeypatch.setattr(c,"StockProvider",lambda:StockProvider(client=client,calendar=Calendar()))
+        monkeypatch.setattr(c,"StockProvider",lambda **kw:StockProvider(client=client,calendar=Calendar(),
+                             request_gate=kw.get("request_gate"), sec_enabled=False))
         from printmoney.cli import main
         assert main(["research","--symbols","MSFT,AAPL","--json","--no-record"])==0
     result=json.loads(capsys.readouterr().out)
