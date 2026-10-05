@@ -3977,4 +3977,82 @@ DESCRIPTION:อ่านประมาณ 79 วินาที\n\nว
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:9e54eacf33011a6b9ef2@printmoney
+DTSTAMP:20261005T054609Z
+DTSTART;VALUE=DATE:20261005
+DTEND;VALUE=DATE:20261006
+SUMMARY:ช้างขาว: วันนี้ไม่มีอะไ
+ ร
+DESCRIPTION:อ่านประมาณ 79 วินาที\n\nว
+ ันนี้ไม่มีอะไร — ทั้ง 24 ตลา
+ ดอยู่ในช่วงปกติของตัวเอง
+  และไม่มีเหตุการณ์สำคัญใ
+ นสัปดาห์นี้\n\nบริบทมหภาค:\n  
+ - ดอกเบี้ยนโยบายสหรัฐ (EFFR): 3.88
+ % (+0bp จากเมื่อวาน\, สูงกว่า 89% 
+ ของ 2 ปีที่ผ่านมา)\n  - พันธบั
+ ตร 2 ปี: 4.83% (+5bp จากเมื่อวาน\, สู
+ งกว่า 99% ของ 2 ปีที่ผ่านมา)\n  - 
+ พันธบัตร 10 ปี: 5.28% (+4bp จากเมื่อ
+ วาน\, สูงกว่า 100% ของ 2 ปีที่ผ่
+ านมา)\n  - ส่วนต่าง 2 ปี–10 ปี: 0.45% 
+ — ปกติ (-1bp จากเมื่อวาน)\n  - ผลต
+ อบแทนแท้จริง 10 ปี (TIPS): 2.92% (+4bp จ
+ ากเมื่อวาน\, สูงกว่า 100% ของ 2 
+ ปีที่ผ่านมา)\n  - VIX (ดัชนีความ
+ กลัว): 15.31 (-1.08 จากเมื่อวาน\, สู
+ งกว่า 18% ของ 2 ปีที่ผ่านมา)\n\n
+ ไม่ต้องสนใจ:\n  - 3 จาก 24 ตลาดเ
+ งียบกว่าปกติของตัวเอง เช
+ ่น หุ้นเล็กสหรัฐ · อสังหาฯ 
+ สหรัฐ · อีเธอเรียม ตลาดนิ่
+ งคือสภาพที่แย่ที่สุดของอ
+ ะไรก็ตามที่เสียค่าธรรมเน
+ ียมต่อครั้ง\n\nไม่มีอะไรเป
+ ลี่ยนจากเมื่อวาน\n\nขยับมา
+ กสุด:\n  หุ้นจีน: -2.15% วันนี้\, -6.6
+ % ในเดือน\n  น้ำมัน: -1.77% วันนี้
+ \, +4.4% ในเดือน\n  หุ้นญี่ปุ่น: +1.
+ 58% วันนี้\, +3.0% ในเดือน\n  หุ้นไ
+ ทย: +1.32% วันนี้\, -0.7% ในเดือน\n  ต
+ ลาดเกิดใหม่: +1.29% วันนี้\, +0.8% ใ
+ นเดือน\n\nยืดตัวผิดปกติ:\n  พั
+ นธบัตรสหรัฐระยะยาว: -2.7 SD จา
+ กค่าเฉลี่ย 60 วัน (-5.1% ในเดือน
+ )\n  หุ้นกู้ผลตอบแทนสูง: -2.6 SD จ
+ ากค่าเฉลี่ย 60 วัน (-2.3% ในเดือ
+ น)\n  กลุ่มการเงิน: -2.4 SD จากค่า
+ เฉลี่ย 60 วัน (-6.9% ในเดือน)\n  ดอ
+ ลลาร์สหรัฐ: +2.3 SD จากค่าเฉลี
+ ่ย 60 วัน (+2.6% ในเดือน)\n  ยืดตัว
+ คือข้อเท็จจริงเรื่องราคา
+  ไม่ใช่สัญญาณ — งานวิจัยพบ
+ ว่ากฎ mean-reversion แยกไม่ออกจากก
+ ารสุ่ม\n\nผลตอบแทน funding carry:\n  ตะ
+ กร้าให้ +15.0% ต่อปีสุทธิ = $12.49 ต
+ ่อเดือน บนทุน $1\,000.00 (จาก gate)\n  ต
+ ่ำกว่าเกณฑ์ 15% จึงยังไม่ทำ
+ อะไร\n\nดูฉบับเต็ม (แผนที่ + ห
+ ลักฐาน): https://ayfew.github.io/Print-Money/\n\nสถิ
+ ติความแม่นของบรีฟนี้:\n  ที
+ ่ผ่านมาบรีฟนี้ทายถูก 45% จา
+ ก 84 ครั้ง (เหรียญได้ 50%) — ดูเ
+ องได้ด้วย `pm score`\n\nแหล่งข้อมู
+ ล:\n  [official] Federal Reserve Bank of New York — https://www.newy
+ orkfed.org/markets/reference-rates/effr\n  [official] US Treasury — ht
+ tps://home.treasury.gov/resource-center/data-chart-center/interest-rates
+ /TextView?type=daily_treasury_yield_curve\n  [primary] Cboe Global Marke
+ ts — https://www.cboe.com/tradable_products/vix/\n  [derived] printmon
+ ey 2s10s spread — https://github.com/ayfew/Print-Money#readme\n  [deri
+ ved] printmoney study — https://github.com/ayfew/Print-Money#readme\n 
+  [derived] printmoney volatility percentile — https://github.com/ayfew
+ /Print-Money#readme\n\nส่วนใหญ่มันจะบอก
+ ว่าไม่มีอะไร และส่วนใหญ่
+ นั่นคือคำตอบที่ถูก — รัน `pm
+  study` เพื่อดูเลขคณิต 10 ปีที่อ
+ ยู่เบื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
