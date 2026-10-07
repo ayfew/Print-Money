@@ -99,17 +99,25 @@ historical scoring span, not the date range of the 84 live calls. Correlated mar
 and overlapping outcomes also limit independent-binomial interpretation. The
 scanner does not alter this record or optimize to inflate it.
 
-## Pages blocker
+## Pages diagnosis and verified recovery
 
 On 2026-10-07, run 37579708327 failed at configure-pages with Not Found;
 repository metadata returned `has_pages=false`. Daily brief 37579086114 succeeded.
 The workflow adds read-only preflight diagnostics and main-only publication. It
 does not enable Pages, suppress failure, change permissions or rerun deployment.
 
-After explicit owner approval to publish `reports/index.html` and
-`reports/printmoney.ics`, an authorized owner/maintainer must set Settings > Pages >
-Source > GitHub Actions. Merge/deployment also require approval. Existing cadence
-is unchanged; a future scanner cadence/request budget needs separate review.
+After owner approval on 2026-10-07, Pages Source was set to GitHub Actions through
+the existing browser session. [Run 37579708327, attempt 2](https://github.com/ayfew/Print-Money/actions/runs/37579708327/attempts/2)
+succeeded, publishing main commit `3153bd838040eafbea0654752f9dbbbde8f56333`.
+Both [the public brief](https://ayfew.github.io/Print-Money/) and its calendar
+returned HTTP 200 and matched the audited local files byte for byte. The public
+site remains the daily brief; this scanner's local reports were not published.
+
+The preflight changes in this branch have passed YAML parsing but have not run in
+GitHub Actions. Pushing the new code is blocked by existing write access: git push
+returned 128 and the connector's create-branch request returned HTTP 403. No new
+token or permission was created. Merge is still pending. Existing cadence is
+unchanged; a future scanner cadence/request budget needs separate review.
 
 Sources: [GitHub Pages configuration](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 [NYSE calendar](https://www.nyse.com/trade/hours-calendars).
