@@ -1,5 +1,13 @@
 # printmoney
 
+Experimental intraday momentum research is available on demand with
+`python pm.py intraday --symbols AAPL,NVDA --json`. It is unvalidated and does not trade.
+See [data requirements, private reports and evaluation assumptions](docs/intraday-scanner.md).
+
+On-demand stock research with Sol is available through `python pm.py research --json`.
+It returns conditional consider/watch/avoid/excluded evidence with a no-trade option and private prospective records.
+See [setup, commands and actual data limitations](docs/stock-research.md).
+
 **เครื่องมือหาส่วนต่างราคา (arbitrage) บนตลาด Bitcoin ของ Polymarket**
 A probability-surface arbitrage engine for Polymarket's BTC price markets.
 
@@ -979,4 +987,3 @@ GDP ที่ประกาศวันนี้ไม่ใช่ตัวเ�
 ตัวสุดท้ายคือของจริงที่เพิ่งเข้ามาตอนแก้บั๊กข้อ 15.2 ผลกระทบต่อ *ความผันผวน*
 เล็กมาก (ต่างเฉพาะวัน ex-dividend ระดับไม่กี่ bp) แต่เป็นความไม่บริสุทธิ์จริง
 จึงบันทึกไว้ตรงนี้แทนที่จะเงียบ
-

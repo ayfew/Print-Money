@@ -1536,13 +1536,30 @@ def build_parser() -> argparse.ArgumentParser:
     common(sp, json_flag=False)
     sp.set_defaults(func=cmd_reset)
 
+    from .research.stockcli import register
+    register(sub)
+    from .research.intradaycli import register as register_intraday
+    register_intraday(sub)
     return p
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     setup_console()
     parser = build_parser()
-    args = parser.parse_args(argv)
+    raw = list(argv) if argv is not None else sys.argv[1:]
+    try:
+        args = parser.parse_args(raw)
+    except SystemExit as exc:
+        position = 0
+        while position < len(raw) and raw[position].startswith("-"):
+            position += 2 if raw[position] in ("-c", "--config", "--log-level") else 1
+        command = raw[position] if position < len(raw) else None
+        if exc.code == 2 and command in ("research", "research-score") and "--json" in raw:
+            from .research.stockcli import error_report
+            print(json.dumps(error_report(ValueError("Invalid research arguments; check research --help for options and required values.")),
+                             ensure_ascii=False, allow_nan=False))
+            return 2
+        raise
     try:
         return int(args.func(args))
     except KeyboardInterrupt:

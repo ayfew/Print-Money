@@ -51,6 +51,29 @@ def _evidence() -> dict[str, Any]:
     return out
 
 
+def _score_text(score: dict[str, Any] | None, lang: str) -> str:
+    """Name the measured quantity and retain unknown legacy metadata explicitly."""
+    if not score or not score.get("n"):
+        return ""
+    th = lang == "th"
+    unknown = "ไม่ทราบ" if th else "unknown"
+    basis = {"live": "คำประเมินที่เผยแพร่จริง (live)",
+             "backtest": "ทดสอบย้อนหลัง (backtest)"}.get(score.get("basis"), unknown) if th \
+        else score.get("basis", unknown)
+    dates = score.get("call_date_range") or {}
+    date_range = (f"{dates['start']} — {dates['end']}"
+                  if dates.get("start") and dates.get("end") else unknown)
+    measured = score.get("measured_at") or unknown
+    rate = f"{score['rate'] * 100:.1f}%"
+    counts = f"{score.get('hits', unknown)}/{score['n']}"
+    if th:
+        return (f"{basis}: ทายระดับความผันผวนถูก {rate} ({counts} ครั้ง) "
+                f"ไม่ใช่ผลตอบแทนการลงทุน · ช่วงวันที่ออกคำประเมิน: {date_range} "
+                f"· วันที่คำนวณสรุป: {measured}")
+    return (f"{basis}: volatility classification hit rate {rate} ({counts} calls); "
+            f"not investment return. Call dates: {date_range}. Summary measured: {measured}")
+
+
 def _brief_payload(item: Any, lang: str) -> dict[str, Any]:
     """The decision, rendered to strings, with the node ids kept alongside.
 
@@ -101,6 +124,7 @@ def _brief_payload(item: Any, lang: str) -> dict[str, Any]:
         "sections": sections,
         "markets": rows,
         "score": getattr(item, "score", None),
+        "score_text": _score_text(getattr(item, "score", None), lang),
         "carry": {"rate": carry.get("basket_net_annual"),
                   "monthly": fmt_usd(carry.get("monthly_usd", 0.0)),
                   "capital": fmt_usd(carry.get("capital", 0.0)),
@@ -129,11 +153,18 @@ def write_site(item: Any, graph: Graph, path: str | Path, *,
         "ev_impacts", "ev_macro", "ev_intro", "ev_none", "chip_hint",
     )}
 
+    evidence = _evidence()
+    summary = evidence.get("scorecard") or {}
+    evidence["scorecard_texts"] = [
+        _score_text({**summary[basis], "basis": basis,
+                     "measured_at": summary.get("measured_at")}, lang)
+        for basis in ("live", "backtest") if (summary.get(basis) or {}).get("n")
+    ]
     payload = json.dumps({
         "lang": lang,
         "brief": _brief_payload(item, lang),
         "graph": _payload(graph, lang),
-        "evidence": _evidence(),
+        "evidence": evidence,
         "labels": strings,
     }, ensure_ascii=False, default=str)
 
@@ -305,8 +336,7 @@ function chips(nodes){
   if (b.no_changes) out.push('<p class="muted">' + esc(L.no_changes) + "</p>");
   if (b.score && b.score.n)
     out.push("<h2>" + esc(L.hdr_score) + '</h2><p class="muted">' +
-      esc(L.score_line.replace("{rate}", (b.score.rate * 100).toFixed(0) + "%")
-                      .replace("{n}", b.score.n)) + "</p>");
+      esc(b.score_text) + "</p>");
 
   out.push("<h2>" + esc(L.th_where) + "</h2><table><tr><th>" +
     [L.th_market, L.th_day, L.th_week, L.th_month, L.th_vol].map(esc).join("</th><th>") +
@@ -497,13 +527,20 @@ document.getElementById("lg-node").innerHTML =
     '</div><div class="big">' + big + '</div><div class="sub">' + esc(sub) +
     "</div></div>";
 
+  if (e.scorecard_texts && e.scorecard_texts.length){
+    out.push("<h2>" + esc(L.ev_scorecard) + "</h2>" +
+      e.scorecard_texts.map(text => '<p class="muted">' + esc(text) + "</p>").join(""));
+  }
   if (e.scorecard && e.scorecard.backtest){
     const b = e.scorecard.backtest;
-    out.push("<h2>" + esc(L.ev_scorecard) + '</h2><div class="grid">' +
-      card("hit rate", (b.rate * 100).toFixed(1) + "%", b.n + " scored calls") +
+    out.push('<div class="grid">' +
+      (e.scorecard.live && e.scorecard.live.n ?
+        card("live volatility hit rate", (e.scorecard.live.rate * 100).toFixed(1) + "%",
+             e.scorecard.live.n + " scored calls") : "") +
+      card("backtest volatility hit rate", (b.rate * 100).toFixed(1) + "%", b.n + " scored calls") +
       card("a coin", "50%", "the bar") +
       Object.entries(b.by_call || {}).map(([k, v]) =>
-        card(k, (v.rate * 100).toFixed(1) + "%", v.n + " calls")).join("") +
+        card("backtest " + k, (v.rate * 100).toFixed(1) + "%", v.n + " calls")).join("") +
       "</div>");
   }
   if (e.indicators){

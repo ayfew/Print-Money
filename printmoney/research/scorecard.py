@@ -162,6 +162,7 @@ class Score:
         return sorted(rows, key=lambda kv: kv[1].rate)[:n]
 
     def to_dict(self) -> dict[str, Any]:
+        days = [r.day for r in self.resolved]
         return {
             "label": self.label,
             "n": len(self.resolved),
@@ -170,6 +171,7 @@ class Score:
             "stderr": round(self.stderr, 4),
             "lower_bound": round(self.lower_bound, 4),
             "beats_coin": self.beats_coin,
+            "call_date_range": {"start": min(days), "end": max(days)} if days else None,
             "by_call": {k: {"n": len(v), "rate": round(v.rate, 4)}
                         for k, v in self.by_call().items()},
         }
@@ -365,8 +367,8 @@ def headline(summary: dict[str, Any] | None) -> dict[str, Any] | None:
         return None
     live = summary.get("live")
     if live and live.get("n", 0) >= 30:
-        return {**live, "basis": "live"}
+        return {**live, "basis": "live", "measured_at": summary.get("measured_at")}
     back = summary.get("backtest")
     if back and back.get("n", 0) >= 30:
-        return {**back, "basis": "backtest"}
+        return {**back, "basis": "backtest", "measured_at": summary.get("measured_at")}
     return None

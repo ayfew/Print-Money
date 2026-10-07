@@ -1,0 +1,2 @@
+# Stock research optional calendar; core httpx is already in requirements.txt.
+exchange-calendars>=4.11,<5

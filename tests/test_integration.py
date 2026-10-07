@@ -330,8 +330,13 @@ class TestPublishedEvidenceStaysConsistent:
         summary = sc.load_summary()
         assert summary is not None
         head = sc.headline(summary)
-        assert head and head["n"] >= 1000
-        assert 0.5 < head["rate"] < 1.0
+        # Live evidence is selected at 30 observations even when it loses.
+        # Generated summaries must agree with that selection, without a win-rate floor.
+        basis = "live" if (summary.get("live") or {}).get("n", 0) >= 30 else "backtest"
+        selected = summary[basis]
+        assert head == {**selected, "basis": basis, "measured_at": summary.get("measured_at")}
+        assert head["n"] >= 30 and 0 <= head["hits"] <= head["n"]
+        assert abs(head["rate"] - head["hits"] / head["n"]) <= .00005
 
     def test_the_indicator_sweep_found_nothing_and_says_so(self):
         from printmoney.util import DATA_DIR
@@ -442,6 +447,19 @@ class TestTheOnePage:
         html = self._page(tmp_path)
         for key in ("scorecard", "indicators", "contamination", "impacts", "macro"):
             assert f'"{key}"' in html
+
+    def test_scorecard_discloses_both_sources_without_inventing_dates(self, tmp_path, monkeypatch):
+        from printmoney.research import site
+        monkeypatch.setattr(site, "_evidence", lambda: {"scorecard": {
+            "measured_at": "2026-10-01T01:43:28.664902+00:00",
+            "live": {"rate": .4524, "hits": 38, "n": 84},
+            "backtest": {"rate": .8088, "hits": 4221, "n": 5219}}})
+        html = self._page(tmp_path, "en")
+        assert "live: volatility classification hit rate 45.2% (38/84 calls)" in html
+        assert "backtest: volatility classification hit rate 80.9% (4221/5219 calls)" in html
+        assert "Call dates: unknown" in html
+        assert "Summary measured: 2026-10-01T01:43:28.664902+00:00" in html
+        assert "esc(b.score_text)" in html
 
     def test_both_languages_build_and_differ(self, tmp_path):
         th = self._page(tmp_path, "th")
