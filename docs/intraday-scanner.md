@@ -114,10 +114,23 @@ returned HTTP 200 and matched the audited local files byte for byte. The public
 site remains the daily brief; this scanner's local reports were not published.
 
 The preflight changes in this branch have passed YAML parsing but have not run in
-GitHub Actions. Pushing the new code is blocked by existing write access: git push
-returned 128 and the connector's create-branch request returned HTTP 403. No new
-token or permission was created. Merge is still pending. Existing cadence is
+GitHub Actions. Pushing the new code is blocked by authentication in this execution
+context. A noninteractive push dry-run returned 128: Git Credential Manager could
+not persist credentials with `wincredman`, then could not get a password. This does
+not establish that the user lacks repository write permission. The CLI's cached
+account is `Napatsakorn-K_tcct` with an invalid token; the connector authenticates as
+that same account but its create-branch/permission endpoint requests return 403
+`Resource not accessible by integration`. Its exact OAuth scope is not exposed.
+The already-authorized browser is signed in as repository owner `ayfew` and can
+access Pages settings. No credential was extracted or transferred between routes,
+and no new token or permission was created. Merge is still pending. Existing cadence is
 unchanged; a future scanner cadence/request budget needs separate review.
+
+The local scorecard UI now names the volatility classification hit rate, separates
+live from backtest, and displays hits/sample count plus summary measurement time.
+Legacy call-date ranges remain explicitly unknown. Future saved summaries include
+the first and last actual scored call dates; the summary's timestamp or the
+backtest's `10y` label is never substituted for those dates.
 
 Sources: [GitHub Pages configuration](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site),
 [NYSE calendar](https://www.nyse.com/trade/hours-calendars).
