@@ -1538,6 +1538,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     from .research.stockcli import register
     register(sub)
+    from .research.intradaycli import register as register_intraday
+    register_intraday(sub)
     return p
 
 

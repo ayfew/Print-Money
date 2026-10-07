@@ -14,6 +14,7 @@ on:
   # brief that fills it has been rebuilt and pushed.
   workflow_run:
     workflows: ["daily brief"]
+    branches: [main]
     types: [completed]
   workflow_dispatch:
 
@@ -30,8 +31,9 @@ jobs:
   publish:
     # A red brief should not publish a stale page over a good one.
     if: >
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -50,7 +52,23 @@ jobs:
             echo "template placeholder survived into the published page"; exit 1; }
           echo "index.html is $(wc -c < reports/index.html) bytes"
 
+      - name: Verify Pages configuration (read only)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh api "repos/$GITHUB_REPOSITORY/pages" > "$RUNNER_TEMP/pages.json"; then
+            echo "::error::Pages is unavailable. After owner approval for public publication, enable Settings > Pages > Source > GitHub Actions. This workflow does not enable Pages or change permissions."
+            echo "Pages configuration could not be read; deployment was not attempted. Check site enablement and the token's Pages access." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          if ! jq -e '.build_type == "workflow"' "$RUNNER_TEMP/pages.json" > /dev/null; then
+            echo "::error::Pages Source must be GitHub Actions (build_type=workflow). Owner approval is required before changing publication settings."
+            exit 1
+          fi
+
       - uses: actions/configure-pages@v5
+        with:
+          enablement: false
       - uses: actions/upload-pages-artifact@v3
         with:
           path: reports

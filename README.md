@@ -1,5 +1,9 @@
 # printmoney
 
+Experimental intraday momentum research is available on demand with
+`python pm.py intraday --symbols AAPL,NVDA --json`. It is unvalidated and does not trade.
+See [data requirements, private reports and evaluation assumptions](docs/intraday-scanner.md).
+
 On-demand stock research with Sol is available through `python pm.py research --json`.
 It returns conditional consider/watch/avoid/excluded evidence with a no-trade option and private prospective records.
 See [setup, commands and actual data limitations](docs/stock-research.md).
