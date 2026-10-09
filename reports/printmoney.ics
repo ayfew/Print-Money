@@ -4321,4 +4321,89 @@ DESCRIPTION:อ่านประมาณ 92 วินาที\n\nว
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:229a646af48eb93292dd@printmoney
+DTSTAMP:20261009T061519Z
+DTSTART;VALUE=DATE:20261009
+DTEND;VALUE=DATE:20261010
+SUMMARY:ช้างขาว: วันนี้ไม่มีอะไ
+ ร
+DESCRIPTION:อ่านประมาณ 85 วินาที\n\nว
+ ันนี้ไม่มีอะไร — ทั้ง 24 ตลา
+ ดอยู่ในช่วงปกติของตัวเอง
+  และไม่มีเหตุการณ์สำคัญใ
+ นสัปดาห์นี้\n\nเปลี่ยนจากเ
+ มื่อวาน:\n  - 2 ตลาดความเสี่ยง
+ ลดลง (normal → calm): หุ้นจีน · กลุ่ม
+ สาธารณูปโภค\n\nทำไมถึงขยับ:\
+ n  - กลุ่มสินค้าจำเป็น +2.11% วั
+ นนี้ — พันธบัตร 10 ปี ขยับ -6bp 
+ ทั้งสองเคยสวนทางกันที่ r = -
+ 0.23 จาก 684 วัน (ความสัมพันธ์อ่
+ อน)\n  นี่คือการอธิบายสิ่งท
+ ี่เกิดไปแล้ว ไม่ใช่การทำ
+ นาย — ค่า r วัดจากวันเดียวก
+ ัน ไม่ได้วัดว่าพรุ่งนี้จ
+ ะเป็นยังไง\n\nบริบทมหภาค:\n  - 
+ ดอกเบี้ยนโยบายสหรัฐ (EFFR): 3.88% 
+ (+0bp จากเมื่อวาน\, สูงกว่า 91% ข
+ อง 2 ปีที่ผ่านมา)\n  - พันธบัต
+ ร 2 ปี: 4.75% (-2bp จากเมื่อวาน\, สูง
+ กว่า 97% ของ 2 ปีที่ผ่านมา)\n  - พ
+ ันธบัตร 10 ปี: 5.22% (-6bp จากเมื่อว
+ าน\, สูงกว่า 98% ของ 2 ปีที่ผ่า
+ นมา)\n  - ส่วนต่าง 2 ปี–10 ปี: 0.47% —
+  ปกติ (-4bp จากเมื่อวาน)\n  - ผลตอ
+ บแทนแท้จริง 10 ปี (TIPS): 2.87% (-5bp จา
+ กเมื่อวาน\, สูงกว่า 98% ของ 2 ป
+ ีที่ผ่านมา)\n  - VIX (ดัชนีความก
+ ลัว): 15.41 (+0.33 จากเมื่อวาน\, สูง
+ กว่า 20% ของ 2 ปีที่ผ่านมา)\n\nไ
+ ม่ต้องสนใจ:\n  - 8 จาก 24 ตลาดเง
+ ียบกว่าปกติของตัวเอง เช่
+ น หุ้นเล็กสหรัฐ · กลุ่มสุข
+ ภาพ · ดาวโจนส์ · ดอลลาร์สหร
+ ัฐ ตลาดนิ่งคือสภาพที่แย่
+ ที่สุดของอะไรก็ตามที่เสี
+ ยค่าธรรมเนียมต่อครั้ง\n\nข
+ ยับมากสุด:\n  อีเธอเรียม: -3.18% 
+ วันนี้\, +1.8% ในเดือน\n  กลุ่มพ
+ ลังงาน: +2.97% วันนี้\, +0.5% ในเดือ
+ น\n  น้ำมัน: +2.55% วันนี้\, -1.6% ในเ
+ ดือน\n  กลุ่มสินค้าจำเป็น: +2.
+ 11% วันนี้\, +1.1% ในเดือน\n  ตลาดเ
+ กิดใหม่: -1.89% วันนี้\, -3.5% ในเดื
+ อน\n\nยืดตัวผิดปกติ:\n  ดอลลาร
+ ์สหรัฐ: +2.1 SD จากค่าเฉลี่ย 60 ว
+ ัน (+3.6% ในเดือน)\n  ยืดตัวคือข
+ ้อเท็จจริงเรื่องราคา ไม่
+ ใช่สัญญาณ — งานวิจัยพบว่า
+ กฎ mean-reversion แยกไม่ออกจากการส
+ ุ่ม\n\nผลตอบแทน funding carry:\n  ตะกร้
+ าให้ +5.6% ต่อปีสุทธิ = $4.65 ต่อเ
+ ดือน บนทุน $1\,000.00 (จาก gate)\n  ต่ำก
+ ว่าเกณฑ์ 15% จึงยังไม่ทำอะไ
+ ร\n\nดูฉบับเต็ม (แผนที่ + หลัก
+ ฐาน): https://ayfew.github.io/Print-Money/\n\nสถิติค
+ วามแม่นของบรีฟนี้:\n  ที่ผ่
+ านมาบรีฟนี้ทายถูก 45% จาก 84 ค
+ รั้ง (เหรียญได้ 50%) — ดูเองได
+ ้ด้วย `pm score`\n\nแหล่งข้อมูล:\n  [off
+ icial] Federal Reserve Bank of New York — https://www.newyorkfed.org/m
+ arkets/reference-rates/effr\n  [official] US Treasury — https://home.t
+ reasury.gov/resource-center/data-chart-center/interest-rates/TextView?ty
+ pe=daily_treasury_yield_curve\n  [primary] Cboe Global Markets — https
+ ://www.cboe.com/tradable_products/vix/\n  [derived] printmoney 2s10s spr
+ ead — https://github.com/ayfew/Print-Money#readme\n  [derived] printmo
+ ney macro links — https://github.com/ayfew/Print-Money#readme\n  [deri
+ ved] printmoney study — https://github.com/ayfew/Print-Money#readme\n 
+  [derived] printmoney volatility percentile — https://github.com/ayfew
+ /Print-Money#readme\n\nส่วนใหญ่มันจะบอก
+ ว่าไม่มีอะไร และส่วนใหญ่
+ นั่นคือคำตอบที่ถูก — รัน `pm
+  study` เพื่อดูเลขคณิต 10 ปีที่อ
+ ยู่เบื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
