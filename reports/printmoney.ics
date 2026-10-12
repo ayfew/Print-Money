@@ -4554,4 +4554,76 @@ DESCRIPTION:อ่านประมาณ 71 วินาที\n\nว
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:911c7715b7f87d03df9e@printmoney
+DTSTAMP:20261012T060317Z
+DTSTART;VALUE=DATE:20261012
+DTEND;VALUE=DATE:20261013
+SUMMARY:ช้างขาว: วันนี้ไม่มีอะไ
+ ร
+DESCRIPTION:อ่านประมาณ 71 วินาที\n\nว
+ ันนี้ไม่มีอะไร — ทั้ง 24 ตลา
+ ดอยู่ในช่วงปกติของตัวเอง
+  และไม่มีเหตุการณ์สำคัญใ
+ นสัปดาห์นี้\n\nบริบทมหภาค:\n  
+ - ดอกเบี้ยนโยบายสหรัฐ (EFFR): 3.88
+ % (+0bp จากเมื่อวาน\, สูงกว่า 91% 
+ ของ 2 ปีที่ผ่านมา)\n  - พันธบั
+ ตร 2 ปี: 4.80% (+5bp จากเมื่อวาน\, สู
+ งกว่า 98% ของ 2 ปีที่ผ่านมา)\n  - 
+ พันธบัตร 10 ปี: 5.24% (+2bp จากเมื่อ
+ วาน\, สูงกว่า 99% ของ 2 ปีที่ผ่
+ านมา)\n  - ส่วนต่าง 2 ปี–10 ปี: 0.44% 
+ — ปกติ (-3bp จากเมื่อวาน)\n  - ผลต
+ อบแทนแท้จริง 10 ปี (TIPS): 2.91% (+4bp จ
+ ากเมื่อวาน\, สูงกว่า 99% ของ 2 
+ ปีที่ผ่านมา)\n  - VIX (ดัชนีความ
+ กลัว): 14.84 (-0.57 จากเมื่อวาน\, สู
+ งกว่า 10% ของ 2 ปีที่ผ่านมา)\n\n
+ ไม่ต้องสนใจ:\n  - 6 จาก 24 ตลาดเ
+ งียบกว่าปกติของตัวเอง เช
+ ่น หุ้นเล็กสหรัฐ · อีเธอเร
+ ียม · ดอลลาร์สหรัฐ · ดาวโจน
+ ส์ ตลาดนิ่งคือสภาพที่แย่
+ ที่สุดของอะไรก็ตามที่เสี
+ ยค่าธรรมเนียมต่อครั้ง\n\nไ
+ ม่มีอะไรเปลี่ยนจากเมื่อว
+ าน\n\nขยับมากสุด:\n  เงิน: +2.49% วั
+ นนี้\, -4.7% ในเดือน\n  หุ้นจีน: +2.
+ 36% วันนี้\, -0.3% ในเดือน\n  อีเธอ
+ เรียม: +2.30% วันนี้\, -3.1% ในเดือน
+ \n  กลุ่มสุขภาพ: +1.58% วันนี้\, +3.5%
+  ในเดือน\n  ทองคำ: +1.57% วันนี้\, -
+ 3.0% ในเดือน\n\nยืดตัวผิดปกติ:\n
+   ดอลลาร์สหรัฐ: +2.1 SD จากค่าเฉ
+ ลี่ย 60 วัน (+3.5% ในเดือน)\n  ยืดต
+ ัวคือข้อเท็จจริงเรื่องรา
+ คา ไม่ใช่สัญญาณ — งานวิจัย
+ พบว่ากฎ mean-reversion แยกไม่ออกจา
+ กการสุ่ม\n\nผลตอบแทน funding carry:\n  
+ ตะกร้าให้ +2.9% ต่อปีสุทธิ = $2.40
+  ต่อเดือน บนทุน $1\,000.00 (จาก gate)\n 
+  ต่ำกว่าเกณฑ์ 15% จึงยังไม่ท
+ ำอะไร\n\nดูฉบับเต็ม (แผนที่ + 
+ หลักฐาน): https://ayfew.github.io/Print-Money/\n\nสถ
+ ิติความแม่นของบรีฟนี้:\n  ท
+ ี่ผ่านมาบรีฟนี้ทายถูก 45% จ
+ าก 84 ครั้ง (เหรียญได้ 50%) — ดู
+ เองได้ด้วย `pm score`\n\nแหล่งข้อม
+ ูล:\n  [official] Federal Reserve Bank of New York — https://www.n
+ ewyorkfed.org/markets/reference-rates/effr\n  [official] US Treasury —
+  https://home.treasury.gov/resource-center/data-chart-center/interest-ra
+ tes/TextView?type=daily_treasury_yield_curve\n  [primary] Cboe Global Ma
+ rkets — https://www.cboe.com/tradable_products/vix/\n  [derived] print
+ money 2s10s spread — https://github.com/ayfew/Print-Money#readme\n  [d
+ erived] printmoney study — https://github.com/ayfew/Print-Money#readme
+ \n  [derived] printmoney volatility percentile — https://github.com/ay
+ few/Print-Money#readme\n\nส่วนใหญ่มันจะบอ
+ กว่าไม่มีอะไร และส่วนใหญ
+ ่นั่นคือคำตอบที่ถูก — รัน 
+ `pm study` เพื่อดูเลขคณิต 10 ปีที่
+ อยู่เบื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
