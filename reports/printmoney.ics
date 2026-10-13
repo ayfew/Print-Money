@@ -4626,4 +4626,92 @@ DESCRIPTION:อ่านประมาณ 71 วินาที\n\nว
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:ac34071d88a24859d999@printmoney
+DTSTAMP:20261013T065234Z
+DTSTART;VALUE=DATE:20261013
+DTEND;VALUE=DATE:20261014
+SUMMARY:ช้างขาว: วันนี้ไม่มีอะไ
+ ร
+DESCRIPTION:อ่านประมาณ 90 วินาที\n\nว
+ ันนี้ไม่มีอะไร — ทั้ง 24 ตลา
+ ดอยู่ในช่วงปกติของตัวเอง
+  และไม่มีเหตุการณ์สำคัญใ
+ นสัปดาห์นี้\n\nเปลี่ยนจากเ
+ มื่อวาน:\n  - 1 ตลาดความเสี่ยง
+ ลดลง (normal → calm): บิตคอยน์\n\nทำไม
+ ถึงขยับ:\n  - น้ำมัน +1.91% วันนี้
+  — พันธบัตร 2 ปี ขยับ +5bp ทั้งส
+ องเคยไปทางเดียวกันที่ r = +0.3
+ 1 จาก 684 วัน (ความสัมพันธ์ปาน
+ กลาง)\n  - กลุ่มพลังงาน +1.43% วัน
+ นี้ — พันธบัตร 2 ปี ขยับ +5bp ทั
+ ้งสองเคยไปทางเดียวกันที่
+  r = +0.25 จาก 684 วัน (ความสัมพันธ์
+ ปานกลาง)\n  นี่คือการอธิบาย
+ สิ่งที่เกิดไปแล้ว ไม่ใช่
+ การทำนาย — ค่า r วัดจากวันเ
+ ดียวกัน ไม่ได้วัดว่าพรุ่
+ งนี้จะเป็นยังไง\n\nบริบทมห
+ ภาค:\n  - ดอกเบี้ยนโยบายสหรั
+ ฐ (EFFR): 3.88% (+0bp จากเมื่อวาน\, สูงก
+ ว่า 91% ของ 2 ปีที่ผ่านมา)\n  - พั
+ นธบัตร 2 ปี: 4.80% (+5bp จากเมื่อวา
+ น\, สูงกว่า 98% ของ 2 ปีที่ผ่าน
+ มา)\n  - พันธบัตร 10 ปี: 5.24% (+2bp จาก
+ เมื่อวาน\, สูงกว่า 99% ของ 2 ปี
+ ที่ผ่านมา)\n  - ส่วนต่าง 2 ปี–10
+  ปี: 0.44% — ปกติ (-3bp จากเมื่อวาน)
+ \n  - ผลตอบแทนแท้จริง 10 ปี (TIPS): 2.
+ 91% (+4bp จากเมื่อวาน\, สูงกว่า 99% 
+ ของ 2 ปีที่ผ่านมา)\n  - VIX (ดัชนี
+ ความกลัว): 15.21 (+0.37 จากเมื่อวา
+ น\, สูงกว่า 17% ของ 2 ปีที่ผ่าน
+ มา)\n\nไม่ต้องสนใจ:\n  - 7 จาก 24 ตล
+ าดเงียบกว่าปกติของตัวเอง
+  เช่น หุ้นเล็กสหรัฐ · อีเธอ
+ เรียม · บิตคอยน์ · ดาวโจนส์ 
+ ตลาดนิ่งคือสภาพที่แย่ที่
+ สุดของอะไรก็ตามที่เสียค่
+ าธรรมเนียมต่อครั้ง\n\nขยับ
+ มากสุด:\n  น้ำมัน: +1.91% วันนี้\, -
+ 2.5% ในเดือน\n  กลุ่มพลังงาน: +1.4
+ 3% วันนี้\, +1.9% ในเดือน\n  กลุ่ม
+ เทคโนโลยี: -1.22% วันนี้\, +4.8% ในเ
+ ดือน\n  กลุ่มสินค้าจำเป็น: +1.
+ 17% วันนี้\, +1.9% ในเดือน\n  ตลาดเ
+ กิดใหม่: -0.97% วันนี้\, -2.5% ในเดื
+ อน\n\nยืดตัวผิดปกติ:\n  ดอลลาร
+ ์สหรัฐ: +2.3 SD จากค่าเฉลี่ย 60 ว
+ ัน (+3.8% ในเดือน)\n  ยืดตัวคือข
+ ้อเท็จจริงเรื่องราคา ไม่
+ ใช่สัญญาณ — งานวิจัยพบว่า
+ กฎ mean-reversion แยกไม่ออกจากการส
+ ุ่ม\n\nผลตอบแทน funding carry:\n  ตะกร้
+ าให้ +3.4% ต่อปีสุทธิ = $2.79 ต่อเ
+ ดือน บนทุน $1\,000.00 (จาก gate)\n  ต่ำก
+ ว่าเกณฑ์ 15% จึงยังไม่ทำอะไ
+ ร\n\nดูฉบับเต็ม (แผนที่ + หลัก
+ ฐาน): https://ayfew.github.io/Print-Money/\n\nสถิติค
+ วามแม่นของบรีฟนี้:\n  ที่ผ่
+ านมาบรีฟนี้ทายถูก 45% จาก 84 ค
+ รั้ง (เหรียญได้ 50%) — ดูเองได
+ ้ด้วย `pm score`\n\nแหล่งข้อมูล:\n  [off
+ icial] Federal Reserve Bank of New York — https://www.newyorkfed.org/m
+ arkets/reference-rates/effr\n  [official] US Treasury — https://home.t
+ reasury.gov/resource-center/data-chart-center/interest-rates/TextView?ty
+ pe=daily_treasury_yield_curve\n  [primary] Cboe Global Markets — https
+ ://www.cboe.com/tradable_products/vix/\n  [derived] printmoney 2s10s spr
+ ead — https://github.com/ayfew/Print-Money#readme\n  [derived] printmo
+ ney macro links — https://github.com/ayfew/Print-Money#readme\n  [deri
+ ved] printmoney study — https://github.com/ayfew/Print-Money#readme\n 
+  [derived] printmoney volatility percentile — https://github.com/ayfew
+ /Print-Money#readme\n\nส่วนใหญ่มันจะบอก
+ ว่าไม่มีอะไร และส่วนใหญ่
+ นั่นคือคำตอบที่ถูก — รัน `pm
+  study` เพื่อดูเลขคณิต 10 ปีที่อ
+ ยู่เบื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
