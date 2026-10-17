@@ -4981,4 +4981,84 @@ DESCRIPTION:อ่านประมาณ 96 วินาที\n\nว
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:d9064510521d94fb7e55@printmoney
+DTSTAMP:20261017T043223Z
+DTSTART;VALUE=DATE:20261017
+DTEND;VALUE=DATE:20261018
+SUMMARY:ช้างขาว: วันนี้ไม่มีอะไ
+ ร
+DESCRIPTION:อ่านประมาณ 83 วินาที\n\nว
+ ันนี้ไม่มีอะไร — ทั้ง 24 ตลา
+ ดอยู่ในช่วงปกติของตัวเอง
+  และไม่มีเหตุการณ์สำคัญใ
+ นสัปดาห์นี้\n\nเปลี่ยนจากเ
+ มื่อวาน:\n  - 2 ตลาดความเสี่ยง
+ ลดลง (elevated → normal): หุ้นกู้ผลตอบ
+ แทนสูง · หุ้นไทย\n\nบริบทมหภ
+ าค:\n  - ดอกเบี้ยนโยบายสหรัฐ (
+ EFFR): 3.88% (+0bp จากเมื่อวาน\, สูงกว
+ ่า 93% ของ 2 ปีที่ผ่านมา)\n  - พัน
+ ธบัตร 2 ปี: 4.74% (-3bp จากเมื่อวาน\
+ , สูงกว่า 96% ของ 2 ปีที่ผ่านม
+ า)\n  - พันธบัตร 10 ปี: 5.09% (-1bp จากเ
+ มื่อวาน\, สูงกว่า 97% ของ 2 ปีท
+ ี่ผ่านมา)\n  - ส่วนต่าง 2 ปี–10 
+ ปี: 0.35% — ปกติ (+2bp จากเมื่อวาน)\
+ n  - ผลตอบแทนแท้จริง 10 ปี (TIPS): 2.7
+ 4% (-4bp จากเมื่อวาน\, สูงกว่า 97% 
+ ของ 2 ปีที่ผ่านมา)\n  - VIX (ดัชนี
+ ความกลัว): 19.99 (+3.53 จากเมื่อวา
+ น\, สูงกว่า 79% ของ 2 ปีที่ผ่าน
+ มา)\n\nไม่ต้องสนใจ:\n  - 5 จาก 24 ตล
+ าดเงียบกว่าปกติของตัวเอง
+  เช่น อีเธอเรียม · ดาวโจนส์
+  · บิตคอยน์ · หุ้นเล็กสหรัฐ 
+ ตลาดนิ่งคือสภาพที่แย่ที่
+ สุดของอะไรก็ตามที่เสียค่
+ าธรรมเนียมต่อครั้ง\n\nขยับ
+ มากสุด:\n  กลุ่มเทคโนโลยี: -3.02
+ % วันนี้\, -2.3% ในเดือน\n  น้ำมัน
+ : +2.83% วันนี้\, +4.2% ในเดือน\n  กลุ
+ ่มพลังงาน: +2.52% วันนี้\, +6.5% ในเ
+ ดือน\n  หุ้นเทค Nasdaq 100: -2.50% วันนี
+ ้\, -0.9% ในเดือน\n  ตลาดเกิดใหม
+ ่: -1.74% วันนี้\, -6.1% ในเดือน\n\nยื
+ ดตัวผิดปกติ:\n  กลุ่มสุขภาพ:
+  +2.2 SD จากค่าเฉลี่ย 60 วัน (+5.1% ใน
+ เดือน)\n  กลุ่มสินค้าจำเป็น:
+  +2.2 SD จากค่าเฉลี่ย 60 วัน (+5.6% ใน
+ เดือน)\n  กลุ่มพลังงาน: +2.2 SD จา
+ กค่าเฉลี่ย 60 วัน (+6.5% ในเดือน
+ )\n  หุ้นเล็กสหรัฐ: -2.1 SD จากค่า
+ เฉลี่ย 60 วัน (-5.3% ในเดือน)\n  ยื
+ ดตัวคือข้อเท็จจริงเรื่อง
+ ราคา ไม่ใช่สัญญาณ — งานวิจ
+ ัยพบว่ากฎ mean-reversion แยกไม่ออก
+ จากการสุ่ม\n\nผลตอบแทน funding carry
+ :\n  ตะกร้าให้ +2.3% ต่อปีสุทธิ = 
+ $1.91 ต่อเดือน บนทุน $1\,000.00 (จาก gat
+ e)\n  ต่ำกว่าเกณฑ์ 15% จึงยังไม
+ ่ทำอะไร\n\nดูฉบับเต็ม (แผนที
+ ่ + หลักฐาน): https://ayfew.github.io/Print-Money/\n\n
+ สถิติความแม่นของบรีฟนี้:\n
+   ที่ผ่านมาบรีฟนี้ทายถูก 45%
+  จาก 84 ครั้ง (เหรียญได้ 50%) — ด
+ ูเองได้ด้วย `pm score`\n\nแหล่งข้อ
+ มูล:\n  [official] Federal Reserve Bank of New York — https://ww
+ w.newyorkfed.org/markets/reference-rates/effr\n  [official] US Treasury 
+ — https://home.treasury.gov/resource-center/data-chart-center/interest
+ -rates/TextView?type=daily_treasury_yield_curve\n  [primary] Cboe Global
+  Markets — https://www.cboe.com/tradable_products/vix/\n  [derived] pr
+ intmoney 2s10s spread — https://github.com/ayfew/Print-Money#readme\n 
+  [derived] printmoney study — https://github.com/ayfew/Print-Money#rea
+ dme\n  [derived] printmoney volatility percentile — https://github.com
+ /ayfew/Print-Money#readme\n\nส่วนใหญ่มันจะบ
+ อกว่าไม่มีอะไร และส่วนให
+ ญ่นั่นคือคำตอบที่ถูก — รั
+ น `pm study` เพื่อดูเลขคณิต 10 ปีท
+ ี่อยู่เบื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
