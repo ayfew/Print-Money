@@ -432,3 +432,8 @@
 {"day": "2026-10-17", "symbol": "ETH-USD", "call": "calm", "called_percentile": 0.0704, "recorded_at": "2026-10-17T04:32:23.404472+00:00"}
 {"day": "2026-10-17", "symbol": "IWM", "call": "calm", "called_percentile": 0.125, "recorded_at": "2026-10-17T04:32:23.404477+00:00"}
 {"day": "2026-10-17", "symbol": "THD", "call": "calm", "called_percentile": 0.1979, "recorded_at": "2026-10-17T04:32:23.404480+00:00"}
+{"day": "2026-10-18", "symbol": "BTC-USD", "call": "calm", "called_percentile": 0.0704, "recorded_at": "2026-10-18T04:39:47.174412+00:00"}
+{"day": "2026-10-18", "symbol": "DIA", "call": "calm", "called_percentile": 0.0729, "recorded_at": "2026-10-18T04:39:47.174422+00:00"}
+{"day": "2026-10-18", "symbol": "ETH-USD", "call": "calm", "called_percentile": 0.0634, "recorded_at": "2026-10-18T04:39:47.174427+00:00"}
+{"day": "2026-10-18", "symbol": "IWM", "call": "calm", "called_percentile": 0.125, "recorded_at": "2026-10-18T04:39:47.174431+00:00"}
+{"day": "2026-10-18", "symbol": "THD", "call": "calm", "called_percentile": 0.1979, "recorded_at": "2026-10-18T04:39:47.174434+00:00"}
