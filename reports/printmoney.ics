@@ -5217,4 +5217,96 @@ DESCRIPTION:อ่านประมาณ 80 วินาที\n\nว
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:f5a39b44bf39060af46d@printmoney
+DTSTAMP:20261020T045757Z
+DTSTART;VALUE=DATE:20261020
+DTEND;VALUE=DATE:20261021
+SUMMARY:ช้างขาว: วันนี้ไม่มีอะไ
+ ร
+DESCRIPTION:อ่านประมาณ 98 วินาที\n\nว
+ ันนี้ไม่มีอะไร — ทั้ง 24 ตลา
+ ดอยู่ในช่วงปกติของตัวเอง
+  และไม่มีเหตุการณ์สำคัญใ
+ นสัปดาห์นี้\n\nเปลี่ยนจากเ
+ มื่อวาน:\n  - 1 ตลาดความเสี่ยง
+ ขยับขึ้น (calm → normal): หุ้นไทย\n\nท
+ ำไมถึงขยับ:\n  - กลุ่มสาธารณ
+ ูปโภค -2.01% วันนี้ — ผลตอบแทน
+ แท้จริง 10 ปี (TIPS) ขยับ +6bp ทั้งส
+ องเคยสวนทางกันที่ r = -0.31 จาก 
+ 684 วัน (ความสัมพันธ์ปานกลาง
+ )\n  - อสังหาฯ สหรัฐ -1.14% วันนี้ 
+ — ผลตอบแทนแท้จริง 10 ปี (TIPS) ข
+ ยับ +6bp ทั้งสองเคยสวนทางกัน
+ ที่ r = -0.39 จาก 684 วัน (ความสัมพั
+ นธ์ปานกลาง)\n  นี่คือการอธิ
+ บายสิ่งที่เกิดไปแล้ว ไม่
+ ใช่การทำนาย — ค่า r วัดจากว
+ ันเดียวกัน ไม่ได้วัดว่าพ
+ รุ่งนี้จะเป็นยังไง\n\nบริบ
+ ทมหภาค:\n  - ดอกเบี้ยนโยบายส
+ หรัฐ (EFFR): 3.88% (+0bp จากเมื่อวาน\, ส
+ ูงกว่า 93% ของ 2 ปีที่ผ่านมา)\n 
+  - พันธบัตร 2 ปี: 4.77% (+3bp จากเมื่
+ อวาน\, สูงกว่า 97% ของ 2 ปีที่ผ
+ ่านมา)\n  - พันธบัตร 10 ปี: 5.15% (+6bp 
+ จากเมื่อวาน\, สูงกว่า 97% ของ 
+ 2 ปีที่ผ่านมา)\n  - ส่วนต่าง 2 ป
+ ี–10 ปี: 0.38% — ปกติ (+3bp จากเมื่อ
+ วาน)\n  - ผลตอบแทนแท้จริง 10 ปี 
+ (TIPS): 2.80% (+6bp จากเมื่อวาน\, สูงกว
+ ่า 97% ของ 2 ปีที่ผ่านมา)\n  - VIX (ด
+ ัชนีความกลัว): 18.44 (-1.55 จากเมื
+ ่อวาน\, สูงกว่า 68% ของ 2 ปีที่
+ ผ่านมา)\n\nจับตา:\n  - BZ จ่าย funding ไ
+ ม่เท่ากันระหว่างกระดาน — l
+ ong ที่ gate (-33.9%) short ที่ bitget (+0.0%) ส่วน
+ ต่าง +33.9% ต่อปี บนทุน $1\,000 แบ่ง
+ สองฝั่ง = $14.12 ต่อเดือน (มี 1 คู
+ ่ที่ผ่านเกณฑ์วันนี้) — ราค
+ าหักล้างกัน แต่ต้องมีบัญ
+ ชีสองที่\n\nไม่ต้องสนใจ:\n  - 4 
+ จาก 24 ตลาดเงียบกว่าปกติขอ
+ งตัวเอง เช่น บิตคอยน์ · อีเ
+ ธอเรียม · ดาวโจนส์ · หุ้นเล
+ ็กสหรัฐ ตลาดนิ่งคือสภาพท
+ ี่แย่ที่สุดของอะไรก็ตามท
+ ี่เสียค่าธรรมเนียมต่อครั
+ ้ง\n\nขยับมากสุด:\n  กลุ่มสาธา
+ รณูปโภค: -2.01% วันนี้\, +1.4% ในเดื
+ อน\n  กลุ่มเทคโนโลยี: +1.36% วัน
+ นี้\, -1.8% ในเดือน\n  หุ้นเทค Nasdaq 
+ 100: +1.21% วันนี้\, -0.3% ในเดือน\n  อส
+ ังหาฯ สหรัฐ: -1.14% วันนี้\, -1.5% ใ
+ นเดือน\n  หุ้นจีน: -0.92% วันนี้\,
+  -2.3% ในเดือน\n\nผลตอบแทน funding carry:\
+ n  ตะกร้าให้ +0.8% ต่อปีสุทธิ = $0
+ .65 ต่อเดือน บนทุน $1\,000.00 (จาก gate)
+ \n  ต่ำกว่าเกณฑ์ 15% จึงยังไม่
+ ทำอะไร\n\nดูฉบับเต็ม (แผนที่
+  + หลักฐาน): https://ayfew.github.io/Print-Money/\n\nส
+ ถิติความแม่นของบรีฟนี้:\n  
+ ที่ผ่านมาบรีฟนี้ทายถูก 45% 
+ จาก 84 ครั้ง (เหรียญได้ 50%) — ด
+ ูเองได้ด้วย `pm score`\n\nแหล่งข้อ
+ มูล:\n  [official] Federal Reserve Bank of New York — https://ww
+ w.newyorkfed.org/markets/reference-rates/effr\n  [official] US Treasury 
+ — https://home.treasury.gov/resource-center/data-chart-center/interest
+ -rates/TextView?type=daily_treasury_yield_curve\n  [primary] Binance —
+  https://www.binance.com/en/futures/funding-history/perpetual/real-time-
+ funding-rate\n  [primary] Cboe Global Markets — https://www.cboe.com/t
+ radable_products/vix/\n  [derived] printmoney 2s10s spread — https://g
+ ithub.com/ayfew/Print-Money#readme\n  [derived] printmoney macro links 
+ — https://github.com/ayfew/Print-Money#readme\n  [derived] printmoney 
+ study — https://github.com/ayfew/Print-Money#readme\n  [derived] print
+ money volatility percentile — https://github.com/ayfew/Print-Money#rea
+ dme\n\nส่วนใหญ่มันจะบอกว่าไม
+ ่มีอะไร และส่วนใหญ่นั่นค
+ ือคำตอบที่ถูก — รัน `pm study` เพ
+ ื่อดูเลขคณิต 10 ปีที่อยู่เ
+ บื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
