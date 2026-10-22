@@ -5434,4 +5434,100 @@ DESCRIPTION:อ่านประมาณ 136 วินาที\n\nม
 URL:https://ayfew.github.io/Print-Money/
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:7b6d0cd645b614090d1e@printmoney
+DTSTAMP:20261022T045042Z
+DTSTART;VALUE=DATE:20261022
+DTEND;VALUE=DATE:20261023
+SUMMARY:ช้างขาว: วันนี้ไม่มีอะไ
+ ร
+DESCRIPTION:อ่านประมาณ 99 วินาที\n\nม
+ ี 1 เรื่องที่ผ่านเกณฑ์ต้นท
+ ุนวันนี้ นอกนั้นไม่ต้องส
+ นใจ\n\nเปลี่ยนจากเมื่อวาน:\n  
+ - 1 ตลาดความเสี่ยงลดลง (normal → c
+ alm): กลุ่มการเงิน\n\nบริบทมหภ
+ าค:\n  - ดอกเบี้ยนโยบายสหรัฐ (
+ EFFR): 3.88% (+0bp จากเมื่อวาน\, สูงกว
+ ่า 94% ของ 2 ปีที่ผ่านมา)\n  - พัน
+ ธบัตร 2 ปี: 4.81% (+2bp จากเมื่อวาน\
+ , สูงกว่า 98% ของ 2 ปีที่ผ่านม
+ า)\n  - พันธบัตร 10 ปี: 5.13% (+1bp จากเ
+ มื่อวาน\, สูงกว่า 97% ของ 2 ปีท
+ ี่ผ่านมา)\n  - ส่วนต่าง 2 ปี–10 
+ ปี: 0.32% — ปกติ (-1bp จากเมื่อวาน)\
+ n  - ผลตอบแทนแท้จริง 10 ปี (TIPS): 2.7
+ 6% (-1bp จากเมื่อวาน\, สูงกว่า 97% 
+ ของ 2 ปีที่ผ่านมา)\n  - VIX (ดัชนี
+ ความกลัว): 16.68 (-0.63 จากเมื่อวา
+ น\, สูงกว่า 45% ของ 2 ปีที่ผ่าน
+ มา)\n\nจับตา:\n  - เฟดประกาศดอกเ
+ บี้ย อีก 6 วัน (14:00 New York) — จากสถ
+ ิติ 45 ครั้ง วันแบบนี้ขยับ 1.1
+ 6x ของวันปกติ แรงสุดถึง 1.64x ท
+ ี่ควรดูคือ ดอลลาร์สหรัฐ · 
+ หุ้นจีน · หุ้นกู้ผลตอบแทน
+ สูง · ทองคำ · หุ้นเทค Nasdaq 100\n\nร
+ ะวัง:\n  - 2 จาก 24 ตลาดผันผวนเก
+ ินปกติของตัวเอง เช่น กลุ่
+ มสาธารณูปโภค · กลุ่มสุขภา
+ พ — สุดโต่งสุดคือ กลุ่มสาธ
+ ารณูปโภค ที่ผันผวน 16% ต่อปี
+  สูงกว่า 82% ของประวัติตัวเอ
+ ง\n\nไม่ต้องสนใจ:\n  - เฟดประกา
+ ศดอกเบี้ยแทบไม่ขยับ กลุ่
+ มสาธารณูปโภค · กลุ่มสุขภา
+ พ · บิตคอยน์ — จากสถิติ 45 คร
+ ั้งที่ผ่านมา วันแบบนี้ ขย
+ ับพวกนี้ต่ำสุดแค่ 0.96x ของว
+ ันปกติ คือไม่ต่างจากวันธ
+ รรมดา วันนี้ไม่ต้องเอาข่
+ าวนี้ไปคิดกับพวกนี้\n  - 6 จา
+ ก 24 ตลาดเงียบกว่าปกติของต
+ ัวเอง เช่น หุ้นไทย · อีเธอเ
+ รียม · บิตคอยน์ · ดาวโจนส์ ต
+ ลาดนิ่งคือสภาพที่แย่ที่ส
+ ุดของอะไรก็ตามที่เสียค่า
+ ธรรมเนียมต่อครั้ง\n\nขยับม
+ ากสุด:\n  หุ้นจีน: -1.70% วันนี้\, -
+ 5.9% ในเดือน\n  กลุ่มเทคโนโลยี
+ : +1.67% วันนี้\, -3.9% ในเดือน\n  หุ้
+ นเทค Nasdaq 100: +1.05% วันนี้\, -3.0% ในเด
+ ือน\n  อสังหาฯ สหรัฐ: -0.86% วันน
+ ี้\, -1.4% ในเดือน\n  กลุ่มสินค้
+ าจำเป็น: -0.73% วันนี้\, +5.3% ในเดื
+ อน\n\nยืดตัวผิดปกติ:\n  กลุ่มส
+ ุขภาพ: +2.4 SD จากค่าเฉลี่ย 60 วั
+ น (+5.3% ในเดือน)\n  ยืดตัวคือข้
+ อเท็จจริงเรื่องราคา ไม่ใ
+ ช่สัญญาณ — งานวิจัยพบว่าก
+ ฎ mean-reversion แยกไม่ออกจากการสุ
+ ่ม\n\nผลตอบแทน funding carry:\n  ตะกร้า
+ ให้ +1.9% ต่อปีสุทธิ = $1.60 ต่อเด
+ ือน บนทุน $1\,000.00 (จาก gate)\n  ต่ำกว
+ ่าเกณฑ์ 15% จึงยังไม่ทำอะไร\
+ n\nดูฉบับเต็ม (แผนที่ + หลักฐ
+ าน): https://ayfew.github.io/Print-Money/\n\nสถิติคว
+ ามแม่นของบรีฟนี้:\n  ที่ผ่า
+ นมาบรีฟนี้ทายถูก 45% จาก 84 คร
+ ั้ง (เหรียญได้ 50%) — ดูเองได้
+ ด้วย `pm score`\n\nแหล่งข้อมูล:\n  [offici
+ al] Federal Reserve — https://www.federalreserve.gov/monetarypolicy/fo
+ mccalendars.htm\n  [official] Federal Reserve Bank of New York — https
+ ://www.newyorkfed.org/markets/reference-rates/effr\n  [official] US Trea
+ sury — https://home.treasury.gov/resource-center/data-chart-center/int
+ erest-rates/TextView?type=daily_treasury_yield_curve\n  [primary] Cboe G
+ lobal Markets — https://www.cboe.com/tradable_products/vix/\n  [derive
+ d] printmoney 2s10s spread — https://github.com/ayfew/Print-Money#read
+ me\n  [derived] printmoney event impact — https://github.com/ayfew/Pri
+ nt-Money#readme\n  [derived] printmoney study — https://github.com/ayf
+ ew/Print-Money#readme\n  [derived] printmoney volatility percentile — 
+ https://github.com/ayfew/Print-Money#readme\n\nส่วนใหญ่
+ มันจะบอกว่าไม่มีอะไร และ
+ ส่วนใหญ่นั่นคือคำตอบที่ถ
+ ูก — รัน `pm study` เพื่อดูเลขคณิ
+ ต 10 ปีที่อยู่เบื้องหลัง
+URL:https://ayfew.github.io/Print-Money/
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
