@@ -1,5 +1,5 @@
 {
-  "day": "2026-10-25",
+  "day": "2026-10-26",
   "risk": {
     "BTC-USD": "calm",
     "DIA": "calm",
@@ -29,10 +29,10 @@
   "event_days": [
     "2026-10-28"
   ],
-  "carry_net": 0.01895,
+  "carry_net": 0.00936,
   "quiet": false,
   "previous": {
-    "day": "2026-10-24",
+    "day": "2026-10-25",
     "risk": {
       "BTC-USD": "calm",
       "DIA": "calm",
@@ -62,7 +62,7 @@
     "event_days": [
       "2026-10-28"
     ],
-    "carry_net": 0.03617,
+    "carry_net": 0.01895,
     "quiet": false
   }
 }
