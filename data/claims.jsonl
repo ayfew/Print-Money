@@ -521,3 +521,14 @@
 {"day": "2026-10-28", "symbol": "THD", "call": "calm", "called_percentile": 0.0208, "recorded_at": "2026-10-28T05:47:39.604944+00:00"}
 {"day": "2026-10-28", "symbol": "XLP", "call": "extreme", "called_percentile": 0.9479, "recorded_at": "2026-10-28T05:47:39.604947+00:00"}
 {"day": "2026-10-28", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8021, "recorded_at": "2026-10-28T05:47:39.604950+00:00"}
+{"day": "2026-10-29", "symbol": "BTC-USD", "call": "calm", "called_percentile": 0.0845, "recorded_at": "2026-10-29T05:53:30.507631+00:00"}
+{"day": "2026-10-29", "symbol": "DIA", "call": "calm", "called_percentile": 0.1146, "recorded_at": "2026-10-29T05:53:30.507643+00:00"}
+{"day": "2026-10-29", "symbol": "EFA", "call": "calm", "called_percentile": 0.1354, "recorded_at": "2026-10-29T05:53:30.507647+00:00"}
+{"day": "2026-10-29", "symbol": "ETH-USD", "call": "calm", "called_percentile": 0.0423, "recorded_at": "2026-10-29T05:53:30.507650+00:00"}
+{"day": "2026-10-29", "symbol": "EWJ", "call": "calm", "called_percentile": 0.0521, "recorded_at": "2026-10-29T05:53:30.507653+00:00"}
+{"day": "2026-10-29", "symbol": "IWM", "call": "calm", "called_percentile": 0.1875, "recorded_at": "2026-10-29T05:53:30.507657+00:00"}
+{"day": "2026-10-29", "symbol": "SPY", "call": "calm", "called_percentile": 0.1979, "recorded_at": "2026-10-29T05:53:30.507660+00:00"}
+{"day": "2026-10-29", "symbol": "THD", "call": "calm", "called_percentile": 0.0312, "recorded_at": "2026-10-29T05:53:30.507663+00:00"}
+{"day": "2026-10-29", "symbol": "XLF", "call": "calm", "called_percentile": 0.1979, "recorded_at": "2026-10-29T05:53:30.507668+00:00"}
+{"day": "2026-10-29", "symbol": "XLP", "call": "extreme", "called_percentile": 0.9479, "recorded_at": "2026-10-29T05:53:30.507671+00:00"}
+{"day": "2026-10-29", "symbol": "XLV", "call": "elevated", "called_percentile": 0.8021, "recorded_at": "2026-10-29T05:53:30.507675+00:00"}
