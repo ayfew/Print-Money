@@ -1,73 +1,81 @@
 {
-  "measured_at": "2026-10-01T01:43:28.664902+00:00",
+  "measured_at": "2026-11-01T07:48:14.824765+00:00",
   "span": "10y over 24 markets",
   "backtest": {
     "label": "backtest",
-    "n": 5219,
-    "hits": 4221,
-    "rate": 0.8088,
+    "n": 5250,
+    "hits": 4247,
+    "rate": 0.809,
     "stderr": 0.0054,
-    "lower_bound": 0.7977,
+    "lower_bound": 0.7979,
     "beats_coin": true,
+    "call_date_range": {
+      "start": "2017-03-22",
+      "end": "2026-10-09"
+    },
     "by_call": {
       "calm": {
-        "n": 1503,
+        "n": 1486,
         "rate": 0.7026
       },
       "elevated": {
-        "n": 2145,
-        "rate": 0.7916
+        "n": 2164,
+        "rate": 0.7971
       },
       "extreme": {
-        "n": 1571,
-        "rate": 0.9338
+        "n": 1600,
+        "rate": 0.9237
       }
     }
   },
   "live": {
     "label": "live",
-    "n": 84,
-    "hits": 38,
-    "rate": 0.4524,
-    "stderr": 0.0543,
-    "lower_bound": 0.3484,
-    "beats_coin": false,
+    "n": 271,
+    "hits": 193,
+    "rate": 0.7122,
+    "stderr": 0.0275,
+    "lower_bound": 0.6544,
+    "beats_coin": true,
+    "call_date_range": {
+      "start": "2026-08-26",
+      "end": "2026-10-12"
+    },
     "by_call": {
       "calm": {
-        "n": 33,
-        "rate": 0.7879
+        "n": 199,
+        "rate": 0.8392
       },
       "elevated": {
-        "n": 51,
-        "rate": 0.2353
+        "n": 72,
+        "rate": 0.3611
       }
     }
   },
   "worst_markets": [
     {
       "symbol": "ETH-USD",
-      "n": 297,
-      "rate": 0.7239
+      "n": 303,
+      "rate": 0.7294
     },
     {
       "symbol": "XLF",
-      "n": 224,
-      "rate": 0.7321
+      "n": 226,
+      "rate": 0.7301
+    },
+    {
+      "symbol": "EEM",
+      "n": 218,
+      "rate": 0.7523
     },
     {
       "symbol": "USO",
-      "n": 230,
-      "rate": 0.7435
+      "n": 231,
+      "rate": 0.7576
     },
     {
       "symbol": "UUP",
       "n": 258,
-      "rate": 0.7481
-    },
-    {
-      "symbol": "EEM",
-      "n": 214,
-      "rate": 0.7523
+      "rate": 0.7597
     }
   ]
 }
