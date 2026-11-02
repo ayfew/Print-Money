@@ -1,7 +1,7 @@
 {
-  "day": "2026-11-01",
+  "day": "2026-11-02",
   "risk": {
-    "BTC-USD": "normal",
+    "BTC-USD": "calm",
     "DIA": "calm",
     "EEM": "normal",
     "EFA": "calm",
@@ -29,10 +29,10 @@
   "event_days": [
     "2026-11-06"
   ],
-  "carry_net": 0.05164,
+  "carry_net": 0.052,
   "quiet": false,
   "previous": {
-    "day": "2026-10-31",
+    "day": "2026-11-01",
     "risk": {
       "BTC-USD": "normal",
       "DIA": "calm",
@@ -62,7 +62,7 @@
     "event_days": [
       "2026-11-06"
     ],
-    "carry_net": 0.04513,
+    "carry_net": 0.05164,
     "quiet": false
   }
 }
