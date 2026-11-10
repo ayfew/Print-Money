@@ -671,3 +671,17 @@
 {"day": "2026-11-09", "symbol": "XLK", "call": "extreme", "called_percentile": 0.9271, "recorded_at": "2026-11-09T06:32:59.836765+00:00"}
 {"day": "2026-11-09", "symbol": "XLP", "call": "extreme", "called_percentile": 0.9688, "recorded_at": "2026-11-09T06:32:59.836768+00:00"}
 {"day": "2026-11-09", "symbol": "XLV", "call": "extreme", "called_percentile": 0.9167, "recorded_at": "2026-11-09T06:32:59.836770+00:00"}
+{"day": "2026-11-10", "symbol": "DIA", "call": "extreme", "called_percentile": 0.9375, "recorded_at": "2026-11-10T07:23:13.415072+00:00"}
+{"day": "2026-11-10", "symbol": "EEM", "call": "elevated", "called_percentile": 0.8333, "recorded_at": "2026-11-10T07:23:13.415083+00:00"}
+{"day": "2026-11-10", "symbol": "EFA", "call": "elevated", "called_percentile": 0.8438, "recorded_at": "2026-11-10T07:23:13.415088+00:00"}
+{"day": "2026-11-10", "symbol": "EWJ", "call": "elevated", "called_percentile": 0.8854, "recorded_at": "2026-11-10T07:23:13.415091+00:00"}
+{"day": "2026-11-10", "symbol": "HYG", "call": "elevated", "called_percentile": 0.8333, "recorded_at": "2026-11-10T07:23:13.415094+00:00"}
+{"day": "2026-11-10", "symbol": "IWM", "call": "extreme", "called_percentile": 0.9479, "recorded_at": "2026-11-10T07:23:13.415097+00:00"}
+{"day": "2026-11-10", "symbol": "QQQ", "call": "extreme", "called_percentile": 0.9375, "recorded_at": "2026-11-10T07:23:13.415100+00:00"}
+{"day": "2026-11-10", "symbol": "SPY", "call": "extreme", "called_percentile": 0.9375, "recorded_at": "2026-11-10T07:23:13.415102+00:00"}
+{"day": "2026-11-10", "symbol": "VNQ", "call": "extreme", "called_percentile": 0.9271, "recorded_at": "2026-11-10T07:23:13.415105+00:00"}
+{"day": "2026-11-10", "symbol": "XLE", "call": "extreme", "called_percentile": 0.9375, "recorded_at": "2026-11-10T07:23:13.415108+00:00"}
+{"day": "2026-11-10", "symbol": "XLF", "call": "extreme", "called_percentile": 0.9271, "recorded_at": "2026-11-10T07:23:13.415110+00:00"}
+{"day": "2026-11-10", "symbol": "XLK", "call": "extreme", "called_percentile": 0.9375, "recorded_at": "2026-11-10T07:23:13.415112+00:00"}
+{"day": "2026-11-10", "symbol": "XLP", "call": "extreme", "called_percentile": 0.9583, "recorded_at": "2026-11-10T07:23:13.415115+00:00"}
+{"day": "2026-11-10", "symbol": "XLV", "call": "extreme", "called_percentile": 0.9167, "recorded_at": "2026-11-10T07:23:13.415117+00:00"}
