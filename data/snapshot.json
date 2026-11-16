@@ -1,5 +1,5 @@
 {
-  "day": "2026-11-15",
+  "day": "2026-11-16",
   "risk": {
     "BTC-USD": "elevated",
     "DIA": "extreme",
@@ -27,12 +27,12 @@
     "XLV": "elevated"
   },
   "event_days": [],
-  "carry_net": 0.02535,
+  "carry_net": -0.5484,
   "quiet": false,
   "previous": {
-    "day": "2026-11-14",
+    "day": "2026-11-15",
     "risk": {
-      "BTC-USD": "normal",
+      "BTC-USD": "elevated",
       "DIA": "extreme",
       "EEM": "elevated",
       "EFA": "elevated",
@@ -58,7 +58,7 @@
       "XLV": "elevated"
     },
     "event_days": [],
-    "carry_net": 0.06419,
+    "carry_net": 0.02535,
     "quiet": false
   }
 }
